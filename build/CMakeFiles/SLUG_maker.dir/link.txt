@@ -1,0 +1,1 @@
+/usr/bin/cc  -O0 -ggdb -Wall -g CMakeFiles/SLUG_maker.dir/src/display.c.o CMakeFiles/SLUG_maker.dir/src/main.c.o CMakeFiles/SLUG_maker.dir/src/map.c.o -o SLUG_maker  vendor/raylib/raylib/libraylib.a -lm -lpthread /usr/lib/x86_64-linux-gnu/libOpenGL.so /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libGLU.so /usr/lib/x86_64-linux-gnu/librt.a -lm -ldl 
