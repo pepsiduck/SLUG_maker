@@ -1,8 +1,8 @@
 #include "map.h"
 
-SLUG_map* SLUGmaker_NewMap(const char *filename)
+SLUGmaker_map* SLUGmaker_NewMap(const char *filename)
 {
-    SLUG_map *map = (SLUG_map *) malloc(sizeof(SLUG_map));
+    SLUGmaker_map *map = (SLUGmaker_map *) malloc(sizeof(SLUGmaker_map));
     map->fixed_sprite = LoadTexture(filename);
     if(map->fixed_sprite.id <= 0)
     {
@@ -10,24 +10,34 @@ SLUG_map* SLUGmaker_NewMap(const char *filename)
         free(map);
         return NULL;
     }
-    SetTextureWrap(map->fixed_sprite, 0);
-    map->w = map->fixed_sprite.width;
-    map->h = map->fixed_sprite.height;
+    SetTextureWrap(map->fixed_sprite, 1);
+    map->zone.width = map->fixed_sprite.width;
+    map->zone.height = map->fixed_sprite.height;
+    map->zone.x = 0;
+    map->zone.y = 0;
+    for(int16_t i = 0; i < MAX_WALL_NODES; ++ i)
+        map->wall_nodes[i] = (SLUGmaker_wall_node) {
+            .x = 0, 
+            .y = 0, 
+            .next_index = -2
+        };
+    map->current_wall_index = 0;
+    map->wall_node_nb = 0;
     return map;
 }
 
-SLUG_map* SLUGmaker_LoadMap(const char *loadMap)
+SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
 {
     return NULL; //TODO
 }
 
-void SLUGmaker_UnloadMap(SLUG_map *map)
+void SLUGmaker_UnloadMap(SLUGmaker_map *map)
 {
     UnloadTexture(map->fixed_sprite);
     free(map);
 }
 
-int8_t SLUGmaker_WriteMap(SLUG_map *map, const char *filename)
+int8_t SLUGmaker_WriteMap(SLUGmaker_map *map, const char *filename)
 {
 
     FILE *file = fopen(filename, "w");

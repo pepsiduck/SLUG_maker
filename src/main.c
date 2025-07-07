@@ -8,7 +8,7 @@
 
 //les 4 premiers bytes d'un .slmaker sont tjrs SLUGMAP en binaire
 
-SLUG_map* SLUGmaker_Init(int argc, char *argv[])
+SLUGmaker_map* SLUGmaker_Init(int argc, char *argv[])
 {
     if(argc != 2)
     {
@@ -39,7 +39,7 @@ SLUG_map* SLUGmaker_Init(int argc, char *argv[])
     unsigned char png[] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
     unsigned char slug[] = {0x53, 0x4C, 0x55, 0x47, 0x4D, 0x41, 0x50};
 
-    SLUG_map *map; 
+    SLUGmaker_map *map; 
 
     if(memcmp((void *) read, (void *) jpeg, 3) == 0 || memcmp((void *) read, (void *) png, 8) == 0)
     {
@@ -66,7 +66,7 @@ SLUG_map* SLUGmaker_Init(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    SLUG_map *map;
+    SLUGmaker_map *map;
 
     InitWindow(1680, 1050, "SLUGmaker");
     //ToggleFullscreen();
@@ -86,16 +86,21 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    SLUG_camera cam = SLUGmaker_DefaultCamera(map);
+    HideCursor();
+
+    SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
     
     while (!WindowShouldClose())
     {
-        SLUGmaker_DisplayUpdate(&display);
+        SLUGmaker_DisplayUpdate(&(graphic_vars.display));
+        SLUGmaker_CameraUpdate(&cam);
         SLUGmaker_Display(&cam);
     }
     
 
     SLUGmaker_UnloadMap(map);
+
+    SLUGmaker_GraphicUnload();
 
     CloseWindow(); // Close window and OpenGL context
     CloseAudioDevice();

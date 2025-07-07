@@ -8,21 +8,36 @@
 
 #include "map.h"
 
-extern Rectangle display;
+typedef struct SLUGmaker_GraphicVariables SLUGmaker_GraphicVariables;
+struct SLUGmaker_GraphicVariables
+{
+    Rectangle display;
+    Texture2D mouse_cursor_sprite; 
+    Texture2D wall_node_sprite;
+};
+
+extern SLUGmaker_GraphicVariables graphic_vars;
 
 int8_t SLUGmaker_GraphicInit();
+int8_t SLUGmaker_GraphicUnload();
 
-typedef struct SLUG_camera SLUG_camera;
-struct SLUG_camera
+typedef struct SLUGmaker_camera SLUGmaker_camera;
+struct SLUGmaker_camera
 {
     Rectangle view_zone;
     Rectangle *display;
-    SLUG_map *map;
+    SLUGmaker_map *map;
+    float unzoom;
+    float ratiox;
+    float ratioy;
 };
 
-SLUG_camera SLUGmaker_DefaultCamera(SLUG_map *map);
+SLUGmaker_camera SLUGmaker_DefaultCamera(SLUGmaker_map *map);
+float SLUGmaker_GetMousePosX(SLUGmaker_camera *cam);
+float SLUGmaker_GetMousePosY(SLUGmaker_camera *cam);
 
-int8_t SLUGmaker_DisplayUpdate(Rectangle *rect);
-int8_t SLUGmaker_Display(SLUG_camera *cam);
+int8_t SLUGmaker_DisplayUpdate(SLUGmaker_camera *cam);
+int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam);
+int8_t SLUGmaker_Display(SLUGmaker_camera *cam);
 
 #endif
