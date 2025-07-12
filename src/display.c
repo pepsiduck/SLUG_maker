@@ -1,4 +1,5 @@
 #include "display.h"
+#include "geometry.h"
 
 SLUGmaker_GraphicVariables graphic_vars;
 
@@ -27,8 +28,10 @@ int8_t SLUGmaker_GraphicInit()
 
 int8_t SLUGmaker_GraphicUnload()
 {
-    UnloadTexture(graphic_vars.mouse_cursor_sprite);
-    UnloadTexture(graphic_vars.wall_node_sprite);
+    if(graphic_vars.mouse_cursor_sprite.id > 0)
+        UnloadTexture(graphic_vars.mouse_cursor_sprite);
+    if(graphic_vars.wall_node_sprite.id > 0)
+        UnloadTexture(graphic_vars.wall_node_sprite);
     return 0;
 }
 
@@ -63,15 +66,13 @@ int8_t SLUGmaker_DisplayUpdate(SLUGmaker_camera *cam)
 {
     cam->display->width = GetScreenWidth();
     cam->display->height = GetScreenHeight();
-    cam->ratiox = cam.display->width / cam->view_zone.width;
-    cam->ratioy = cam.display->height / cam->view_zone.height;
+    cam->ratiox = cam->display->width / cam->view_zone.width;
+    cam->ratioy = cam->display->height / cam->view_zone.height;
     return 0;
 }
 
-int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
+int8_t SLUGmaker_DisplayMap(SLUGmaker_camera *cam)
 {
-    BeginDrawing();
-    ClearBackground(BLACK);
     if(CheckCollisionRecs(cam->view_zone, cam->map->zone))
     {
         Rectangle d1 = GetCollisionRec(cam->view_zone, cam->map->zone);
@@ -88,15 +89,67 @@ int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
             DrawTexturePro(cam->map->fixed_sprite,d1,d2,(Vector2) {.x = 0, .y = 0},0,WHITE);
         }  
     }
+    return 0;
+}
 
+int8_t SLUGmaker_DisplayWallNodes(SLUGmaker_camera *cam)
+{
+    Vector2 l1, l2;
     for(int16_t i = 0; i < MAX_WALL_NODES; ++i)
     {
-        if(map->wall_nodes[i].next_node != -2)
+        if(cam->map->wall_nodes[i].exists)
         {
-            if(CheckCollisionPointRec((Vector2) {.x = map->wall_nodes[i].x, .y = map->wall_nodes[i].y}, cam->view_zone))
-                DrawTexture(graphic_vars.wall_node_sprite,(cam->display->x + (map->wall_nodes[i].x - cam->view_zone.x) * cam->ratiox) - 6,(cam->display->y + (map->wall_nodes[i].y - cam->view_zone.y) * cam->ratioy) - 6,WHITE);
+            l1.x = (float) cam->map->wall_nodes[i].x;
+            l1.y = (float) cam->map->wall_nodes[i].y;
+            if(cam->map->wall_nodes[i].A_side != -1)
+            {
+                l2.x = (float) cam->map->wall_nodes[cam->map->wall_nodes[i].A_side].x;
+                l2.y = (float) cam->map->wall_nodes[cam->map->wall_nodes[i].A_side].y;
+                if(CheckCollisionLineRect(l1,l2,cam->view_zone,NULL))
+                    DrawLineV(
+                        (Vector2) {
+                            .x = cam->display->x + (cam->map->wall_nodes[i].x - cam->view_zone.x) * cam->ratiox,
+                            .y = cam->display->y + (cam->map->wall_nodes[i].y - cam->view_zone.y) * cam->ratioy
+                        },
+                        (Vector2) {
+                            .x = cam->display->x + (cam->map->wall_nodes[cam->map->wall_nodes[i].A_side].x - cam->view_zone.x) * cam->ratiox,
+                            .y = cam->display->y + (cam->map->wall_nodes[cam->map->wall_nodes[i].A_side].y - cam->view_zone.y) * cam->ratioy
+                        }, BLUE);
+            }
+
+            if(cam->map->wall_nodes[i].B_side != -1)
+            {
+                l2.x = (float) cam->map->wall_nodes[cam->map->wall_nodes[i].B_side].x;
+                l2.y = (float) cam->map->wall_nodes[cam->map->wall_nodes[i].B_side].y;
+                if(CheckCollisionLineRect(l1,l2,cam->view_zone,NULL))
+                    DrawLineV(
+                        (Vector2) {
+                            .x = cam->display->x + (cam->map->wall_nodes[i].x - cam->view_zone.x) * cam->ratiox,
+                            .y = cam->display->y + (cam->map->wall_nodes[i].y - cam->view_zone.y) * cam->ratioy
+                        },
+                        (Vector2) {
+                            .x = cam->display->x + (cam->map->wall_nodes[cam->map->wall_nodes[i].B_side].x - cam->view_zone.x) * cam->ratiox,
+                            .y = cam->display->y + (cam->map->wall_nodes[cam->map->wall_nodes[i].B_side].y - cam->view_zone.y) * cam->ratioy
+                        }, BLUE);
+            }
+
+            if(CheckCollisionPointRec((Vector2) {.x = cam->map->wall_nodes[i].x, .y = cam->map->wall_nodes[i].y}, cam->view_zone))
+                DrawTexture(graphic_vars.wall_node_sprite,(cam->display->x + (cam->map->wall_nodes[i].x - cam->view_zone.x) * cam->ratiox) - graphic_vars.wall_node_sprite.width / 2,(cam->display->y + (cam->map->wall_nodes[i].y - cam->view_zone.y) * cam->ratioy) - graphic_vars.wall_node_sprite.height / 2,WHITE);
         }
     }
+    return 0;
+}
+
+int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
+{
+    BeginDrawing();
+    ClearBackground(BLACK);
+    
+    if(SLUGmaker_DisplayMap(cam) == -1)
+        return -1;
+    
+    if(SLUGmaker_DisplayWallNodes(cam) == -1)
+        return -1;
 
     DrawTexture(graphic_vars.mouse_cursor_sprite,GetMouseX(),GetMouseY(),WHITE);
     DrawText(TextFormat("%f ; %f",(float) (cam->view_zone.x + (GetMouseX() / cam->ratiox)),(float) (cam->view_zone.y + (GetMouseY() / cam->ratioy))), 0, 0, 20,WHITE);

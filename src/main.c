@@ -5,6 +5,7 @@
 
 #include "map.h"
 #include "display.h"
+#include "action.h"
 
 //les 4 premiers bytes d'un .slmaker sont tjrs SLUGMAP en binaire
 
@@ -66,7 +67,7 @@ SLUGmaker_map* SLUGmaker_Init(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    SLUGmaker_map *map;
+    SLUGmaker_map *map = NULL;
 
     InitWindow(1680, 1050, "SLUGmaker");
     //ToggleFullscreen();
@@ -76,13 +77,17 @@ int main(int argc, char *argv[])
     map = SLUGmaker_Init(argc, argv);
 
     if(map == NULL)
+    {
+        printf("Map initialization fail.\n");
         return 1;
+    }
 
     
 
     if(SLUGmaker_GraphicInit() != 0)
     {
         printf("Graphic initalization fail.\n");
+        SLUGmaker_UnloadMap(map);
         return 1;
     }
 
@@ -90,11 +95,39 @@ int main(int argc, char *argv[])
 
     SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
     
+
+    int8_t error = 0;
     while (!WindowShouldClose())
     {
-        SLUGmaker_DisplayUpdate(&(graphic_vars.display));
-        SLUGmaker_CameraUpdate(&cam);
-        SLUGmaker_Display(&cam);
+        if(SLUGmaker_DisplayUpdate(&cam) != 0)
+        {
+            error = 1;
+            break;
+        }
+
+        if(SLUGmaker_CameraUpdate(&cam) != 0)
+        {
+            error = 1;
+            break;
+        }
+        
+        if(SLUGmaker_Display(&cam) != 0)
+        {
+            error = 1;
+            break;
+        }
+
+        if(SLUGmaker_ChangeAction() != 0)
+        {
+            error = 1;
+            break;
+        }
+
+        if(SLUGmaker_Action(map,&cam) != 0)
+        {
+            error = 1;
+            break;
+        }
     }
     
 
@@ -107,3 +140,4 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
