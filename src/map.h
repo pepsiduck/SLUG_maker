@@ -35,6 +35,9 @@ struct SLUGmaker_map
 SLUGmaker_map* SLUGmaker_NewMap(const char *filename);
 SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap);
 void SLUGmaker_UnloadMap(SLUGmaker_map *map);
-int8_t SLUGmaker_WriteMap(SLUGmaker_map *map, const char *filename);
+
+int16_t SLUGmaker_GetArcsIndex(SLUGmaker_map *map, int16_t *arcs);
+int8_t SLUGmaker_CheckMap(SLUGmaker_map *map);
+int8_t SLUGmaker_WriteMap(SLUGmaker_map *map);
 
 #endif

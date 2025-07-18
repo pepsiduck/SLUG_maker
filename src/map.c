@@ -1,4 +1,5 @@
 #include "map.h"
+#include "geometry.h"
 
 SLUGmaker_map* SLUGmaker_NewMap(const char *filename)
 {
@@ -51,17 +52,88 @@ void SLUGmaker_UnloadMap(SLUGmaker_map *map)
     }
 }
 
-int8_t SLUGmaker_WriteMap(SLUGmaker_map *map, const char *filename)
+/*
+    Returns -1 if invalid (NULL ptr or map->wall_node_nb < 3)
+    Returns 0 if at least one of the arcs are not cyclic 
+    Returns the number of arcs if everything is well
+*/
+int16_t SLUGmaker_GetArcsIndex(SLUGmaker_map *map, int16_t *arcs)
 {
-
-    FILE *file = fopen(filename, "w");
-    if(file == NULL)
-    {
-        printf("Error while creating output file.\n");
+    if(arcs == NULL || map->wall_node_nb < 3)
         return -1;
-    }
+    for(uint16_t i = 0; i < MAX_WALL_NODES; ++i)
+        arcs[i] = 0;
+    int16_t count = 0;
+    for(uint16_t i = 0; i < MAX_WALL_NODES; ++i)
+    {
+        if(map->wall_nodes[i].exists && arcs[i] == 0)
+        {
+            //check if valid + convex
+            int32_t cross;
+            int16_t w;
+            int16_t w_prev = i; 
+            if(map->wall_nodes[i].A_side != -1 && map->wall_nodes[i].B_side != -1 && map->wall_nodes[i].A_side != i && map->wall_nodes[i].B_side != i)
+            {
+                cross = Vector2CrossProduct(map->wall_nodes[map->wall_nodes[i].A_side].x - map->wall_nodes[i].x, map->wall_nodes[map->wall_nodes[i].A_side].y - map->wall_nodes[i].y, map->wall_nodes[map->wall_nodes[i].B_side].x - map->wall_nodes[i].x, map->wall_nodes[map->wall_nodes[i].B_side].y - map->wall_nodes[i].y);
+                w = map->wall_nodes[i].A_side;
+            }
+            else
+                return 0;
+            while(w != i)
+            {
+                if(map->wall_nodes[w].A_side == -1 || map->wall_nodes[w].B_side == -1)
+                    return 0;
+                arcs[w] = count;
+                if(map->wall_nodes[w].A_side != w_prev)
+                {
+                    int32_t curr = Vector2CrossProduct(map->wall_nodes[map->wall_nodes[w].A_side].x - map->wall_nodes[w].x, map->wall_nodes[map->wall_nodes[w].A_side].y - map->wall_nodes[w].y, map->wall_nodes[w_prev].x - map->wall_nodes[w].x, map->wall_nodes[w_prev].y - map->wall_nodes[w].y);
+                    if(curr * cross < 0)
+                        return 0;
 
-    //TODO
+                    cross = curr;
+
+                    w_prev = w;
+                    w = map->wall_nodes[w].A_side;
+                }
+                else if(map->wall_nodes[w].B_side != w_prev)
+                {
+                    int32_t curr = Vector2CrossProduct(map->wall_nodes[map->wall_nodes[w].B_side].x - map->wall_nodes[w].x, map->wall_nodes[map->wall_nodes[w].B_side].y - map->wall_nodes[w].y, map->wall_nodes[w_prev].x - map->wall_nodes[w].x, map->wall_nodes[w_prev].y - map->wall_nodes[w].y);
+                    if(curr * cross < 0)
+                        return 0;
+
+                    cross = curr;
+
+                    w_prev = w;
+                    w = map->wall_nodes[w].B_side;
+                }
+                else
+                    return 0;
+    
+                //do stuff
+                count++;
+                arcs[i] = count;
+
+            }
+        }
+    }
+    return count;
+}
+
+int8_t SLUGmaker_CheckMap(SLUGmaker_map *map)
+{
+    //no unfished arcs
+    
+    return 1;
+}
+
+int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
+{
+    if(SLUGmaker_CheckMap(map))
+    {
+        //proceed
+    }   
+    else
+        printf("Map is not suitable to be exported.\n");
 
     return 0;
 }

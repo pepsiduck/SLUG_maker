@@ -1,6 +1,6 @@
 #include "action.h"
 
-SLUGmaker_action current_action = ACTION_NONE;
+SLUGmaker_action_mode current_action = ACTION_MODE_NONE;
 
 int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam)
 {
@@ -49,21 +49,21 @@ int16_t SLUGmaker_WallNodeUnderMouse(SLUGmaker_map *map, SLUGmaker_camera *cam)
     return -1;
 }
 
-int8_t SLUGmaker_ChangeAction()
+int8_t SLUGmaker_ChangeActionMode()
 {
     if(IsKeyPressed(KEY_N))
     {
-        current_action = ACTION_NONE;
+        current_action_mode = ACTION_MODE_NONE;
         return 0;
     }
     if(IsKeyPressed(KEY_BACKSPACE))
     {
-        current_action = ACTION_DELETE;
+        current_action_mode = ACTION_MODE_DELETE;
         return 0;
     }
     if(IsKeyPressed(KEY_W))
     {
-        current_action = ACTION_WALL;
+        current_action_mode = ACTION_MODE_WALL;
         return 0;
     }
     return 0;
@@ -71,13 +71,13 @@ int8_t SLUGmaker_ChangeAction()
 
 int8_t SLUGmaker_Action(SLUGmaker_map *map, SLUGmaker_camera *cam)
 {
-    switch(current_action) //no break statements hihihohohaha
+    switch(current_action_mode) //no break statements hihihohohaha
     {
-        case ACTION_NONE:
+        case ACTION_MODE_NONE:
             return 0;
-        case ACTION_DELETE:
+        case ACTION_MODE_DELETE:
             return SLUGmaker_MapElementDelete(map,cam);
-        case ACTION_WALL :
+        case ACTION_MODE_WALL :
             return SLUGmaker_PlaceWallNode(map,cam);
         default:
             return 0;
@@ -156,22 +156,28 @@ int8_t SLUGmaker_PlaceWallNode(SLUGmaker_map *map, SLUGmaker_camera *cam)
                 int16_t w = SLUGmaker_WallNodeUnderMouse(map, cam);
                 if(w == -1)
                 {
-                    printf("%u\n",map->current_wall_index);
-
-                    map->wall_nodes[map->current_wall_index].exists = true;
-                    map->wall_nodes[map->current_wall_index].x = roundf(cam->view_zone.x + (GetMouseX() / cam->ratiox));
-                    map->wall_nodes[map->current_wall_index].y = roundf(cam->view_zone.y + (GetMouseY() / cam->ratioy));
-
-                    while(map->wall_nodes[map->current_wall_index].exists) //normally ok
+                    Vector2 p = (Vector2) {
+                        .x = cam->view_zone.x + (GetMouseX() / cam->ratiox),
+                        .y = cam->view_zone.y + (GetMouseY() / cam->ratioy)
+                    };
+                    if(CheckCollisionPointRec(p, map->zone))
                     {
-                        map->current_wall_index++;
-                        if(map->current_wall_index >= MAX_WALL_NODES)
-                            map->current_wall_index = 0;
-                    }
-                    map->wall_node_nb++;  
+                        map->wall_nodes[map->current_wall_index].exists = true;  
+                        map->wall_nodes[map->current_wall_index].x = roundf(p.x);
+                        map->wall_nodes[map->current_wall_index].y = roundf(p.y);
+
+                        while(map->wall_nodes[map->current_wall_index].exists) //normally ok
+                        {
+                            map->current_wall_index++;
+                            if(map->current_wall_index >= MAX_WALL_NODES)
+                                map->current_wall_index = 0;
+                        }
+                        map->wall_node_nb++; 
+                    }    
                 }
                 else if(map->wall_nodes[w].A_side == -1 || map->wall_nodes[w].B_side == -1)
                 {
+                    printf("Selected node %d\n",w);
                     map->wall_line_mode = true;
                     map->wall_line_origin_index = w;    
                 }
@@ -185,6 +191,7 @@ int8_t SLUGmaker_PlaceWallNode(SLUGmaker_map *map, SLUGmaker_camera *cam)
             int16_t w = SLUGmaker_WallNodeUnderMouse(map, cam);
             if(w != -1 && w != map->wall_line_origin_index) 
             {
+                printf("Selected node %d\n",w);
                 if(map->wall_nodes[w].A_side == -1 || map->wall_nodes[w].B_side == -1)
                 {
                     if(map->wall_nodes[w].A_side != map->wall_line_origin_index && map->wall_nodes[w].B_side != map->wall_line_origin_index)
@@ -216,11 +223,22 @@ int8_t SLUGmaker_PlaceWallNode(SLUGmaker_map *map, SLUGmaker_camera *cam)
     else if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && IsKeyDown(KEY_LEFT_SHIFT))
     {
         if(map->wall_node_move_mode == -1)
-            map->wall_node_move_mode = SLUGmaker_WallNodeUnderMouse(map, cam);
+        {
+            int16_t w = SLUGmaker_WallNodeUnderMouse(map, cam);
+            map->wall_node_move_mode = w;
+            printf("Selected node %d\n",w);
+        }
         if(map->wall_node_move_mode != -1)
         {
-            map->wall_nodes[map->wall_node_move_mode].x = (int32_t) (cam->view_zone.x + (GetMouseX() / cam->ratiox));
-            map->wall_nodes[map->wall_node_move_mode].y = (int32_t) (cam->view_zone.y + (GetMouseY() / cam->ratioy));
+            Vector2 p = (Vector2) {
+                .x = cam->view_zone.x + (GetMouseX() / cam->ratiox),
+                .y = cam->view_zone.y + (GetMouseY() / cam->ratioy)
+            };
+            if(CheckCollisionPointRec(p, map->zone))
+            {
+                map->wall_nodes[map->wall_node_move_mode].x = roundf(p.x);
+                map->wall_nodes[map->wall_node_move_mode].y = roundf(p.y);
+            }
         }
     }
     else

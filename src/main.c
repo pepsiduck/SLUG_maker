@@ -20,7 +20,7 @@ SLUGmaker_map* SLUGmaker_Init(int argc, char *argv[])
     FILE *file = fopen(argv[1], "r");
     if(file == NULL)
     {
-        printf("File doesn't exists.\n");
+        printf("File doesn't exist.\n");
         return NULL;
     }
 
@@ -99,35 +99,32 @@ int main(int argc, char *argv[])
     int8_t error = 0;
     while (!WindowShouldClose())
     {
-        if(SLUGmaker_DisplayUpdate(&cam) != 0)
-        {
-            error = 1;
+        error = SLUGmaker_DisplayUpdate(&cam);
+        if(error == -1)
             break;
-        }
 
-        if(SLUGmaker_CameraUpdate(&cam) != 0)
-        {
-            error = 1;
+        error = SLUGmaker_CameraUpdate(&cam);
+        if(error == -1)
             break;
-        }
         
-        if(SLUGmaker_Display(&cam) != 0)
-        {
-            error = 1;
+        error = SLUGmaker_Display(&cam);
+        if(error == -1)
             break;
+
+        if(IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL))
+        {
+            error = SLUGmaker_WriteMap(map);
+            if(error == -1)
+                break;
         }
 
-        if(SLUGmaker_ChangeAction() != 0)
-        {
-            error = 1;
+        error = SLUGmaker_ChangeAction();
+        if(error == -1)
             break;
-        }
 
-        if(SLUGmaker_Action(map,&cam) != 0)
-        {
-            error = 1;
+        error = SLUGmaker_Action(map,&cam);
+        if(error == -1)
             break;
-        }
     }
     
 
