@@ -32,11 +32,36 @@ struct SLUGmaker_map
     int16_t wall_node_move_mode;
 };
 
+typedef struct SLUG_SegmentExtended SLUG_SegmentExtended;
+struct SLUG_SegmentExtended
+{
+    Vector2 A; 
+    Vector2 B;
+    Vector2 normal; //norm = 1
+    float dist; //distance de la droite représentée par le segment ar rapport à 0, 0
+};
+
+typedef struct SLUG_BSPTreeElement SLUG_BSPTreeElement;
+struct SLUG_BSPTreeElement
+{
+    int32_t segment;
+    int32_t children[2];
+};
+
+typedef struct SLUG_BSPTree SLUG_BSPTree;
+struct SLUG_BSPTree
+{
+    SLUG_SegmentExtended *tab; 
+    SLUG_BSPTreeElement *elements; //tree trunk is always element index 0
+    int32_t tab_size;
+    int32_t elements_size;
+};
+
 SLUGmaker_map* SLUGmaker_NewMap(const char *filename);
 SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap);
 void SLUGmaker_UnloadMap(SLUGmaker_map *map);
 
-int16_t SLUGmaker_GetArcsIndex(SLUGmaker_map *map, int16_t *arcs);
+int16_t SLUGmaker_GetArcs(SLUGmaker_map *map, SLUG_SegmentExtended *arcs,  int16_t arcs_size);
 int8_t SLUGmaker_CheckMap(SLUGmaker_map *map);
 int8_t SLUGmaker_WriteMap(SLUGmaker_map *map);
 

@@ -52,21 +52,30 @@ void SLUGmaker_UnloadMap(SLUGmaker_map *map)
     }
 }
 
+
+/*All checks must be made before*/
+void SLUGmaker_TranslateArcs(SLUGmaker_map *map, SLUG_SegmentExtended *arcs, int16_t arcs_size, int16_t w, int16_t *segcount)
+{
+    
+}
+
 /*
     Returns -1 if invalid (NULL ptr or map->wall_node_nb < 3)
     Returns 0 if at least one of the arcs are not cyclic 
     Returns the number of arcs if everything is well
 */
-int16_t SLUGmaker_GetArcsIndex(SLUGmaker_map *map, int16_t *arcs)
+int16_t SLUGmaker_GetArcs(SLUGmaker_map *map, SLUG_SegmentExtended *arcs, int16_t arcs_size)
 {
     if(arcs == NULL || map->wall_node_nb < 3)
         return -1;
+    int16_t arcs_check[MAX_WALL_NODES];
     for(uint16_t i = 0; i < MAX_WALL_NODES; ++i)
-        arcs[i] = 0;
+        arcs_check[i] = 0;
     int16_t count = 0;
+    int16_t segcount = 0;
     for(uint16_t i = 0; i < MAX_WALL_NODES; ++i)
     {
-        if(map->wall_nodes[i].exists && arcs[i] == 0)
+        if(map->wall_nodes[i].exists && arcs_check[i] == 0)
         {
             //check if valid + convex
             int32_t cross;
@@ -79,11 +88,21 @@ int16_t SLUGmaker_GetArcsIndex(SLUGmaker_map *map, int16_t *arcs)
             }
             else
                 return 0;
+
+            if(segcount >= arcs_size)
+                return -1;
+
+            
+            
+            segcount++;
+
+            count++;
+            arcs_check[i] = count;
             while(w != i)
             {
                 if(map->wall_nodes[w].A_side == -1 || map->wall_nodes[w].B_side == -1)
                     return 0;
-                arcs[w] = count;
+                arcs_check[w] = count;
                 if(map->wall_nodes[w].A_side != w_prev)
                 {
                     int32_t curr = Vector2CrossProduct(map->wall_nodes[map->wall_nodes[w].A_side].x - map->wall_nodes[w].x, map->wall_nodes[map->wall_nodes[w].A_side].y - map->wall_nodes[w].y, map->wall_nodes[w_prev].x - map->wall_nodes[w].x, map->wall_nodes[w_prev].y - map->wall_nodes[w].y);
@@ -109,10 +128,6 @@ int16_t SLUGmaker_GetArcsIndex(SLUGmaker_map *map, int16_t *arcs)
                 else
                     return 0;
     
-                //do stuff
-                count++;
-                arcs[i] = count;
-
             }
         }
     }
