@@ -1,5 +1,71 @@
 #include "geometry.h"
 
+float GetSegmentExtendedSide(SLUG_SegmentExtended *seg, Vector2 *p)
+{
+    return Vector2DotProduct(seg->normal, *p) - seg->dist;
+}
+
+int8_t SegmentExtendedIntersect(SLUG_SegmentExtended *seg1, SLUG_SegmentExtended *seg2)
+{
+    if(seg1 == NULL || seg2 == NULL)
+        return -1;
+
+    float a = GetSegmentExtendedSide(seg1, &(seg2->A));
+    float b = GetSegmentExtendedSide(seg1, &(seg2->B));
+
+    if(a == 0.0 && b == 0.0)
+    {
+        if(Vector2DotProduct(Vector2Subtract(seg2->A, seg1->A), Vector2Subtract(seg2->A, seg1->B)) <= 0.0)
+        {
+            if(Vector2DotProduct(Vector2Subtract(seg2->B, seg1->A), Vector2Subtract(seg2->
+B, seg1->B)) <= 0.0)
+                return 1;
+            else
+                return 0;
+        }
+        else 
+            return 0;
+    }
+
+    if(a * b >= 0.0)
+        return 0;
+
+    a = GetSegmentExtendedSide(seg2, &(seg1->A));
+    b = GetSegmentExtendedSide(seg2, &(seg1->B));
+
+    if(a * b >= 0.0)
+        return 0;
+        
+    return 1;
+}
+
+int8_t SegmentExtendedIntersectArray(SLUG_SegmentExtended *segs, int32_t seg_size)
+{
+    if(segs == NULL || seg_size <= 0)
+        return -1;
+    for(int32_t i = 0; i < seg_size - 1; ++i)
+    {
+        for(int32_t j = i + 1; j < seg_size; ++j)
+        {
+            if(SegmentExtendedIntersect(&(segs[i]), &(segs[j])))
+                return 1;
+        }
+    }
+    return 0;
+}
+
+int8_t NoSegmentsPoints(SLUG_SegmentExtended *segs, int32_t seg_size)
+{
+    if(segs == NULL || seg_size <= 0)
+        return -1;
+    for(int32_t i = 0; i < seg_size; ++i)
+    {
+        if(segs[i].A.x == segs[i].B.x && segs[i].A.y == segs[i].B.y)
+            return 0;
+    }
+    return 1;
+}
+
 bool CheckCollisionLineRect(Vector2 A, Vector2 B, Rectangle rect, Vector2* intersection)
 {
     if(CheckCollisionPointRec(A,rect))
@@ -73,12 +139,12 @@ bool CheckCollisionLineRect(Vector2 A, Vector2 B, Rectangle rect, Vector2* inter
 	return true;
 }
 
-float Vector2CrossProduct(Vector2 A, Vector2 B)
+float Vector2CrossProductV(Vector2 A, Vector2 B)
 {
     return (A.x * B.y) - (A.y * B.x);
 }
 
-int32_t Vector2CrossProduct(int32_t ax, int32_t ay, int32_t bx, int32_t by)
+int32_t Vector2CrossProductInt(int32_t ax, int32_t ay, int32_t bx, int32_t by)
 {
     return ax*by - ay*bx;
 }

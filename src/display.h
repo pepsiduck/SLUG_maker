@@ -38,7 +38,7 @@ float SLUGmaker_GetMousePosY(SLUGmaker_camera *cam);
 
 int8_t SLUGmaker_DisplayUpdate(SLUGmaker_camera *cam);
 int8_t SLUGmaker_DisplayMap(SLUGmaker_camera *cam);
-int8_t SLUGmaker_DisplayWallNodes(SLUGmaker_camera *cam);
+int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam);
 int8_t SLUGmaker_Display(SLUGmaker_camera *cam);
 
 #endif

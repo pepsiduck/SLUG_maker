@@ -5,17 +5,25 @@
 #include <stdio.h>
 #include <raylib.h>
 #include <inttypes.h>
+#include <math.h>
+#include <string.h>
+#include <sys/stat.h>
 
-#define MAX_WALL_NODES 8192 // avec int16_t en next_index, max 32767
+#include "geometry.h"
 
-typedef struct SLUGmaker_wall_node SLUGmaker_wall_node;
-struct SLUGmaker_wall_node
+#define MAX_WALLS_NB 8192 
+#define SPACE_SOLID -1
+#define SPACE_EMPTY -2
+
+typedef struct SLUGmaker_SegmentExtended SLUGmaker_SegmentExtended;
+struct SLUGmaker_SegmentExtended
 {
-    int32_t x;
-    int32_t y;
+    Vector2 A; 
+    Vector2 B;
+    Vector2 normal; //||norm|| = 1
+    Vector2 middlepoint;
+    SLUGmaker_SegmentExtended *next;
     bool exists;
-    int16_t A_side;
-    int16_t B_side;
 };
 
 typedef struct SLUGmaker_map SLUGmaker_map;
@@ -24,21 +32,12 @@ struct SLUGmaker_map
     Rectangle zone;
     Texture2D fixed_sprite;
     
-    SLUGmaker_wall_node wall_nodes[MAX_WALL_NODES];
+    SLUGmaker_SegmentExtended walls[MAX_WALLS_NB];
     int16_t current_wall_index;
-    int16_t wall_node_nb;
-    bool wall_line_mode;
+    int16_t wall_nb;
     int16_t wall_line_origin_index;
-    int16_t wall_node_move_mode;
-};
-
-typedef struct SLUG_SegmentExtended SLUG_SegmentExtended;
-struct SLUG_SegmentExtended
-{
-    Vector2 A; 
-    Vector2 B;
-    Vector2 normal; //norm = 1
-    float dist; //distance de la droite représentée par le segment ar rapport à 0, 0
+    bool wall_line_mode;
+    int16_t wall_move_mode;
 };
 
 typedef struct SLUG_BSPTreeElement SLUG_BSPTreeElement;
@@ -51,18 +50,30 @@ struct SLUG_BSPTreeElement
 typedef struct SLUG_BSPTree SLUG_BSPTree;
 struct SLUG_BSPTree
 {
-    SLUG_SegmentExtended *tab; 
-    SLUG_BSPTreeElement *elements; //tree trunk is always element index 0
     int32_t tab_size;
-    int32_t elements_size;
+    SLUG_SegmentExtended *tab;
+    int32_t elements_size; 
+    SLUG_BSPTreeElement *elements; //tree trunk is always element index 0
 };
+
+void SLUG_BSPTreeUnload(SLUG_BSPTree *tree);
+
+int32_t SLUGmaker_CountOnes(int8_t *tab, int32_t tab_size);
+int8_t SLUGmaker_AllZeros(int8_t *tab, int32_t tab_size);
+int32_t SLUGmaker_GetIndexForPosition(int8_t *tab, int32_t tab_size, int32_t position);
 
 SLUGmaker_map* SLUGmaker_NewMap(const char *filename);
 SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap);
 void SLUGmaker_UnloadMap(SLUGmaker_map *map);
 
-int16_t SLUGmaker_GetArcs(SLUGmaker_map *map, SLUG_SegmentExtended *arcs,  int16_t arcs_size);
-int8_t SLUGmaker_CheckMap(SLUGmaker_map *map);
+SLUG_SegmentExtended* SLUGmaker_GetSegments(SLUGmaker_map *map); 
+int32_t* SLUGmaker_GetWallsLinks(SLUGmaker_map *map);
+bool SLUGmaker_MapWallsTest(SLUG_SegmentExtended *segs, int32_t seg_size);
+
+int8_t SLUGmaker_BSPTreeBuildRecursive(SLUG_BSPTree *tree,int32_t *node_nb, int8_t *elements_taken);
+int8_t SLUGmaker_BSPTreeBuild(SLUG_BSPTree *tree,int32_t *node_nb);
+
+bool SLUGmaker_CheckSave(SLUGmaker_map *map);
 int8_t SLUGmaker_WriteMap(SLUGmaker_map *map);
 
 #endif

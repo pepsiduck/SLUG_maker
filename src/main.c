@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <raylib.h>
 #include <string.h>
+#include <time.h>
 
 #include "map.h"
 #include "display.h"
@@ -16,43 +17,10 @@ SLUGmaker_map* SLUGmaker_Init(int argc, char *argv[])
         printf("Wrong arguments.\n");
         return NULL;
     }
-   
-    FILE *file = fopen(argv[1], "r");
-    if(file == NULL)
-    {
-        printf("File doesn't exist.\n");
-        return NULL;
-    }
 
-    unsigned char *read = (unsigned char *) malloc(8*sizeof(unsigned char));
-    if(read == NULL)
-    {
-        printf("Error in SLUGmaker_Init\n");
-        return NULL;
-    }
+    SLUGmaker_map *map;
 
-
-
-    fread(read, sizeof(read), 1, file);
-    fclose(file);
-    
-    unsigned char jpeg[] = {0xFF, 0xD8, 0xFF};
-    unsigned char png[] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
-    unsigned char slug[] = {0x53, 0x4C, 0x55, 0x47, 0x4D, 0x41, 0x50};
-
-    SLUGmaker_map *map; 
-
-    if(memcmp((void *) read, (void *) jpeg, 3) == 0 || memcmp((void *) read, (void *) png, 8) == 0)
-    {
-       
-        map = SLUGmaker_NewMap(argv[1]);
-        if(map == NULL)
-        {
-            printf("Error while initializing new map.\n");
-            return NULL;
-        }
-    }
-    else if(memcmp((void *) read, (void *) slug, 7) == 0)
+    if(strchr(argv[1], '.') == NULL)
     {
         map = SLUGmaker_LoadMap(argv[1]); //TODO Load map
         if(map == NULL)
@@ -61,12 +29,41 @@ SLUGmaker_map* SLUGmaker_Init(int argc, char *argv[])
             return NULL;
         }
     }
-    free(read);
+    else
+    {   
+        FILE *file = fopen(argv[1], "r");
+        if(file == NULL)
+        {
+            printf("File doesn't exist.\n");
+            return NULL;
+        }
+
+        unsigned char read[8];
+
+        fread((void *) &read, sizeof(unsigned char), 8, file);
+        fclose(file);
+        
+        unsigned char jpeg[] = {0xFF, 0xD8, 0xFF};
+        unsigned char png[] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+
+        if(memcmp((void *) read, (void *) jpeg, 3) == 0 || memcmp((void *) read, (void *) png, 8) == 0)
+        {
+           
+            map = SLUGmaker_NewMap(argv[1]);
+            if(map == NULL)
+            {
+                printf("Error while initializing new map.\n");
+                return NULL;
+            }
+        }
+    }
+    
     return map;
 }
 
 int main(int argc, char *argv[])
 {
+    srand(time(NULL));
     SLUGmaker_map *map = NULL;
 
     InitWindow(1680, 1050, "SLUGmaker");
@@ -94,7 +91,6 @@ int main(int argc, char *argv[])
     HideCursor();
 
     SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
-    
 
     int8_t error = 0;
     while (!WindowShouldClose())
@@ -113,18 +109,18 @@ int main(int argc, char *argv[])
 
         if(IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL))
         {
-            error = SLUGmaker_WriteMap(map);
-            if(error == -1)
-                break;
+            if(SLUGmaker_WriteMap(map) == -1)
+                printf("Save failure\n");      
         }
 
-        error = SLUGmaker_ChangeAction();
+        error = SLUGmaker_ChangeActionMode(map);
         if(error == -1)
             break;
 
         error = SLUGmaker_Action(map,&cam);
         if(error == -1)
             break;
+
     }
     
 

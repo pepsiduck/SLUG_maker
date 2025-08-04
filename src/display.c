@@ -92,49 +92,48 @@ int8_t SLUGmaker_DisplayMap(SLUGmaker_camera *cam)
     return 0;
 }
 
-int8_t SLUGmaker_DisplayWallNodes(SLUGmaker_camera *cam)
+int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam)
 {
-    Vector2 l1, l2;
-    for(int16_t i = 0; i < MAX_WALL_NODES; ++i)
+    for(int16_t i = 0; i < MAX_WALLS_NB; ++i)
     {
-        if(cam->map->wall_nodes[i].exists)
+        if(cam->map->walls[i].exists)
         {
-            l1.x = (float) cam->map->wall_nodes[i].x;
-            l1.y = (float) cam->map->wall_nodes[i].y;
-            if(cam->map->wall_nodes[i].A_side != -1)
+            if(CheckCollisionLineRect(cam->map->walls[i].A,cam->map->walls[i].B,cam->view_zone,NULL))
             {
-                l2.x = (float) cam->map->wall_nodes[cam->map->wall_nodes[i].A_side].x;
-                l2.y = (float) cam->map->wall_nodes[cam->map->wall_nodes[i].A_side].y;
-                if(CheckCollisionLineRect(l1,l2,cam->view_zone,NULL))
-                    DrawLineV(
-                        (Vector2) {
-                            .x = cam->display->x + (cam->map->wall_nodes[i].x - cam->view_zone.x) * cam->ratiox,
-                            .y = cam->display->y + (cam->map->wall_nodes[i].y - cam->view_zone.y) * cam->ratioy
-                        },
-                        (Vector2) {
-                            .x = cam->display->x + (cam->map->wall_nodes[cam->map->wall_nodes[i].A_side].x - cam->view_zone.x) * cam->ratiox,
-                            .y = cam->display->y + (cam->map->wall_nodes[cam->map->wall_nodes[i].A_side].y - cam->view_zone.y) * cam->ratioy
-                        }, BLUE);
+                DrawLineV(
+                    (Vector2) {
+                        .x = cam->display->x + (cam->map->walls[i].A.x - cam->view_zone.x) * cam->ratiox,
+                        .y = cam->display->y + (cam->map->walls[i].A.y - cam->view_zone.y) * cam->ratioy
+                    },
+                    (Vector2) {
+                        .x = cam->display->x + (cam->map->walls[i].B.x - cam->view_zone.x) * cam->ratiox,
+                        .y = cam->display->y + (cam->map->walls[i].B.y - cam->view_zone.y) * cam->ratioy
+                    }, BLUE);
             }
-
-            if(cam->map->wall_nodes[i].B_side != -1)
+            if(CheckCollisionPointRec(cam->map->walls[i].middlepoint, cam->view_zone))
             {
-                l2.x = (float) cam->map->wall_nodes[cam->map->wall_nodes[i].B_side].x;
-                l2.y = (float) cam->map->wall_nodes[cam->map->wall_nodes[i].B_side].y;
-                if(CheckCollisionLineRect(l1,l2,cam->view_zone,NULL))
-                    DrawLineV(
-                        (Vector2) {
-                            .x = cam->display->x + (cam->map->wall_nodes[i].x - cam->view_zone.x) * cam->ratiox,
-                            .y = cam->display->y + (cam->map->wall_nodes[i].y - cam->view_zone.y) * cam->ratioy
-                        },
-                        (Vector2) {
-                            .x = cam->display->x + (cam->map->wall_nodes[cam->map->wall_nodes[i].B_side].x - cam->view_zone.x) * cam->ratiox,
-                            .y = cam->display->y + (cam->map->wall_nodes[cam->map->wall_nodes[i].B_side].y - cam->view_zone.y) * cam->ratioy
-                        }, BLUE);
+                DrawLineV(
+                    (Vector2) {
+                        .x = cam->display->x + (cam->map->walls[i].middlepoint.x - cam->view_zone.x) * cam->ratiox,
+                        .y = cam->display->y + (cam->map->walls[i].middlepoint.y - cam->view_zone.y) * cam->ratioy
+                    },
+                    (Vector2) {
+                        .x = cam->display->x + (cam->map->walls[i].middlepoint.x - cam->view_zone.x) * cam->ratiox + 20 * cam->map->walls[i].normal.x,
+                        .y = cam->display->y + (cam->map->walls[i].middlepoint.y - cam->view_zone.y) * cam->ratioy + 20 * cam->map->walls[i].normal.y
+                    }, BLUE);
             }
-
-            if(CheckCollisionPointRec((Vector2) {.x = cam->map->wall_nodes[i].x, .y = cam->map->wall_nodes[i].y}, cam->view_zone))
-                DrawTexture(graphic_vars.wall_node_sprite,(cam->display->x + (cam->map->wall_nodes[i].x - cam->view_zone.x) * cam->ratiox) - graphic_vars.wall_node_sprite.width / 2,(cam->display->y + (cam->map->wall_nodes[i].y - cam->view_zone.y) * cam->ratioy) - graphic_vars.wall_node_sprite.height / 2,WHITE);
+            
+            if(cam->map->wall_line_mode && i == cam->map->current_wall_index)
+            {
+                if(CheckCollisionPointRec(cam->map->walls[i].B, cam->view_zone))
+                {
+                    DrawTexture(graphic_vars.wall_node_sprite,(cam->display->x + (cam->map->walls[i].B.x - cam->view_zone.x) * cam->ratiox) - graphic_vars.wall_node_sprite.width / 2,(cam->display->y + (cam->map->walls[i].B.y - cam->view_zone.y) * cam->ratioy) - graphic_vars.wall_node_sprite.height / 2,WHITE);
+                }    
+            }
+            if(CheckCollisionPointRec(cam->map->walls[i].A, cam->view_zone))
+            {
+                DrawTexture(graphic_vars.wall_node_sprite,(cam->display->x + (cam->map->walls[i].A.x - cam->view_zone.x) * cam->ratiox) - graphic_vars.wall_node_sprite.width / 2,(cam->display->y + (cam->map->walls[i].A.y - cam->view_zone.y) * cam->ratioy) - graphic_vars.wall_node_sprite.height / 2,WHITE);
+            }
         }
     }
     return 0;
@@ -148,11 +147,11 @@ int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
     if(SLUGmaker_DisplayMap(cam) == -1)
         return -1;
     
-    if(SLUGmaker_DisplayWallNodes(cam) == -1)
+    if(SLUGmaker_DisplayWalls(cam) == -1)
         return -1;
 
     DrawTexture(graphic_vars.mouse_cursor_sprite,GetMouseX(),GetMouseY(),WHITE);
-    DrawText(TextFormat("%f ; %f",(float) (cam->view_zone.x + (GetMouseX() / cam->ratiox)),(float) (cam->view_zone.y + (GetMouseY() / cam->ratioy))), 0, 0, 20,WHITE);
+    DrawText(TextFormat("%f ; %f",roundf((float) (cam->view_zone.x + (GetMouseX() / cam->ratiox))),roundf((float) (cam->view_zone.y + (GetMouseY() / cam->ratioy)))), 0, 0, 20,GREEN);
     EndDrawing();
     return 0;
 }
