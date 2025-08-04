@@ -173,7 +173,8 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     }
 
     map->wall_nb = 0;
-    map->current_wall_index = 0;  
+    map->current_wall_index = 0; 
+    printf("%lu\n", bsptree); 
     if(bsptree != 0)
     {
         int32_t wall_nb;
@@ -244,6 +245,19 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         else
             map->current_wall_index = -1;
     }
+    else
+    {
+        for(int32_t i = 0; i < MAX_WALLS_NB; ++i)
+        {
+            map->walls[i].A = (Vector2) {.x = 0, .y = 0};
+            map->walls[i].B = (Vector2) {.x = 0, .y = 0};
+            map->walls[i].middlepoint = (Vector2) {.x = 0, .y = 0};
+            map->walls[i].normal = (Vector2) {.x = 0, .y = 0};
+            map->walls[i].next = NULL;
+            map->walls[i].exists = false;
+        }
+    }
+    
     
     map->wall_line_mode = false;
     map->wall_move_mode = -1;
