@@ -22,7 +22,7 @@ SLUGmaker_map* SLUGmaker_Init(int argc, char *argv[])
 
     if(strchr(argv[1], '.') == NULL)
     {
-        map = SLUGmaker_LoadMap(argv[1]); //TODO Load map
+        map = SLUGmaker_LoadMap(argv[1]); 
         if(map == NULL)
         {
             printf("Error while loading map.\n");
@@ -93,8 +93,10 @@ int main(int argc, char *argv[])
     SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
 
     int8_t error = 0;
+
     while (!WindowShouldClose())
     {
+
         error = SLUGmaker_DisplayUpdate(&cam);
         if(error == -1)
             break;

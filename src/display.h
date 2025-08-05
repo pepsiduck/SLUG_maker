@@ -14,6 +14,7 @@ struct SLUGmaker_GraphicVariables
     Rectangle display;
     Texture2D mouse_cursor_sprite; 
     Texture2D wall_node_sprite;
+    Texture2D player_node_sprite;
 };
 
 extern SLUGmaker_GraphicVariables graphic_vars;
@@ -39,6 +40,7 @@ float SLUGmaker_GetMousePosY(SLUGmaker_camera *cam);
 int8_t SLUGmaker_DisplayUpdate(SLUGmaker_camera *cam);
 int8_t SLUGmaker_DisplayMap(SLUGmaker_camera *cam);
 int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam);
+int8_t SLUGmaker_DisplayPlayer(SLUGmaker_camera *cam);
 int8_t SLUGmaker_Display(SLUGmaker_camera *cam);
 
 #endif

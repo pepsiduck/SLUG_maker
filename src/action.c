@@ -87,6 +87,8 @@ int8_t SLUGmaker_ChangeActionMode(SLUGmaker_map *map)
         current_action = ACTION_MODE_DELETE;
     if(IsKeyPressed(KEY_W))
         current_action = ACTION_MODE_WALL;
+    if(IsKeyPressed(KEY_P))
+        current_action = ACTION_MODE_PLAYER;
 
     if(previous_action != current_action)
     {
@@ -115,6 +117,8 @@ int8_t SLUGmaker_Action(SLUGmaker_map *map, SLUGmaker_camera *cam)
             return SLUGmaker_MapElementDelete(map,cam);
         case ACTION_MODE_WALL :
             return SLUGmaker_WallMode(map,cam);
+        case ACTION_MODE_PLAYER :
+            return SLUGmaker_MovePlayer(map,cam);
         default:
             return 0;
     }   
@@ -372,6 +376,22 @@ int8_t SLUGmaker_MoveWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
         }
 
     }
+    return 0;
+}
+
+int8_t SLUGmaker_MovePlayer(SLUGmaker_map *map, SLUGmaker_camera *cam)
+{
+    if(map == NULL || cam == NULL)
+        return -1;
+
+    if(IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+    {
+        map->player_node = (Vector2) {
+            .x = roundf(cam->view_zone.x + (GetMouseX() / cam->ratiox)),
+            .y = roundf(cam->view_zone.y + (GetMouseY() / cam->ratioy))
+        };
+    }
+
     return 0;
 }
 
