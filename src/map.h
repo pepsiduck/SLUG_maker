@@ -38,8 +38,6 @@ struct SLUGmaker_map
     int16_t wall_line_origin_index;
     bool wall_line_mode;
     int16_t wall_move_mode;
-
-    Vector2 player_node;
 };
 
 typedef struct SLUG_BSPTreeElement SLUG_BSPTreeElement;

@@ -23,12 +23,6 @@ int8_t SLUGmaker_GraphicInit()
         printf("Error while loading wall node sprite.\n");
         return -1;
     }
-    graphic_vars.player_node_sprite = LoadTexture("assets/sprites/player_node.png");
-    if(graphic_vars.player_node_sprite.id <= 0)
-    {
-        printf("Error while loading player node sprite.\n");
-        return -1;
-    }
     return 0;
 }
 
@@ -38,8 +32,6 @@ int8_t SLUGmaker_GraphicUnload()
         UnloadTexture(graphic_vars.mouse_cursor_sprite);
     if(graphic_vars.wall_node_sprite.id > 0)
         UnloadTexture(graphic_vars.wall_node_sprite);
-    if(graphic_vars.player_node_sprite.id > 0)
-        UnloadTexture(graphic_vars.player_node_sprite);
     return 0;
 }
 
@@ -147,19 +139,6 @@ int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam)
     return 0;
 }
 
-int8_t SLUGmaker_DisplayPlayer(SLUGmaker_camera *cam)
-{
-    if(cam == NULL)
-        return -1;
-
-    if(CheckCollisionPointRec(cam->map->player_node, cam->view_zone))
-    {
-        DrawTexture(graphic_vars.player_node_sprite,(cam->display->x + (cam->map->player_node.x - cam->view_zone.x) * cam->ratiox) - graphic_vars.player_node_sprite.width / 2,(cam->display->y + (cam->map->player_node.y - cam->view_zone.y) * cam->ratioy) - graphic_vars.player_node_sprite.height / 2,WHITE);
-    }
-    
-    return 0;
-}
-
 int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
 {
     BeginDrawing();
@@ -170,10 +149,6 @@ int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
     
     if(SLUGmaker_DisplayWalls(cam) == -1)
         return -1;
-
-    if(SLUGmaker_DisplayPlayer(cam) == -1)
-        return -1;
-
 
     DrawTexture(graphic_vars.mouse_cursor_sprite,GetMouseX(),GetMouseY(),WHITE);
     DrawText(TextFormat("%f ; %f",roundf((float) (cam->view_zone.x + (GetMouseX() / cam->ratiox))),roundf((float) (cam->view_zone.y + (GetMouseY() / cam->ratioy)))), 0, 0, 20,GREEN);

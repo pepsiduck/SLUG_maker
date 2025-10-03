@@ -40,9 +40,9 @@ int8_t SLUGmaker_AllZeros(int8_t *tab, int32_t tab_size)
     for(int32_t i = 0; i < tab_size; ++i)
     {
         if(tab[i] != 0)
-            return 0;
+            return false;
     }
-    return 1;
+    return true;
 }
 
 int32_t SLUGmaker_GetIndexForPosition(int8_t *tab, int32_t tab_size, int32_t position)
@@ -81,8 +81,6 @@ SLUGmaker_map* SLUGmaker_NewMap(const char *filename)
     SetTextureWrap(map->fixed_sprite, 1);
     map->zone.width = map->fixed_sprite.width;
     map->zone.height = map->fixed_sprite.height;
-    map->player_node.x = map->fixed_sprite.width / 2;
-    map->player_node.y = map->fixed_sprite.height / 2;
     map->zone.x = 0;
     map->zone.y = 0;
     for(int16_t i = 0; i < MAX_WALLS_NB; ++ i)
@@ -143,7 +141,8 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     if(f == NULL)
     {
         printf("Error while loading file.\n");
-        SLUGmaker_UnloadMap(map);
+        free(map);
+        map = NULL;
         return NULL;
     }
     
@@ -151,14 +150,16 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     if(fread((void *) signature, sizeof(unsigned char), 7, f) != 7)
     {
         printf("File incomplete or error.\n");
-        SLUGmaker_UnloadMap(map);
+        free(map);
+        map = NULL;
         return NULL;
     }
     unsigned char test[7] = {0x53, 0x4C, 0x55, 0x47, 0x4D, 0x41, 0x50};
     if(memcmp(signature, test, 7) != 0)
     {
         printf("File signature is wrong.\n");
-        SLUGmaker_UnloadMap(map);
+        free(map);
+        map = NULL;
         return NULL;
     }
 
@@ -166,34 +167,38 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     if(fread((void *) &bsptree, sizeof(size_t), 1, f) != 1)
     {
         printf("File incomplete or error.\n");
-        SLUGmaker_UnloadMap(map);
+        free(map);
+        map = NULL;
         return NULL;
     }
 
     map->wall_nb = 0;
     map->current_wall_index = 0; 
     printf("%lu\n", bsptree); 
-    if(bsptree > 0)
+    if(bsptree != 0)
     {
         int32_t wall_nb;
         if(fread((void *) &wall_nb, sizeof(int32_t), 1, f) != 1)
         {
             printf("File incomplete or error.\n");
-            SLUGmaker_UnloadMap(map);
+            free(map);
+            map = NULL;
             return NULL;
         }
 
         if(wall_nb <= 0)
         {
             printf("Wtf there are no walls ???\n");
-            SLUGmaker_UnloadMap(map);
+            free(map);
+            map = NULL;
             return NULL;
         }
 
         if(wall_nb > MAX_WALLS_NB)
         {
             printf("Too many walls\n");
-            SLUGmaker_UnloadMap(map);
+            free(map);
+            map = NULL;
             return NULL;
         }
 
@@ -201,7 +206,8 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         if(fread((void *) walls, sizeof(SLUG_SegmentExtended), wall_nb, f) != wall_nb)
         {
             printf("File incomplete or error.\n");
-            SLUGmaker_UnloadMap(map);
+            free(map);
+            map = NULL;
             return NULL;
         }
 
@@ -209,7 +215,8 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         if(fread((void *) links, sizeof(int32_t), wall_nb, f) != wall_nb)
         {
             printf("File incomplete or error.\n");
-            SLUGmaker_UnloadMap(map);
+            free(map);
+            map = NULL;
             return NULL;
         }
 
@@ -237,27 +244,6 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
             map->current_wall_index = wall_nb + 1;
         else
             map->current_wall_index = -1;
-
-        int32_t elements_size;
-        if(fread((void *) &elements_size, sizeof(int32_t), 1, f) != 1)
-        {
-            printf("File incomplete or error.\n");
-            SLUGmaker_UnloadMap(map);
-            printf("soos");
-            return NULL;
-        }
-
-        SLUG_BSPTreeElement garbage;
-        for(int32_t i = 0; i < elements_size; ++i)
-        {
-            if(fread((void *) &garbage, sizeof(SLUG_BSPTreeElement), 1, f) != 1)
-            {
-                printf("File incomplete or error.\n");
-                SLUGmaker_UnloadMap(map);
-                return NULL;
-            }
-        }
-        
     }
     else
     {
@@ -277,13 +263,6 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     map->wall_move_mode = -1;
     map->wall_line_origin_index = -1;
 
-    if(fread((void *) &map->player_node, sizeof(Vector2), 1, f) != 1)
-    {
-        printf("File incomplete or error.\n");
-        SLUGmaker_UnloadMap(map);
-        return NULL;
-    }
-
     return map; 
 }
 
@@ -294,6 +273,7 @@ void SLUGmaker_UnloadMap(SLUGmaker_map *map)
         if(map->fixed_sprite.id > 0)
             UnloadTexture(map->fixed_sprite);
         free(map);
+        map = NULL;
     }
 }
 
@@ -442,15 +422,7 @@ bool SLUGmaker_MapWallsTest(SLUG_SegmentExtended *segs, int32_t seg_size)
 int8_t SLUGmaker_BSPTreeBuildRecursive(SLUG_BSPTree *tree,int32_t *node_nb, int8_t *elements_taken)
 {
     if(tree == NULL || elements_taken == NULL || node_nb == NULL)
-    {
-        if(tree == NULL)
-            printf("tree\n");
-        if(elements_taken == NULL)
-            printf("elements_taken\n");
-        if(node_nb == NULL)
-            printf("node_nb\n");
         return -1;
-    }
 
     if(*node_nb >= tree->elements_size)
     {   
@@ -483,19 +455,8 @@ int8_t SLUGmaker_BSPTreeBuildRecursive(SLUG_BSPTree *tree,int32_t *node_nb, int8
                     float a = GetSegmentExtendedSide(&(tree->tab[i]), &(tree->tab[j].A));
                     float b = GetSegmentExtendedSide(&(tree->tab[i]), &(tree->tab[j].B));
 
-                    if(a == 0.0 && b == 0.0)
-                    {
-                        if(Vector2DotProduct(tree->tab[j].normal, tree->tab[i].normal) > 0.0)
-                            varf2 += 1;
-                        else
-                            varb2 += 1;
-                    }
-                    else
-                    {
-                        varf2 += a > 0 || b > 0;
-                        varb2 += a < 0 || b < 0; 
-                    }
-                    
+                    varf2 += a > 0 || b > 0;
+                    varb2 += a < 0 || b < 0; 
                 }
             }
 
@@ -520,18 +481,8 @@ int8_t SLUGmaker_BSPTreeBuildRecursive(SLUG_BSPTree *tree,int32_t *node_nb, int8
             float a = GetSegmentExtendedSide(&(tree->tab[index]), &(tree->tab[i].A));
             float b = GetSegmentExtendedSide(&(tree->tab[index]), &(tree->tab[i].B));
 
-            if(a == 0.0 && b == 0.0)
-            {
-                if(Vector2DotProduct(tree->tab[index].normal, tree->tab[i].normal) > 0.0)
-                    front_tab[i] = 1;
-                else
-                    back_tab[i] = 1;
-            }
-            else
-            {
-                front_tab[i] = a > 0 || b > 0;
-                back_tab[i] = a < 0 || b < 0;
-            }
+            front_tab[i] = a > 0 || b > 0;
+            back_tab[i] = a < 0 || b < 0;
         }
     }
     
@@ -540,24 +491,22 @@ int8_t SLUGmaker_BSPTreeBuildRecursive(SLUG_BSPTree *tree,int32_t *node_nb, int8
     tree->elements[*node_nb].children[0] = SPACE_SOLID;
     tree->elements[*node_nb].children[1] = SPACE_EMPTY;
 
-    int8_t err = 0;
+    int8_t err;
 
-    int32_t n = *node_nb;
-
-    if(SLUGmaker_AllZeros(front_tab, tree->tab_size) == 0)
+    if(!SLUGmaker_AllZeros(front_tab, tree->tab_size))
     {
-        tree->elements[n].children[1] = *node_nb + 1;
         *node_nb += 1;
+        tree->elements[*node_nb].children[1] = *node_nb;
         err = SLUGmaker_BSPTreeBuildRecursive(tree,node_nb, front_tab);
     }
 
     if(err != 0)
         return err;
 
-    if(SLUGmaker_AllZeros(back_tab, tree->tab_size) == 0)
+    if(!SLUGmaker_AllZeros(back_tab, tree->tab_size))
     {
-        tree->elements[n].children[0] = *node_nb + 1;
         *node_nb += 1;
+        tree->elements[*node_nb].children[0] = *node_nb;
         err = SLUGmaker_BSPTreeBuildRecursive(tree,node_nb, back_tab);
     }
 
@@ -708,11 +657,6 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
             return -1;
         }
 
-        for(int32_t i = 0; i < tree->tab_size; ++i)
-        {
-            printf("Seg %d : A(%f, %f), B(%f, %f), normal(%f, %f), dist (%f)\n", i, tree->tab[i].A.x, tree->tab[i].A.y, tree->tab[i].B.x, tree->tab[i].B.y, tree->tab[i].normal.x, tree->tab[i].normal.y, tree->tab[i].dist);
-        }
-
         int32_t node_nb = 0;
         tree->elements_size = 2 * tree->tab_size;
 
@@ -733,7 +677,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
             return -1;
         }
 
-        tree->elements_size = node_nb + 1;
+        tree->elements_size = node_nb;
         tree->elements = (SLUG_BSPTreeElement *) realloc(tree->elements, tree->elements_size * sizeof(SLUG_BSPTreeElement));
         if(tree->elements == NULL)
         {
@@ -742,9 +686,6 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
             SLUG_BSPTreeUnload(tree);
             return -1;
         }
-
-        for(int32_t i = 0; i < tree->elements_size; ++i)
-            printf("Tree Element %d, seg %d, child back %d, child front %d\n", i, tree->elements[i].segment, tree->elements[i].children[0], tree->elements[i].children[1]);
                 
         size_t s = 2*sizeof(int32_t) + tree->tab_size * sizeof(SLUG_SegmentExtended) + tree->elements_size * sizeof(SLUG_BSPTreeElement);
         if(fwrite((void *) &s, sizeof(size_t), 1, f) == 0)
@@ -820,13 +761,6 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
             fclose(f);
             return -1;
         }
-    }
-
-    if(fwrite((void *) &map->player_node, sizeof(Vector2), 1, f) == 0)
-    {
-        printf("Write Error\n");
-        fclose(f);
-        return -1;
     }
 
     fclose(f);
