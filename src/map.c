@@ -764,6 +764,8 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
     }
 
     fclose(f);
+
+    printf("Succes !");
     
     return 0;
 }

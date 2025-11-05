@@ -86,10 +86,7 @@ int8_t SLUGmaker_ChangeActionMode(SLUGmaker_map *map)
     if(IsKeyPressed(KEY_BACKSPACE))
         current_action = ACTION_MODE_DELETE;
     if(IsKeyPressed(KEY_W))
-    {
         current_action = ACTION_MODE_WALL;
-        printf("Jaaj\n");
-    }
 
     if(previous_action != current_action)
     {
@@ -323,8 +320,6 @@ int8_t SLUGmaker_PlaceNewWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
         }
         else
             printf("Too many walls\n");
-
-        printf("%d %d\n", map->wall_nb, map->current_wall_index);
     }
 
     
