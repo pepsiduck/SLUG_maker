@@ -86,7 +86,10 @@ int8_t SLUGmaker_ChangeActionMode(SLUGmaker_map *map)
     if(IsKeyPressed(KEY_BACKSPACE))
         current_action = ACTION_MODE_DELETE;
     if(IsKeyPressed(KEY_W))
+    {
         current_action = ACTION_MODE_WALL;
+        printf("Jaaj\n");
+    }
 
     if(previous_action != current_action)
     {
@@ -194,14 +197,19 @@ int8_t SLUGmaker_WallDelete(SLUGmaker_map *map,SLUGmaker_camera *cam)
 
 int8_t SLUGmaker_PlaceNewWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
 {
-    if(map == NULL || cam == NULL)
-        return -1;
-    if(map->wall_move_mode >= 0)
-        return -1;
+	if(map == NULL || cam == NULL)
+		return -1;
+	if(map->wall_move_mode >= 0)
+		return -1;
+
+	Vector2 mouse = (Vector2) {.x = (float) GetMouseX(), .y = (float) GetMouseY()};
+	
+	if(!CheckCollisionPointRec(mouse, *(cam->display)))
+		return 0;
 
     Vector2 p = (Vector2) {
-            .x = roundf(cam->view_zone.x + (GetMouseX() / cam->ratiox)),
-            .y = roundf(cam->view_zone.y + (GetMouseY() / cam->ratioy))
+            .x = roundf(cam->view_zone.x + ((mouse.x - cam->display->x) / cam->ratiox)),
+            .y = roundf(cam->view_zone.y + ((mouse.y - cam->display->y) / cam->ratioy))
     };
     if(!CheckCollisionPointRec(p, map->zone))
         return 0;
@@ -335,9 +343,14 @@ int8_t SLUGmaker_MoveWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
     if(!map->walls[map->wall_move_mode].next->exists)     
         return -1;
     
+    Vector2 mouse = (Vector2) {.x = (float) GetMouseX(), .y = (float) GetMouseY()};
+	
+	if(!CheckCollisionPointRec(mouse, *(cam->display)))
+		return 0;
+
     Vector2 p = (Vector2) {
-        .x = roundf(cam->view_zone.x + (GetMouseX() / cam->ratiox)),
-        .y = roundf(cam->view_zone.y + (GetMouseY() / cam->ratioy))
+            .x = roundf(cam->view_zone.x + ((mouse.x - cam->display->x) / cam->ratiox)),
+            .y = roundf(cam->view_zone.y + ((mouse.y - cam->display->y) / cam->ratioy))
     };
 
     if(CheckCollisionPointRec(p, map->zone))
