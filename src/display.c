@@ -12,27 +12,6 @@ int8_t SLUGmaker_GraphicInit()
         .height = GetScreenHeight() * 0.80f
     };
     
-    graphic_vars.toolbar = (Rectangle) {
-        .x = 0,
-        .y = 0,
-        .width = GetScreenWidth(),
-        .height = GetScreenHeight() * 0.03f
-    };
-    
-    graphic_vars.main_menu = (Rectangle) {
-        .x = 0,
-        .y = GetScreenHeight() * 0.03f,
-        .width = GetScreenWidth() * 0.20f,
-        .height = GetScreenHeight()
-    };
-    
-    graphic_vars.sub_menu = (Rectangle) {
-        .x = GetScreenWidth() * 0.20f,
-        .y = GetScreenHeight() * 0.85f,
-        .width = GetScreenWidth() * 0.80f,
-        .height = GetScreenHeight() * 0.17f
-    };
-    
     graphic_vars.screen_w = GetScreenWidth();
     graphic_vars.screen_h = GetScreenHeight();
     graphic_vars.mouse_cursor_sprite = LoadTexture("assets/sprites/mouse_cursor.png");
@@ -78,12 +57,12 @@ SLUGmaker_camera SLUGmaker_DefaultCamera(SLUGmaker_map *map)
 
 float SLUGmaker_GetMousePosX(SLUGmaker_camera *cam)
 {
-    return (float) (cam->view_zone.x + (GetMouseX() * cam->view_zone.width) / cam->display->width);
+    return (float) (cam->view_zone.x + ((GetMouseX() - cam->display->x) * cam->view_zone.width) / cam->display->width);
 }
 
 float SLUGmaker_GetMousePosY(SLUGmaker_camera *cam)
 {
-    return (float) (cam->view_zone.y + (GetMouseY() * cam->view_zone.height) / cam->display->height);
+    return (float) (cam->view_zone.y + ((GetMouseY() - cam->display->y) * cam->view_zone.height) / cam->display->height);
 }
 
 int8_t SLUGmaker_DisplayUpdate(SLUGmaker_camera *cam)
@@ -94,12 +73,14 @@ int8_t SLUGmaker_DisplayUpdate(SLUGmaker_camera *cam)
 		float factor_x = ((float) GetScreenWidth()) / ((float) graphic_vars.screen_w);
 		float factor_y = ((float) GetScreenHeight()) / ((float) graphic_vars.screen_h);
 		
-		printf("%f %f\n",factor_x, factor_y);
+		cam->display->x *= factor_x;
+		cam->display->y *= factor_y;
+		cam->display->width *= factor_x;
+		cam->display->height *= factor_y;
 		
-		SLUG_MultiplyRect(cam->display,factor_x,factor_y);
-		SLUG_MultiplyRect(&(graphic_vars.toolbar),factor_x,factor_y);
-		SLUG_MultiplyRect(&(graphic_vars.main_menu),factor_x,factor_y);
-		SLUG_MultiplyRect(&(graphic_vars.sub_menu),factor_x,factor_y);
+		SLUGmaker_MenuResize(menus[0],factor_x,factor_y);
+		SLUGmaker_MenuResize(menus[1],factor_x,factor_y);
+		SLUGmaker_MenuResize(menus[2],factor_x,factor_y);
 
 		cam->ratiox = cam->display->width / cam->view_zone.width;
 		cam->ratioy = cam->display->height / cam->view_zone.height;
@@ -177,29 +158,23 @@ int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam)
     return 0;
 }
 
+int8_t SLUGmaker_DisplayMenu(SLUGmaker_Menu *menu)
+{
+	if(menu == NULL)
+		return -1;
+		
+	DrawRectangleRec(menu->zone, menu->color);
+	
+	return 0;
+}
+
 int8_t SLUGmaker_DisplayMenus()
 {
-	DrawRectangleRec(graphic_vars.toolbar, WHITE);
-	DrawRectangleRec(graphic_vars.main_menu, DARKGRAY);
-	DrawRectangleRec(graphic_vars.sub_menu, DARKGRAY);
-	
-	DrawLine((int) graphic_vars.toolbar.x, 
-			 (int) (graphic_vars.toolbar.y + graphic_vars.toolbar.height), 
-			 (int) (graphic_vars.toolbar.x + graphic_vars.toolbar.width),
-			 (int) (graphic_vars.toolbar.y + graphic_vars.toolbar.height), 
-			 BLACK);
-			 
-	DrawLine((int) (graphic_vars.main_menu.x + graphic_vars.main_menu.width), 
-			 (int) (graphic_vars.main_menu.y), 
-			 (int) (graphic_vars.main_menu.x + graphic_vars.main_menu.width),
-			 (int) (graphic_vars.main_menu.y + graphic_vars.main_menu.height), 
-			 WHITE);
-	
-	DrawLine((int) graphic_vars.sub_menu.x, 
-			 (int) graphic_vars.sub_menu.y, 
-			 (int) (graphic_vars.sub_menu.x + graphic_vars.sub_menu.width),
-			 (int) graphic_vars.sub_menu.y, 
-			 WHITE);
+	for(uint8_t m = 0; m < MENU_NB; ++m)
+	{
+		if(SLUGmaker_DisplayMenu(menus[m]) == -1)
+			return -1;
+	}
 			 
 	return 0;
 }
@@ -207,7 +182,7 @@ int8_t SLUGmaker_DisplayMenus()
 int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
 {
     BeginDrawing();
-    ClearBackground(DARKGRAY);
+    ClearBackground(BLACK);
     
     if(SLUGmaker_DisplayMenus() == -1)
     	return -1;
@@ -219,7 +194,11 @@ int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
         return -1;
 
     DrawTexture(graphic_vars.mouse_cursor_sprite,GetMouseX(),GetMouseY(),WHITE);
-    DrawText(TextFormat("%f ; %f",roundf((float) (cam->view_zone.x + (GetMouseX() / cam->ratiox))),roundf((float) (cam->view_zone.y + (GetMouseY() / cam->ratioy)))), 0, graphic_vars.main_menu.y, 20,GREEN);
+    
+    Vector2 mouse = {.x = GetMouseX(), .y = GetMouseY()};
+    if(CheckCollisionPointRec(mouse, *(cam->display)))
+    	DrawText(TextFormat("%f ; %f",SLUGmaker_GetMousePosX(cam),SLUGmaker_GetMousePosY(cam)), 0, menus[1]->zone.y, 20,GREEN);
+   
     EndDrawing();
     return 0;
 }

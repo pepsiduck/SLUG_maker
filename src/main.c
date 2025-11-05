@@ -7,6 +7,7 @@
 #include "map.h"
 #include "display.h"
 #include "action.h"
+#include "menus.h"
 
 //les 4 premiers bytes d'un .slmaker sont tjrs SLUGMAP en binaire
 
@@ -70,6 +71,12 @@ int main(int argc, char *argv[])
     //ToggleFullscreen();
     InitAudioDevice();
     SetWindowState(FLAG_VSYNC_HINT|FLAG_WINDOW_RESIZABLE);
+    
+    if(SLUGmaker_MenusInit() == -1)
+    {
+    	printf("Menu initialization fail\n");
+    	return 1;
+    }
 
     map = SLUGmaker_Init(argc, argv);
 
@@ -125,7 +132,7 @@ int main(int argc, char *argv[])
     
 
     SLUGmaker_UnloadMap(map);
-
+    SLUGmaker_MenusUnload();
     SLUGmaker_GraphicUnload();
 
     CloseWindow(); // Close window and OpenGL context

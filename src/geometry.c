@@ -148,16 +148,3 @@ int32_t Vector2CrossProductInt(int32_t ax, int32_t ay, int32_t bx, int32_t by)
 {
     return ax*by - ay*bx;
 }
-
-int8_t SLUG_MultiplyRect(Rectangle *rec, float factor_x, float factor_y)
-{
-	if(rec == NULL)
-		return -1;
-		
-	rec->x *= factor_x;
-	rec->y *= factor_y;
-	rec->width *= factor_x;
-	rec->height *= factor_y;	
-		
-	return 0;
-}

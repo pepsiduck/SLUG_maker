@@ -7,14 +7,12 @@
 #include <raylib.h>
 
 #include "map.h"
+#include "menus.h"
 
 typedef struct SLUGmaker_GraphicVariables SLUGmaker_GraphicVariables;
 struct SLUGmaker_GraphicVariables
 {
     Rectangle display;
-    Rectangle toolbar;
-    Rectangle main_menu;
-    Rectangle sub_menu;
     uint32_t screen_w;
     uint32_t screen_h;
     
@@ -46,6 +44,7 @@ int8_t SLUGmaker_DisplayUpdate(SLUGmaker_camera *cam);
 int8_t SLUGmaker_DisplayMap(SLUGmaker_camera *cam);
 int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam);
 
+int8_t SLUGmaker_DisplayMenu(SLUGmaker_Menu *menu);
 int8_t SLUGmaker_DisplayMenus();
 
 int8_t SLUGmaker_Display(SLUGmaker_camera *cam);
