@@ -6,6 +6,9 @@
 #include <inttypes.h>
 #include <raylib.h>
 
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+
 typedef enum {
                 NONE,
                 BUTTON_SAVE,

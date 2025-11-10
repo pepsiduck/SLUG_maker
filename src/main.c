@@ -64,7 +64,6 @@ SLUGmaker_map* SLUGmaker_Init(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    srand(time(NULL));
     SLUGmaker_map *map = NULL;
 
     InitWindow(1680, 1050, "SLUGmaker");
