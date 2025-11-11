@@ -11,7 +11,7 @@ add_subdirectory(vendor/raylib)
 
 
 # Create the executable
-file(GLOB_RECURSE SOURCES src/**/*.c src/*.c)
+file(GLOB_RECURSE SOURCES src/**/*.c src/*.c src/raygui.c)
 add_executable(SLUG_maker ${SOURCES} )
 
 # Include raylib headers

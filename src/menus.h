@@ -5,9 +5,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <raylib.h>
-
-#define RAYGUI_IMPLEMENTATION
-#include "raygui.h"
+#include <raygui.h>
 
 typedef enum {
                 NONE,
@@ -21,9 +19,10 @@ typedef struct SLUGmaker_Button SLUGmaker_Button;
 struct SLUGmaker_Button
 {
     Rectangle zone;
-    Color color;
     Color hover;
+    GuiIconName icon;
     SLUGmaker_ButtonType type;
+    bool active;
 };
 
 SLUGmaker_Button *SLUGmaker_LoadButton(Rectangle zone, Rectangle parent_menu, Color color, Color hover, SLUGmaker_ButtonType type);
@@ -51,5 +50,7 @@ int8_t SLUGmaker_MenuResize(SLUGmaker_Menu *menu, float factor_x, float factor_y
 extern SLUGmaker_Menu* menus[MENU_NB];
 int8_t SLUGmaker_MenusInit();
 void SLUGmaker_MenusUnload();
+
+int8_t bullshit();
 
 #endif

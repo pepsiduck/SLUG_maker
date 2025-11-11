@@ -8,6 +8,9 @@
 #include "display.h"
 #include "action.h"
 #include "menus.h"
+//#include "raygui.h"
+
+//#define RAYGUI_IMPLEMENTATION
 
 //les 4 premiers bytes d'un .slmaker sont tjrs SLUGMAP en binaire
 
@@ -64,6 +67,7 @@ SLUGmaker_map* SLUGmaker_Init(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+    /*
     SLUGmaker_map *map = NULL;
 
     InitWindow(1680, 1050, "SLUGmaker");
@@ -138,5 +142,7 @@ int main(int argc, char *argv[])
     CloseAudioDevice();
 
     return 0;
+    */
+    return bullshit();
 }
 
