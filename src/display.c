@@ -77,10 +77,6 @@ int8_t SLUGmaker_DisplayUpdate(SLUGmaker_camera *cam)
 		cam->display->y *= factor_y;
 		cam->display->width *= factor_x;
 		cam->display->height *= factor_y;
-		
-		SLUGmaker_MenuResize(menus[0],factor_x,factor_y);
-		SLUGmaker_MenuResize(menus[1],factor_x,factor_y);
-		SLUGmaker_MenuResize(menus[2],factor_x,factor_y);
 
 		cam->ratiox = cam->display->width / cam->view_zone.width;
 		cam->ratioy = cam->display->height / cam->view_zone.height;
@@ -158,6 +154,7 @@ int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam)
     return 0;
 }
 
+/*
 int8_t SLUGmaker_DisplayMenu(SLUGmaker_Menu *menu)
 {
 	if(menu == NULL)
@@ -179,14 +176,14 @@ int8_t SLUGmaker_DisplayMenus()
 			 
 	return 0;
 }
+*/
 
 int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
 {
-    BeginDrawing();
-    ClearBackground(BLACK);
     
-    if(SLUGmaker_DisplayMenus() == -1)
-    	return -1;
+    
+    //if(SLUGmaker_DisplayMenus() == -1)
+    	//return -1;
     
     if(SLUGmaker_DisplayMap(cam) == -1)
         return -1;
@@ -197,9 +194,11 @@ int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
     DrawTexture(graphic_vars.mouse_cursor_sprite,GetMouseX(),GetMouseY(),WHITE);
     
     Vector2 mouse = {.x = GetMouseX(), .y = GetMouseY()};
+    
+    /*
     if(CheckCollisionPointRec(mouse, *(cam->display)))
     	DrawText(TextFormat("%f ; %f",SLUGmaker_GetMousePosX(cam),SLUGmaker_GetMousePosY(cam)), 0, menus[1]->zone.y, 20,GREEN);
+    */
    
-    EndDrawing();
     return 0;
 }

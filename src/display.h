@@ -44,8 +44,8 @@ int8_t SLUGmaker_DisplayUpdate(SLUGmaker_camera *cam);
 int8_t SLUGmaker_DisplayMap(SLUGmaker_camera *cam);
 int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam);
 
-int8_t SLUGmaker_DisplayMenu(SLUGmaker_Menu *menu);
-int8_t SLUGmaker_DisplayMenus();
+//int8_t SLUGmaker_DisplayMenu(SLUGmaker_Menu *menu);
+//int8_t SLUGmaker_DisplayMenus();
 
 int8_t SLUGmaker_Display(SLUGmaker_camera *cam);
 

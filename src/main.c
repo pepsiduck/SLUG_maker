@@ -8,7 +8,7 @@
 #include "display.h"
 #include "action.h"
 #include "menus.h"
-//#include "raygui.h"
+#include "raygui.h"
 
 //#define RAYGUI_IMPLEMENTATION
 
@@ -73,12 +73,6 @@ int main(int argc, char *argv[])
     //ToggleFullscreen();
     InitAudioDevice();
     SetWindowState(FLAG_VSYNC_HINT|FLAG_WINDOW_RESIZABLE);
-    
-    if(SLUGmaker_MenusInit() == -1)
-    {
-    	printf("Menu initialization fail\n");
-    	return 1;
-    }
 
     map = SLUGmaker_Init(argc, argv);
 
@@ -100,10 +94,22 @@ int main(int argc, char *argv[])
     HideCursor();
 
     SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
+    SLUGmaker_Toolbar toolbar = SLUGmaker_ToolBarDevLoad(graphic_vars.screen_w, graphic_vars.screen_h);
 
     int8_t error = 0;
     while (!WindowShouldClose())
     {
+        BeginDrawing();
+        ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+
+        error = SLUGmaker_ToolBar(&toolbar);   
+        if(error == -1)
+            break;
+
+        float factor_x = ((float) GetScreenWidth()) / ((float) graphic_vars.screen_w);
+		float factor_y = ((float) GetScreenHeight()) / ((float) graphic_vars.screen_h);
+        SLUGmaker_ToolBarResize(factor_x, factor_y, &toolbar);
+   
         error = SLUGmaker_DisplayUpdate(&cam);
         if(error == -1)
             break;
@@ -116,7 +122,9 @@ int main(int argc, char *argv[])
         if(error == -1)
             break;
 
-        if(IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL))
+        EndDrawing();
+
+        if((IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL)) || toolbar.save.pressed)
         {
             if(SLUGmaker_WriteMap(map) == -1)
                 printf("Save failure\n");      
@@ -134,7 +142,6 @@ int main(int argc, char *argv[])
     
 
     SLUGmaker_UnloadMap(map);
-    SLUGmaker_MenusUnload();
     SLUGmaker_GraphicUnload();
 
     CloseWindow(); // Close window and OpenGL context

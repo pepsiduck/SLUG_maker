@@ -3,102 +3,85 @@
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
 
-SLUGmaker_Menu *SLUGmaker_LoadMenu(Rectangle zone, Color color)
+char SLUGmaker_IconBuffer[8];
+
+int8_t SLUGmaker_ButtonLoad(Rectangle zone, uint16_t guiIcon, SLUGmaker_button *button)
 {
-	SLUGmaker_Menu *newmenu = (SLUGmaker_Menu *) malloc(sizeof(SLUGmaker_Menu));
-	if(newmenu == NULL)
-		return NULL;
-	
-	newmenu->zone.x = zone.x * GetScreenWidth();
-	newmenu->zone.y = zone.y * GetScreenHeight();
-	newmenu->zone.width = zone.width * GetScreenWidth();
-	newmenu->zone.height = zone.height * GetScreenHeight();	
-	
-	newmenu->color = color;
-	
-	return newmenu;
+    if(button == NULL)
+        return -1;
+    button->zone = zone;
+    button->guiIcon = guiIcon;
+    button->pressed = false;
+    return 0;
 }
 
-void SLUGmaker_UnloadMenu(SLUGmaker_Menu *menu)
+int8_t SLUGmaker_ButtonResize(float factor_x, float factor_y, SLUGmaker_button *button)
 {
-	if(menu != NULL)
-	{
-		free(menu);
-		menu = NULL;
-	}
+    if(button == NULL)
+        return -1;
+
+    button->zone.x *= factor_x;
+    button->zone.y *= factor_y;
+    button->zone.width *= factor_x;
+    button->zone.height *= factor_y;
+
+    return 0;
 }
 
-int8_t SLUGmaker_MenuResize(SLUGmaker_Menu *menu, float factor_x, float factor_y)
+int8_t SLUGmaker_ButtonPressed(SLUGmaker_button *button)
 {
-	if(menu == NULL)
-		return -1;
-		
-	menu->zone.x *= factor_x;
-	menu->zone.y *= factor_y;
-	menu->zone.width *= factor_x;
-	menu->zone.height *= factor_y;
-		
-	return 0;
+    if(button == NULL)
+        return -1;
+    sprintf(SLUGmaker_IconBuffer,"#%u#",button->guiIcon);
+    GuiSetTooltip("Save map (CTRL+S)");
+    button->pressed = GuiButton(button->zone, SLUGmaker_IconBuffer);
+    return 0;
 }
 
-SLUGmaker_Menu* menus[MENU_NB];
-
-int8_t SLUGmaker_MenusInit()
+SLUGmaker_Toolbar SLUGmaker_ToolBarDevLoad(uint32_t screen_w, uint32_t screen_h)
 {
-	menus[0] = SLUGmaker_LoadMenu((Rectangle) {.x = 0.0f, .y = 0.0f, .width = 1.0f, .height = 0.03f}, WHITE);
-	if(menus[0] == NULL)
-		return -1;
-	menus[1] = SLUGmaker_LoadMenu((Rectangle) {.x = 0.0f, .y = 0.03f, .width = 0.2f, .height = 0.97f}, DARKGRAY);
-	if(menus[1] == NULL)
-	{
-		SLUGmaker_MenusUnload();
-		return -1;
-	}
-	menus[2] = SLUGmaker_LoadMenu((Rectangle) {.x = 0.2f, .y = 0.83f, .width = 0.8f, .height = 0.17f}, DARKGRAY);
-	if(menus[2] == NULL)
-	{
-		SLUGmaker_MenusUnload();
-		return -1;
-	}
-	return 0;
+    SLUGmaker_Toolbar toolbar;
+    toolbar.zone = (Rectangle) {.x = 0, .y = 0, .width = (float) screen_w, .height = ((float) screen_h) * 0.03f};
+    SLUGmaker_ButtonLoad((Rectangle){.x = toolbar.zone.width * 0.0025f, .y = ((float) screen_h) * 0.0025f, .width = ((float) screen_h) * 0.025f, .height = ((float) screen_h) * 0.025f},6,&toolbar.save);
+    return toolbar;
 }
 
-void SLUGmaker_MenusUnload()
+int8_t SLUGmaker_ToolBarResize(float factor_x, float factor_y, SLUGmaker_Toolbar *toolbar)
 {
-	for(uint8_t m = 0; m < MENU_NB; m++)
-		SLUGmaker_UnloadMenu(menus[m]);
+    if(toolbar == NULL)
+        return -1;
+
+    toolbar->zone.x *= factor_x;
+    toolbar->zone.y *= factor_y;
+    toolbar->zone.width *= factor_x;
+    toolbar->zone.height *= factor_y;
+
+    SLUGmaker_ButtonResize(factor_x, factor_y, &(toolbar->save));
+
+    return 0;
 }
 
-int8_t bullshit()
+int8_t SLUGmaker_ToolBarButtonPressed(SLUGmaker_Toolbar *toolbar)
 {
-    InitWindow(400, 200, "raygui - controls test suite");
-    SetTargetFPS(60);
+    if(toolbar == NULL)
+        return -1;
 
-    bool showMessageBox = false;
-    int toggleGroupActive = 0;
+    SLUGmaker_ButtonPressed(&(toolbar->save));
 
-    while (!WindowShouldClose())
-    {
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
-            ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+    //GuiSetTooltip(NULL);
+    return 0;
+}
 
-            //if (GuiButton((Rectangle){ 24, 24, 120, 30 }, "#191#Show Message")) showMessageBox = true;
-            if (GuiToggleGroup((Rectangle){ 24, 60, 120, 30 }, "#1#ONE\n#3#TWO\n#8#THREE\n#23#", &toggleGroupActive))
-                printf("jaaj\n");
+int8_t SLUGmaker_ToolBar(SLUGmaker_Toolbar *toolbar)
+{
+    if(toolbar == NULL)
+        return -1;
 
-            if (showMessageBox)
-            {
-                int result = GuiMessageBox((Rectangle){ 85, 70, 250, 100 },
-                    "#191#Message Box", "Hi! This is a message!", "Nice;Cool");
+    GuiPanel(toolbar->zone, NULL);
 
-                if (result >= 0) showMessageBox = false;
-            }
+    int8_t err = SLUGmaker_ToolBarButtonPressed(toolbar);
+    if(err < 0)
+        return err;
 
-        EndDrawing();
-    }
-
-    CloseWindow();
     return 0;
 }

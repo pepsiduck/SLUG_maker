@@ -7,50 +7,32 @@
 #include <raylib.h>
 #include <raygui.h>
 
-typedef enum {
-                NONE,
-                BUTTON_SAVE,
-                BUTTON_WALL, 
-                BUTTON_DELETE, 
-                BUTTON_NONE
-              }  SLUGmaker_ButtonType;
+#include "string.h"
 
-typedef struct SLUGmaker_Button SLUGmaker_Button;
-struct SLUGmaker_Button
+extern char SLUGmaker_IconBuffer[8];
+
+typedef struct SLUGmaker_button SLUGmaker_button;
+struct SLUGmaker_button
 {
     Rectangle zone;
-    Color hover;
-    GuiIconName icon;
-    SLUGmaker_ButtonType type;
-    bool active;
+    uint16_t guiIcon;
+    bool pressed;
 };
 
-SLUGmaker_Button *SLUGmaker_LoadButton(Rectangle zone, Rectangle parent_menu, Color color, Color hover, SLUGmaker_ButtonType type);
-void SLUGmaker_UnloadButton(SLUGmaker_Button button);
+int8_t SLUGmaker_ButtonLoad(Rectangle zone, uint16_t guiIcon, SLUGmaker_button *button);
+int8_t SLUGmaker_ButtonResize(float factor_x, float factor_y, SLUGmaker_button *button);
+int8_t SLUGmaker_ButtonPressed(SLUGmaker_button *button);
 
-SLUGmaker_ButtonType SLUGmaker_ButtonMouseHover(Vector2 mouse);
-
-typedef struct SLUGmaker_Menu SLUGmaker_Menu;
-struct SLUGmaker_Menu
+typedef struct SLUGmaker_Toolbar SLUGmaker_Toolbar;
+struct SLUGmaker_Toolbar
 {
-	Rectangle zone; //Relative to screen_w and screen_h
-	Color color;
-    bool active;
-
-    uint8_t buttons_nb;
-    SLUGmaker_Button** button_list;
+    Rectangle zone;
+    SLUGmaker_button save;
 };
 
-SLUGmaker_Menu *SLUGmaker_LoadMenu(Rectangle zone, Color color);
-void SLUGmaker_UnloadMenu(SLUGmaker_Menu *menu);
-
-int8_t SLUGmaker_MenuResize(SLUGmaker_Menu *menu, float factor_x, float factor_y);
-
-#define MENU_NB 3
-extern SLUGmaker_Menu* menus[MENU_NB];
-int8_t SLUGmaker_MenusInit();
-void SLUGmaker_MenusUnload();
-
-int8_t bullshit();
+SLUGmaker_Toolbar SLUGmaker_ToolBarDevLoad(uint32_t screen_w, uint32_t screen_h);
+int8_t SLUGmaker_ToolBarResize(float factor_x, float factor_y, SLUGmaker_Toolbar *toolbar);
+int8_t SLUGmaker_ToolBarButtonPressed(SLUGmaker_Toolbar *toolbar);
+int8_t SLUGmaker_ToolBar(SLUGmaker_Toolbar *toolbar);
 
 #endif
