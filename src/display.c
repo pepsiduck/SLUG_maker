@@ -163,7 +163,8 @@ int8_t SLUGmaker_DisplayMenu(SLUGmaker_Menu *menu)
 	if(menu == NULL)
 		return -1;
 		
-	DrawRectangleRec(menu->zone, menu->color);
+	GuiWindowBox(menu->zone, "Jaaj");
+	//DrawRectangleRec(menu->zone, menu->color);
 	
 	return 0;
 }

@@ -84,7 +84,7 @@ int8_t bullshit()
         BeginDrawing();
             ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
-            if (GuiButton((Rectangle){ 24, 24, 120, 30 }, "#191#Show Message")) showMessageBox = true;
+            //if (GuiButton((Rectangle){ 24, 24, 120, 30 }, "#191#Show Message")) showMessageBox = true;
             if (GuiToggleGroup((Rectangle){ 24, 60, 120, 30 }, "#1#ONE\n#3#TWO\n#8#THREE\n#23#", &toggleGroupActive))
                 printf("jaaj\n");
 

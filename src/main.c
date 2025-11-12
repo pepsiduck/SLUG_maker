@@ -67,7 +67,6 @@ SLUGmaker_map* SLUGmaker_Init(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    /*
     SLUGmaker_map *map = NULL;
 
     InitWindow(1680, 1050, "SLUGmaker");
@@ -142,7 +141,7 @@ int main(int argc, char *argv[])
     CloseAudioDevice();
 
     return 0;
-    */
-    return bullshit();
+    
+    //return bullshit();
 }
 
