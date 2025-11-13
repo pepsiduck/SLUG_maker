@@ -40,12 +40,9 @@ SLUGmaker_camera SLUGmaker_DefaultCamera(SLUGmaker_map *map);
 float SLUGmaker_GetMousePosX(SLUGmaker_camera *cam);
 float SLUGmaker_GetMousePosY(SLUGmaker_camera *cam);
 
-int8_t SLUGmaker_DisplayUpdate(SLUGmaker_camera *cam);
+int8_t SLUGmaker_DisplayUpdate(float factor_x, float factor_y, SLUGmaker_camera *cam);
 int8_t SLUGmaker_DisplayMap(SLUGmaker_camera *cam);
 int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam);
-
-//int8_t SLUGmaker_DisplayMenu(SLUGmaker_Menu *menu);
-//int8_t SLUGmaker_DisplayMenus();
 
 int8_t SLUGmaker_Display(SLUGmaker_camera *cam);
 

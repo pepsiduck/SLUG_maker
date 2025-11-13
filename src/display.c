@@ -65,24 +65,17 @@ float SLUGmaker_GetMousePosY(SLUGmaker_camera *cam)
     return (float) (cam->view_zone.y + ((GetMouseY() - cam->display->y) * cam->view_zone.height) / cam->display->height);
 }
 
-int8_t SLUGmaker_DisplayUpdate(SLUGmaker_camera *cam)
+int8_t SLUGmaker_DisplayUpdate(float factor_x, float factor_y, SLUGmaker_camera *cam)
 {
-	if(GetScreenWidth() != graphic_vars.screen_w || GetScreenHeight() != graphic_vars.screen_h)
-	{
-
-		float factor_x = ((float) GetScreenWidth()) / ((float) graphic_vars.screen_w);
-		float factor_y = ((float) GetScreenHeight()) / ((float) graphic_vars.screen_h);
 		
-		cam->display->x *= factor_x;
-		cam->display->y *= factor_y;
-		cam->display->width *= factor_x;
-		cam->display->height *= factor_y;
+	cam->display->x *= factor_x;
+	cam->display->y *= factor_y;
+	cam->display->width *= factor_x;
+	cam->display->height *= factor_y;
 
-		cam->ratiox = cam->display->width / cam->view_zone.width;
-		cam->ratioy = cam->display->height / cam->view_zone.height;
-		graphic_vars.screen_w = GetScreenWidth();
-		graphic_vars.screen_h = GetScreenHeight();	
-	}
+	cam->ratiox = cam->display->width / cam->view_zone.width;
+	cam->ratioy = cam->display->height / cam->view_zone.height;
+		
     return 0;
 }
 
@@ -154,36 +147,8 @@ int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam)
     return 0;
 }
 
-/*
-int8_t SLUGmaker_DisplayMenu(SLUGmaker_Menu *menu)
-{
-	if(menu == NULL)
-		return -1;
-		
-	GuiWindowBox(menu->zone, "Jaaj");
-	//DrawRectangleRec(menu->zone, menu->color);
-	
-	return 0;
-}
-
-int8_t SLUGmaker_DisplayMenus()
-{
-	for(uint8_t m = 0; m < MENU_NB; ++m)
-	{
-		if(SLUGmaker_DisplayMenu(menus[m]) == -1)
-			return -1;
-	}
-			 
-	return 0;
-}
-*/
-
 int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
 {
-    
-    
-    //if(SLUGmaker_DisplayMenus() == -1)
-    	//return -1;
     
     if(SLUGmaker_DisplayMap(cam) == -1)
         return -1;
@@ -195,10 +160,10 @@ int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
     
     Vector2 mouse = {.x = GetMouseX(), .y = GetMouseY()};
     
-    /*
+    
     if(CheckCollisionPointRec(mouse, *(cam->display)))
-    	DrawText(TextFormat("%f ; %f",SLUGmaker_GetMousePosX(cam),SLUGmaker_GetMousePosY(cam)), 0, menus[1]->zone.y, 20,GREEN);
-    */
+    	DrawText(TextFormat("%f ; %f",SLUGmaker_GetMousePosX(cam),SLUGmaker_GetMousePosY(cam)), 0, (float) (graphic_vars.screen_h) * 0.04f, 20,GREEN);
+    
    
     return 0;
 }

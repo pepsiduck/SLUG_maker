@@ -68,7 +68,8 @@ int8_t SLUGmaker_ToolBarButtonPressed(SLUGmaker_Toolbar *toolbar)
 
     SLUGmaker_ButtonPressed(&(toolbar->save));
 
-    //GuiSetTooltip(NULL);
+    GuiSetTooltip(NULL);
+    
     return 0;
 }
 

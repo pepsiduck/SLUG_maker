@@ -65,14 +65,60 @@ SLUGmaker_map* SLUGmaker_Init(int argc, char *argv[])
     return map;
 }
 
+void SLUGmaker_ChangeFullscreen(int16_t const screenWidth, int16_t const screenHeight)
+{
+	if (IsKeyPressed(KEY_ENTER) && (IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT)))
+ 	{
+ 		int display = GetCurrentMonitor();
+
+        if (IsWindowFullscreen())
+            SetWindowSize(screenWidth, screenHeight);
+        else
+            SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
+ 
+		ToggleFullscreen();
+ 	}
+}
+
+int8_t SLUGmaker_Resize(SLUGmaker_Toolbar *toolbar, SLUGmaker_camera *cam)
+{
+	if(GetScreenWidth() != graphic_vars.screen_w || GetScreenHeight() != graphic_vars.screen_h)
+	{
+
+		float factor_x = ((float) GetScreenWidth()) / ((float) graphic_vars.screen_w);
+		float factor_y = ((float) GetScreenHeight()) / ((float) graphic_vars.screen_h);
+			
+        int8_t error = SLUGmaker_ToolBarResize(factor_x, factor_y, toolbar);
+        if(error == -1)
+           	return -1;
+        error = SLUGmaker_DisplayUpdate(factor_x, factor_y, cam);
+        if(error == -1)
+           	return -1;
+        	
+        graphic_vars.screen_w = GetScreenWidth();
+		graphic_vars.screen_h = GetScreenHeight();	
+        	
+    }
+    
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
+	
     SLUGmaker_map *map = NULL;
+    
+    int16_t const screenWidth = 1680;
+    int16_t const screenHeight = 1050;
 
-    InitWindow(1680, 1050, "SLUGmaker");
-    //ToggleFullscreen();
-    InitAudioDevice();
+    InitWindow(screenWidth, screenHeight, "SLUGmaker");
     SetWindowState(FLAG_VSYNC_HINT|FLAG_WINDOW_RESIZABLE);
+    
+    int display = GetCurrentMonitor();
+    SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
+    ToggleFullscreen();    
+        
+    InitAudioDevice();
 
     map = SLUGmaker_Init(argc, argv);
 
@@ -81,8 +127,6 @@ int main(int argc, char *argv[])
         printf("Map initialization fail.\n");
         return 1;
     }
-
-    
 
     if(SLUGmaker_GraphicInit() != 0)
     {
@@ -95,22 +139,20 @@ int main(int argc, char *argv[])
 
     SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
     SLUGmaker_Toolbar toolbar = SLUGmaker_ToolBarDevLoad(graphic_vars.screen_w, graphic_vars.screen_h);
+    GuiEnableTooltip();
 
     int8_t error = 0;
     while (!WindowShouldClose())
     {
+    
+    	SLUGmaker_ChangeFullscreen(screenWidth, screenHeight);
+    	
+    	SLUGmaker_Resize(&toolbar, &cam);
+    
         BeginDrawing();
         ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
-
+        
         error = SLUGmaker_ToolBar(&toolbar);   
-        if(error == -1)
-            break;
-
-        float factor_x = ((float) GetScreenWidth()) / ((float) graphic_vars.screen_w);
-		float factor_y = ((float) GetScreenHeight()) / ((float) graphic_vars.screen_h);
-        SLUGmaker_ToolBarResize(factor_x, factor_y, &toolbar);
-   
-        error = SLUGmaker_DisplayUpdate(&cam);
         if(error == -1)
             break;
 
@@ -121,6 +163,7 @@ int main(int argc, char *argv[])
         error = SLUGmaker_Display(&cam);
         if(error == -1)
             break;
+            
 
         EndDrawing();
 
@@ -149,6 +192,68 @@ int main(int argc, char *argv[])
 
     return 0;
     
-    //return bullshit();
+    
+    /*
+    // Initialization
+    //--------------------------------------------------------------------------------------
+    const int screenWidth = 1680;
+    const int screenHeight = 1050;
+
+    InitWindow(1680, 1050, "raylib [core] example - fullscreen toggle");
+    int display = GetCurrentMonitor();
+    SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
+    ToggleFullscreen();
+    
+    printf("%d %d jaaj\n",GetMonitorWidth(display),GetMonitorHeight(display));
+    
+
+    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+
+    //--------------------------------------------------------------------------------------
+    // Main game loop
+    while (!WindowShouldClose())    // Detect window close button or ESC key
+    {
+        // check for alt + enter
+ 		if (IsKeyPressed(KEY_ENTER) && (IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT)))
+ 		{
+            // see what display we are on right now
+ 			int display = GetCurrentMonitor();
+ 
+            
+            if (IsWindowFullscreen())
+            {
+                // if we are full screen, then go back to the windowed size
+                printf("%d %d\n",screenWidth, screenHeight);
+                SetWindowSize(screenWidth, screenHeight);
+            }
+            else
+            {
+                // if we are not full screen, set the window size to match the monitor we are on
+                printf("%d %d\n",GetMonitorWidth(display), GetMonitorHeight(display));
+                SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
+            }
+ 
+            // toggle the state
+ 			ToggleFullscreen();
+ 		}
+
+        // Draw
+        //----------------------------------------------------------------------------------
+        BeginDrawing();
+
+        ClearBackground(RAYWHITE);
+
+        DrawText("Press Alt + Enter to Toggle full screen!", 190, 200, 20, LIGHTGRAY);
+
+        EndDrawing();
+        //----------------------------------------------------------------------------------
+    }
+    // De-Initialization
+    //--------------------------------------------------------------------------------------
+    CloseWindow();        // Close window and OpenGL context
+    //--------------------------------------------------------------------------------------
+
+    return 0;*/
+
 }
 
