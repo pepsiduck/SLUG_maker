@@ -65,7 +65,7 @@ SLUGmaker_map* SLUGmaker_Init(int argc, char *argv[])
     return map;
 }
 
-void SLUGmaker_ChangeFullscreen(int16_t const screenWidth, int16_t const screenHeight)
+int8_t SLUGmaker_ChangeFullscreen(int16_t const screenWidth, int16_t const screenHeight)
 {
 	if (IsKeyPressed(KEY_ENTER) && (IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT)))
  	{
@@ -77,7 +77,9 @@ void SLUGmaker_ChangeFullscreen(int16_t const screenWidth, int16_t const screenH
             SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
  
 		ToggleFullscreen();
+        return 1;
  	}
+    return 0;
 }
 
 int8_t SLUGmaker_Resize(SLUGmaker_Toolbar *toolbar, SLUGmaker_camera *cam)
@@ -105,18 +107,14 @@ int8_t SLUGmaker_Resize(SLUGmaker_Toolbar *toolbar, SLUGmaker_camera *cam)
 
 int main(int argc, char *argv[])
 {
-	
     SLUGmaker_map *map = NULL;
-    
-    int16_t const screenWidth = 1680;
-    int16_t const screenHeight = 1050;
 
-    InitWindow(screenWidth, screenHeight, "SLUGmaker");
+    InitWindow(0, 0, "SLUGmaker");
     SetWindowState(FLAG_VSYNC_HINT|FLAG_WINDOW_RESIZABLE);
     
     int display = GetCurrentMonitor();
-    SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
-    ToggleFullscreen();    
+    int16_t const screenWidth = GetMonitorWidth(display);
+    int16_t const screenHeight = GetMonitorHeight(display);
         
     InitAudioDevice();
 
@@ -145,9 +143,8 @@ int main(int argc, char *argv[])
     while (!WindowShouldClose())
     {
     
-    	SLUGmaker_ChangeFullscreen(screenWidth, screenHeight);
-    	
-    	SLUGmaker_Resize(&toolbar, &cam);
+    	if(!SLUGmaker_ChangeFullscreen(screenWidth, screenHeight))
+    	    SLUGmaker_Resize(&toolbar, &cam);
     
         BeginDrawing();
         ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
