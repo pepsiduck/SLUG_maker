@@ -13,8 +13,8 @@ typedef struct SLUGmaker_GraphicVariables SLUGmaker_GraphicVariables;
 struct SLUGmaker_GraphicVariables
 {
     Rectangle display;
-    uint32_t screen_w;
-    uint32_t screen_h;
+    float screen_w;
+    float screen_h;
     
     Texture2D mouse_cursor_sprite; 
     Texture2D wall_node_sprite;

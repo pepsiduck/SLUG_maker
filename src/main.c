@@ -86,9 +86,11 @@ int8_t SLUGmaker_Resize(SLUGmaker_Toolbar *toolbar, SLUGmaker_camera *cam)
 {
 	if(GetScreenWidth() != graphic_vars.screen_w || GetScreenHeight() != graphic_vars.screen_h)
 	{
+		float w = (float) GetScreenWidth();
+		float h = (float) GetScreenHeight();
 
-		float factor_x = ((float) GetScreenWidth()) / ((float) graphic_vars.screen_w);
-		float factor_y = ((float) GetScreenHeight()) / ((float) graphic_vars.screen_h);
+		float factor_x = w / graphic_vars.screen_w;
+		float factor_y = h / graphic_vars.screen_h;
 			
         int8_t error = SLUGmaker_ToolBarResize(factor_x, factor_y, toolbar);
         if(error == -1)
@@ -97,9 +99,10 @@ int8_t SLUGmaker_Resize(SLUGmaker_Toolbar *toolbar, SLUGmaker_camera *cam)
         if(error == -1)
            	return -1;
         	
-        graphic_vars.screen_w = GetScreenWidth();
-		graphic_vars.screen_h = GetScreenHeight();	
+        graphic_vars.screen_w = w;
+		graphic_vars.screen_h = h;	
         	
+        return 1;
     }
     
     return 0;
@@ -140,11 +143,13 @@ int main(int argc, char *argv[])
     GuiEnableTooltip();
 
     int8_t error = 0;
+    bool resize = false;
+    
     while (!WindowShouldClose())
     {
     
     	if(!SLUGmaker_ChangeFullscreen(screenWidth, screenHeight))
-    	    SLUGmaker_Resize(&toolbar, &cam);
+    	    resize = SLUGmaker_Resize(&toolbar, &cam);
     
         BeginDrawing();
         ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
@@ -153,7 +158,7 @@ int main(int argc, char *argv[])
         if(error == -1)
             break;
 
-        error = SLUGmaker_CameraUpdate(&cam);
+        error = SLUGmaker_CameraUpdate(&cam,resize);
         if(error == -1)
             break;
         

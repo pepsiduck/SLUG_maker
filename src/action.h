@@ -15,7 +15,7 @@ typedef enum {ACTION_MODE_NONE, ACTION_MODE_DELETE, ACTION_MODE_WALL} SLUGmaker_
 extern SLUGmaker_action_mode previous_action;
 extern SLUGmaker_action_mode current_action;
 
-int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam);
+int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam, bool window_changed);
 
 //under mouse
 int16_t SLUGmaker_WallUnderMouseA(SLUGmaker_map *map, SLUGmaker_camera *cam);

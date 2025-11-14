@@ -3,25 +3,22 @@
 SLUGmaker_action_mode previous_action = ACTION_MODE_NONE;
 SLUGmaker_action_mode current_action = ACTION_MODE_NONE;
 
-int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam)
+int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam, bool window_changed)
 {
     if(cam == NULL)
         return -1;
+                
+    bool zoom = false;    
+        
     if(GetMouseWheelMove() > 0)
     {
-        cam->view_zone.width /= 1.1;
-        cam->view_zone.height /= 1.1;
         cam->unzoom /= 1.1;
-        cam->ratiox = cam->display->width / cam->view_zone.width;
-        cam->ratioy = cam->display->height / cam->view_zone.height;
+        zoom = true;
     }
     else if(GetMouseWheelMove() < 0)
     {
-        cam->view_zone.width *= 1.1;
-        cam->view_zone.height *= 1.1;
         cam->unzoom *= 1.1;
-        cam->ratiox = cam->display->width / cam->view_zone.width;
-        cam->ratioy = cam->display->height / cam->view_zone.height;
+        zoom = true;
     }
 
     if(IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
@@ -29,6 +26,14 @@ int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam)
         Vector2 v = GetMouseDelta();
         cam->view_zone.x -= v.x * cam->unzoom;
         cam->view_zone.y -= v.y * cam->unzoom;
+    }
+    
+    if(zoom || window_changed)
+    {
+    	cam->view_zone.width = graphic_vars.screen_w * cam->unzoom;
+		cam->view_zone.height = graphic_vars.screen_h * cam->unzoom;
+		cam->ratiox = cam->display->width / cam->view_zone.width;
+		cam->ratioy = cam->display->height / cam->view_zone.height;
     }
 
     return 0;
