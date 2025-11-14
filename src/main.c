@@ -9,6 +9,7 @@
 #include "action.h"
 #include "menus.h"
 #include "raygui.h"
+#include "defines.h"
 
 //#define RAYGUI_IMPLEMENTATION
 

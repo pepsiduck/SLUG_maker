@@ -83,7 +83,7 @@ SLUGmaker_map* SLUGmaker_NewMap(const char *filename)
     map->zone.height = map->fixed_sprite.height;
     map->zone.x = 0;
     map->zone.y = 0;
-    for(int16_t i = 0; i < MAX_WALLS_NB; ++ i)
+    for(int16_t i = 4; i < MAX_WALLS_NB; ++ i)
         map->walls[i] = (SLUGmaker_SegmentExtended) {
             .A = (Vector2) {.x = 0, .y = 0},
             .B = (Vector2) {.x = 0, .y = 0},
@@ -92,8 +92,41 @@ SLUGmaker_map* SLUGmaker_NewMap(const char *filename)
             .next = NULL,
             .exists = false
         };
-    map->current_wall_index = 0;
-    map->wall_nb = 0;
+    map->walls[0] =  (SLUGmaker_SegmentExtended) {
+        .A = (Vector2) {.x = 0, .y = 0},
+        .B = (Vector2) {.x = map->fixed_sprite.width, .y = 0},
+        .normal = (Vector2) {.x = 0, .y = 1},
+        .middlepoint = (Vector2) {.x = map->fixed_sprite.width*0.5f, .y = 0},
+        .next = &(map->walls[1]),
+        .exists = true
+    };   
+    map->walls[1] =  (SLUGmaker_SegmentExtended) {
+        .A = (Vector2) {.x = map->fixed_sprite.width, .y = 0},
+        .B = (Vector2) {.x = map->fixed_sprite.width, .y = map->fixed_sprite.height},
+        .normal = (Vector2) {.x = -1, .y = 0},
+        .middlepoint = (Vector2) {.x = map->fixed_sprite.width, .y = map->fixed_sprite.height*0.5f},
+        .next = &(map->walls[2]),
+        .exists = true
+    };   
+    map->walls[2] =  (SLUGmaker_SegmentExtended) {
+        .A = (Vector2) {.x = map->fixed_sprite.width, .y = map->fixed_sprite.height},
+        .B = (Vector2) {.x = 0, .y = map->fixed_sprite.height},
+        .normal = (Vector2) {.x = 0, .y = -1},
+        .middlepoint = (Vector2) {.x = map->fixed_sprite.width*0.5f, .y = map->fixed_sprite.height},
+        .next = &(map->walls[3]),
+        .exists = true
+    }; 
+    map->walls[3] =  (SLUGmaker_SegmentExtended) {
+        .A = (Vector2) {.x = 0, .y = map->fixed_sprite.height},
+        .B = (Vector2) {.x = 0, .y = 0},
+        .normal = (Vector2) {.x = 1, .y = 0},
+        .middlepoint = (Vector2) {.x = 0, .y = map->fixed_sprite.height*0.5f},
+        .next = &(map->walls[0]),
+        .exists = true
+    }; 
+    
+    map->current_wall_index = 4;
+    map->wall_nb = 4;
     map->wall_line_mode = false;
     map->wall_line_origin_index = -1;
     map->wall_move_mode = -1;
@@ -765,7 +798,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
 
     fclose(f);
 
-    printf("Succes !");
+    printf("Succes !\n");
     
     return 0;
 }

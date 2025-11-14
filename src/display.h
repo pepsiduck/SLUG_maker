@@ -6,43 +6,13 @@
 #include <inttypes.h>
 #include <raylib.h>
 
-#include "map.h"
 #include "menus.h"
-
-typedef struct SLUGmaker_GraphicVariables SLUGmaker_GraphicVariables;
-struct SLUGmaker_GraphicVariables
-{
-    Rectangle display;
-    float screen_w;
-    float screen_h;
-    
-    Texture2D mouse_cursor_sprite; 
-    Texture2D wall_node_sprite;
-};
-
-extern SLUGmaker_GraphicVariables graphic_vars;
-
-int8_t SLUGmaker_GraphicInit();
-int8_t SLUGmaker_GraphicUnload();
-
-typedef struct SLUGmaker_camera SLUGmaker_camera;
-struct SLUGmaker_camera
-{
-    Rectangle view_zone;
-    Rectangle *display;
-    SLUGmaker_map *map;
-    float unzoom;
-    float ratiox;
-    float ratioy;
-};
-
-SLUGmaker_camera SLUGmaker_DefaultCamera(SLUGmaker_map *map);
-float SLUGmaker_GetMousePosX(SLUGmaker_camera *cam);
-float SLUGmaker_GetMousePosY(SLUGmaker_camera *cam);
+#include "action.h"
 
 int8_t SLUGmaker_DisplayUpdate(float factor_x, float factor_y, SLUGmaker_camera *cam);
-int8_t SLUGmaker_DisplayMap(SLUGmaker_camera *cam);
+
 int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam);
+int8_t SLUGmaker_DisplayMap(SLUGmaker_camera *cam);
 
 int8_t SLUGmaker_Display(SLUGmaker_camera *cam);
 
