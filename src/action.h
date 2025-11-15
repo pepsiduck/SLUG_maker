@@ -28,7 +28,12 @@ float SLUGmaker_GetMousePosY(SLUGmaker_camera *cam);
 int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam, bool window_changed);
 
 //action types
-typedef enum {ACTION_MODE_NONE, ACTION_MODE_DELETE, ACTION_MODE_WALL} SLUGmaker_action_mode;
+typedef enum {
+	ACTION_MODE_NONE,
+	ACTION_MODE_DELETE, 
+	ACTION_MODE_WALL,
+	ACTION_MODE_PLAYER
+	} SLUGmaker_action_mode;
 extern SLUGmaker_action_mode previous_action;
 extern SLUGmaker_action_mode current_action;
 
@@ -47,5 +52,8 @@ int8_t SLUGmaker_WallMode(SLUGmaker_map *map, SLUGmaker_camera *cam);
 int8_t SLUGmaker_MoveWall(SLUGmaker_map *map, SLUGmaker_camera *cam);
 int8_t SLUGmaker_PlaceNewWall(SLUGmaker_map *map, SLUGmaker_camera *cam);
 int8_t SLUGmaker_WallModeQuit(SLUGmaker_map *map);
+
+//player spawn point
+int8_t SLUGmaker_PlayerSpawnPointMove(SLUGmaker_map *map, SLUGmaker_camera *cam);
 
 #endif

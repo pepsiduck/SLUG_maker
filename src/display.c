@@ -18,6 +18,8 @@ int8_t SLUGmaker_DisplayUpdate(float factor_x, float factor_y, SLUGmaker_camera 
 
 int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam)
 {
+	if(cam == NULL)
+		return -1;
     for(int16_t i = 0; i < MAX_WALLS_NB; ++i)
     {
         if(cam->map->walls[i].exists)
@@ -63,8 +65,21 @@ int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam)
     return 0;
 }
 
+int8_t SLUGmaker_DisplayPlayerSpawnPoint(SLUGmaker_camera *cam)
+{
+	if(cam == NULL)
+		return -1;
+	if(CheckCollisionPointRec(cam->map->player_spawn_point,cam->view_zone))
+	{
+		DrawTexture(graphic_vars.player_spawn_point_sprite,(cam->display->x + (cam->map->player_spawn_point.x - cam->view_zone.x) * cam->ratiox) - graphic_vars.player_spawn_point_sprite.width / 2,(cam->display->y + (cam->map->player_spawn_point.y - cam->view_zone.y) * cam->ratioy) - graphic_vars.player_spawn_point_sprite.height / 2,WHITE);
+	}
+	return 0;
+}
+
 int8_t SLUGmaker_DisplayMap(SLUGmaker_camera *cam)
 {
+	if(cam == NULL)
+		return -1;
     if(CheckCollisionRecs(cam->view_zone, cam->map->zone))
     {
         Rectangle d1 = GetCollisionRec(cam->view_zone, cam->map->zone);
@@ -86,12 +101,17 @@ int8_t SLUGmaker_DisplayMap(SLUGmaker_camera *cam)
 
 int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
 {
+	if(cam == NULL)
+		return -1;
     
     if(SLUGmaker_DisplayMap(cam) == -1)
         return -1;
     
     if(SLUGmaker_DisplayWalls(cam) == -1)
         return -1;
+        
+    if(SLUGmaker_DisplayPlayerSpawnPoint(cam) == -1)
+    	return -1;
 
     DrawTexture(graphic_vars.mouse_cursor_sprite,GetMouseX(),GetMouseY(),WHITE);
     

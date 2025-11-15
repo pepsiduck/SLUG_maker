@@ -25,6 +25,12 @@ int8_t SLUGmaker_GraphicInit()
         printf("Error while loading wall node sprite.\n");
         return -1;
     }
+    graphic_vars.player_spawn_point_sprite = LoadTexture("assets/sprites/player_node.png");
+    if(graphic_vars.player_spawn_point_sprite.id <= 0)
+    {
+        printf("Error while loading wall node sprite.\n");
+        return -1;
+    }
     return 0;
 }
 
@@ -34,5 +40,7 @@ int8_t SLUGmaker_GraphicUnload()
         UnloadTexture(graphic_vars.mouse_cursor_sprite);
     if(graphic_vars.wall_node_sprite.id > 0)
         UnloadTexture(graphic_vars.wall_node_sprite);
+    if(graphic_vars.player_spawn_point_sprite.id > 0)
+        UnloadTexture(graphic_vars.player_spawn_point_sprite);
     return 0;
 }

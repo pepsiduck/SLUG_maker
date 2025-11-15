@@ -15,6 +15,7 @@ struct SLUGmaker_GraphicVariables
     
     Texture2D mouse_cursor_sprite; 
     Texture2D wall_node_sprite;
+    Texture2D player_spawn_point_sprite;
 };
 
 extern SLUGmaker_GraphicVariables graphic_vars;

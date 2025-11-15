@@ -78,7 +78,10 @@ int8_t SLUGmaker_ChangeActionMode(SLUGmaker_map *map)
         current_action = ACTION_MODE_DELETE;
     if(IsKeyPressed(KEY_W))
         current_action = ACTION_MODE_WALL;
-
+    if(IsKeyPressed(KEY_P))
+        current_action = ACTION_MODE_PLAYER;
+	
+	//quit
     if(previous_action != current_action)
     {
         switch(previous_action)
@@ -106,6 +109,8 @@ int8_t SLUGmaker_Action(SLUGmaker_map *map, SLUGmaker_camera *cam)
             return SLUGmaker_MapElementDelete(map,cam);
         case ACTION_MODE_WALL :
             return SLUGmaker_WallMode(map,cam);
+        case ACTION_MODE_PLAYER :
+        	return SLUGmaker_PlayerSpawnPointMove(map,cam);
         default:
             return 0;
     }   
@@ -137,7 +142,7 @@ int8_t SLUGmaker_WallDelete(SLUGmaker_map *map,SLUGmaker_camera *cam)
     if(map->wall_line_mode)
         return -1;
     int16_t w = SLUGmaker_WallUnderMouseA(map,cam);
-    if(w >= 4)
+    if(w >= -1)
     {
         int16_t count = 1;
         SLUGmaker_SegmentExtended *seg = &(map->walls[w]);
@@ -222,10 +227,8 @@ int8_t SLUGmaker_WallMode(SLUGmaker_map *map, SLUGmaker_camera *cam)
     {
         if(map->wall_move_mode == -1)
             map->wall_move_mode = SLUGmaker_WallUnderMouseB(map, cam);
-        if(map->wall_move_mode >= 4)
+        if(map->wall_move_mode != -1)
             return SLUGmaker_MoveWall(map, cam);
-        else
-        	map->wall_move_mode = -1;
     }
     else
         map->wall_move_mode = -1;  
@@ -453,4 +456,24 @@ int8_t SLUGmaker_WallModeQuit(SLUGmaker_map *map)
     
     map->wall_move_mode = -1;
     return 0;
+}
+
+//--- player
+int8_t SLUGmaker_PlayerSpawnPointMove(SLUGmaker_map *map, SLUGmaker_camera *cam)
+{
+	if(map == NULL || cam == NULL)
+		return -1;
+		
+	if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+	{
+		Vector2 msb = (Vector2) {.x = (float) GetMouseX(), .y = (float) GetMouseY()};
+		if(CheckCollisionPointRec(msb,graphic_vars.display))
+		{
+			msb = (Vector2) {.x = SLUGmaker_GetMousePosX(cam), .y = SLUGmaker_GetMousePosY(cam)};
+			if(CheckCollisionPointRec(msb,map->zone))
+				map->player_spawn_point = msb;
+		}
+	}	
+		
+	return 0;
 }

@@ -83,7 +83,7 @@ SLUGmaker_map* SLUGmaker_NewMap(const char *filename)
     map->zone.height = map->fixed_sprite.height;
     map->zone.x = 0;
     map->zone.y = 0;
-    for(int16_t i = 4; i < MAX_WALLS_NB; ++ i)
+    for(int16_t i = 0; i < MAX_WALLS_NB; ++ i)
         map->walls[i] = (SLUGmaker_SegmentExtended) {
             .A = (Vector2) {.x = 0, .y = 0},
             .B = (Vector2) {.x = 0, .y = 0},
@@ -92,44 +92,14 @@ SLUGmaker_map* SLUGmaker_NewMap(const char *filename)
             .next = NULL,
             .exists = false
         };
-    map->walls[0] =  (SLUGmaker_SegmentExtended) {
-        .A = (Vector2) {.x = 0, .y = 0},
-        .B = (Vector2) {.x = map->fixed_sprite.width, .y = 0},
-        .normal = (Vector2) {.x = 0, .y = 1},
-        .middlepoint = (Vector2) {.x = map->fixed_sprite.width*0.5f, .y = 0},
-        .next = &(map->walls[1]),
-        .exists = true
-    };   
-    map->walls[1] =  (SLUGmaker_SegmentExtended) {
-        .A = (Vector2) {.x = map->fixed_sprite.width, .y = 0},
-        .B = (Vector2) {.x = map->fixed_sprite.width, .y = map->fixed_sprite.height},
-        .normal = (Vector2) {.x = -1, .y = 0},
-        .middlepoint = (Vector2) {.x = map->fixed_sprite.width, .y = map->fixed_sprite.height*0.5f},
-        .next = &(map->walls[2]),
-        .exists = true
-    };   
-    map->walls[2] =  (SLUGmaker_SegmentExtended) {
-        .A = (Vector2) {.x = map->fixed_sprite.width, .y = map->fixed_sprite.height},
-        .B = (Vector2) {.x = 0, .y = map->fixed_sprite.height},
-        .normal = (Vector2) {.x = 0, .y = -1},
-        .middlepoint = (Vector2) {.x = map->fixed_sprite.width*0.5f, .y = map->fixed_sprite.height},
-        .next = &(map->walls[3]),
-        .exists = true
-    }; 
-    map->walls[3] =  (SLUGmaker_SegmentExtended) {
-        .A = (Vector2) {.x = 0, .y = map->fixed_sprite.height},
-        .B = (Vector2) {.x = 0, .y = 0},
-        .normal = (Vector2) {.x = 1, .y = 0},
-        .middlepoint = (Vector2) {.x = 0, .y = map->fixed_sprite.height*0.5f},
-        .next = &(map->walls[0]),
-        .exists = true
-    }; 
     
-    map->current_wall_index = 4;
-    map->wall_nb = 4;
+    map->current_wall_index = 0;
+    map->wall_nb = 0;
     map->wall_line_mode = false;
     map->wall_line_origin_index = -1;
     map->wall_move_mode = -1;
+    
+    map->player_spawn_point = (Vector2) {.x = map->zone.width/2, .y = map->zone.height/2};
     return map;
 }
 
@@ -183,16 +153,14 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     if(fread((void *) signature, sizeof(unsigned char), 7, f) != 7)
     {
         printf("File incomplete or error.\n");
-        free(map);
-        map = NULL;
+        SLUGmaker_UnloadMap(map);
         return NULL;
     }
     unsigned char test[7] = {0x53, 0x4C, 0x55, 0x47, 0x4D, 0x41, 0x50};
     if(memcmp(signature, test, 7) != 0)
     {
         printf("File signature is wrong.\n");
-        free(map);
-        map = NULL;
+        SLUGmaker_UnloadMap(map);
         return NULL;
     }
 
@@ -200,38 +168,33 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     if(fread((void *) &bsptree, sizeof(size_t), 1, f) != 1)
     {
         printf("File incomplete or error.\n");
-        free(map);
-        map = NULL;
+        SLUGmaker_UnloadMap(map);
         return NULL;
     }
 
     map->wall_nb = 0;
     map->current_wall_index = 0; 
-    printf("%lu\n", bsptree); 
     if(bsptree != 0)
     {
         int32_t wall_nb;
         if(fread((void *) &wall_nb, sizeof(int32_t), 1, f) != 1)
         {
             printf("File incomplete or error.\n");
-            free(map);
-            map = NULL;
+            SLUGmaker_UnloadMap(map);
             return NULL;
         }
 
         if(wall_nb <= 0)
         {
             printf("Wtf there are no walls ???\n");
-            free(map);
-            map = NULL;
+            SLUGmaker_UnloadMap(map);
             return NULL;
         }
 
         if(wall_nb > MAX_WALLS_NB)
         {
             printf("Too many walls\n");
-            free(map);
-            map = NULL;
+            SLUGmaker_UnloadMap(map);
             return NULL;
         }
 
@@ -239,8 +202,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         if(fread((void *) walls, sizeof(SLUG_SegmentExtended), wall_nb, f) != wall_nb)
         {
             printf("File incomplete or error.\n");
-            free(map);
-            map = NULL;
+            SLUGmaker_UnloadMap(map);
             return NULL;
         }
 
@@ -248,8 +210,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         if(fread((void *) links, sizeof(int32_t), wall_nb, f) != wall_nb)
         {
             printf("File incomplete or error.\n");
-            free(map);
-            map = NULL;
+            SLUGmaker_UnloadMap(map);
             return NULL;
         }
 
@@ -277,6 +238,25 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
             map->current_wall_index = wall_nb + 1;
         else
             map->current_wall_index = -1;
+            
+  		int32_t elements_size;
+  		if(fread((void *) &elements_size, sizeof(int32_t), 1, f) != 1)
+        {
+            printf("File incomplete or error.\n");
+            SLUGmaker_UnloadMap(map);
+            return NULL;
+        }      
+        
+        SLUG_BSPTreeElement garbage_BSP_element;
+        for(int32_t i = 0; i < elements_size; ++i)
+        {
+        	if(fread((void *) &garbage_BSP_element, sizeof(SLUG_BSPTreeElement), 1, f) != 1)
+		    {
+		        printf("File incomplete or error.\n");
+		        SLUGmaker_UnloadMap(map);
+		        return NULL;
+		    }  
+        }
     }
     else
     {
@@ -295,6 +275,13 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     map->wall_line_mode = false;
     map->wall_move_mode = -1;
     map->wall_line_origin_index = -1;
+    
+    if(fread((void *) &(map->player_spawn_point), sizeof(Vector2), 1, f) != 1)
+    {
+        printf("File incomplete or error.\n");
+        SLUGmaker_UnloadMap(map);
+        return NULL;
+    }
 
     return map; 
 }
@@ -523,13 +510,15 @@ int8_t SLUGmaker_BSPTreeBuildRecursive(SLUG_BSPTree *tree,int32_t *node_nb, int8
     tree->elements[*node_nb].segment = index;
     tree->elements[*node_nb].children[0] = SPACE_SOLID;
     tree->elements[*node_nb].children[1] = SPACE_EMPTY;
+    
+    int32_t node_now = *node_nb;
 
-    int8_t err;
+    int8_t err = 0;
 
     if(!SLUGmaker_AllZeros(front_tab, tree->tab_size))
     {
         *node_nb += 1;
-        tree->elements[*node_nb].children[1] = *node_nb;
+        tree->elements[node_now].children[1] = *node_nb;
         err = SLUGmaker_BSPTreeBuildRecursive(tree,node_nb, front_tab);
     }
 
@@ -539,7 +528,7 @@ int8_t SLUGmaker_BSPTreeBuildRecursive(SLUG_BSPTree *tree,int32_t *node_nb, int8
     if(!SLUGmaker_AllZeros(back_tab, tree->tab_size))
     {
         *node_nb += 1;
-        tree->elements[*node_nb].children[0] = *node_nb;
+        tree->elements[node_now].children[0] = *node_nb;
         err = SLUGmaker_BSPTreeBuildRecursive(tree,node_nb, back_tab);
     }
 
@@ -582,15 +571,16 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
     
 
     printf("Enter Map Name : \n");
-    char buff[100];
-    scanf("%s", buff);
+    char map_name[100];
+    scanf("%s", map_name);
     while ((getchar()) != '\n');
+    char buff[106] = "maps/";
+    strcat(buff,map_name);
     struct stat sb;
     if(stat(buff, &sb) == 0 && S_ISDIR(sb.st_mode))
     {
         printf("Directory exists. Do you want to delete it [y/n]?\n");
         char resp = (char) getchar();
-        printf("%c\n",resp);
         if(resp != 'y' && resp != 'Y')
         {
             printf("Save aborted.\n");
@@ -701,7 +691,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
             SLUG_BSPTreeUnload(tree);
             return -1;
         }
-
+		
         if(SLUGmaker_BSPTreeBuild(tree,&node_nb) != 0)
         {
             printf("Tree Build Fail\n");
@@ -709,8 +699,9 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
             SLUG_BSPTreeUnload(tree);
             return -1;
         }
-
-        tree->elements_size = node_nb;
+  
+        tree->elements_size = node_nb + 1;
+        
         tree->elements = (SLUG_BSPTreeElement *) realloc(tree->elements, tree->elements_size * sizeof(SLUG_BSPTreeElement));
         if(tree->elements == NULL)
         {
@@ -719,6 +710,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
             SLUG_BSPTreeUnload(tree);
             return -1;
         }
+             
                 
         size_t s = 2*sizeof(int32_t) + tree->tab_size * sizeof(SLUG_SegmentExtended) + tree->elements_size * sizeof(SLUG_BSPTreeElement);
         if(fwrite((void *) &s, sizeof(size_t), 1, f) == 0)
@@ -794,6 +786,13 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
             fclose(f);
             return -1;
         }
+    }
+    
+    if(fwrite((void *) &(map->player_spawn_point), sizeof(Vector2), 1, f) == 0)
+    {
+        printf("Write Error\n");
+        fclose(f);
+        return -1;
     }
 
     fclose(f);
