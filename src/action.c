@@ -69,16 +69,16 @@ int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam, bool window_changed)
 }
 
 //---action handling
-int8_t SLUGmaker_ChangeActionMode(SLUGmaker_map *map)
+int8_t SLUGmaker_ChangeActionMode(SLUGmaker_ActionButtonsMenu *actionMenu,SLUGmaker_map *map)
 {
     previous_action = current_action;
-    if(IsKeyPressed(KEY_N))
+    if(IsKeyPressed(KEY_N) || actionMenu->none_mode.pressed)
         current_action = ACTION_MODE_NONE;
-    if(IsKeyPressed(KEY_BACKSPACE))
+    else if(IsKeyPressed(KEY_BACKSPACE) || actionMenu->delete_mode.pressed)
         current_action = ACTION_MODE_DELETE;
-    if(IsKeyPressed(KEY_W))
+    else if(IsKeyPressed(KEY_W) || actionMenu->wall_mode.pressed)
         current_action = ACTION_MODE_WALL;
-    if(IsKeyPressed(KEY_P))
+    else if(IsKeyPressed(KEY_P) || actionMenu->player_mode.pressed)
         current_action = ACTION_MODE_PLAYER;
 	
 	//quit

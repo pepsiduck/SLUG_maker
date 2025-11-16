@@ -83,7 +83,7 @@ int8_t SLUGmaker_ChangeFullscreen(int16_t const screenWidth, int16_t const scree
     return 0;
 }
 
-int8_t SLUGmaker_Resize(SLUGmaker_Toolbar *toolbar, SLUGmaker_camera *cam)
+int8_t SLUGmaker_Resize(SLUGmaker_ToolBar *toolbar, SLUGmaker_ActionButtonsMenu *actionMenu, SLUGmaker_camera *cam)
 {
 	if(GetScreenWidth() != graphic_vars.screen_w || GetScreenHeight() != graphic_vars.screen_h)
 	{
@@ -94,6 +94,9 @@ int8_t SLUGmaker_Resize(SLUGmaker_Toolbar *toolbar, SLUGmaker_camera *cam)
 		float factor_y = h / graphic_vars.screen_h;
 			
         int8_t error = SLUGmaker_ToolBarResize(factor_x, factor_y, toolbar);
+        if(error == -1)
+           	return -1;
+        error = SLUGmaker_ActionButtonsMenuResize(factor_x, factor_y, actionMenu);
         if(error == -1)
            	return -1;
         error = SLUGmaker_DisplayUpdate(factor_x, factor_y, cam);
@@ -140,7 +143,8 @@ int main(int argc, char *argv[])
     HideCursor();
 
     SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
-    SLUGmaker_Toolbar toolbar = SLUGmaker_ToolBarDevLoad(graphic_vars.screen_w, graphic_vars.screen_h);
+    SLUGmaker_ToolBar toolbar = SLUGmaker_ToolBarDevLoad();
+    SLUGmaker_ActionButtonsMenu actionMenu = SLUGmaker_ActionButtonsMenuDevLoad();
     GuiEnableTooltip();
 
     int8_t error = 0;
@@ -150,12 +154,16 @@ int main(int argc, char *argv[])
     {
     
     	if(!SLUGmaker_ChangeFullscreen(screenWidth, screenHeight))
-    	    resize = SLUGmaker_Resize(&toolbar, &cam);
+    	    resize = SLUGmaker_Resize(&toolbar, &actionMenu, &cam);
     
         BeginDrawing();
         ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
         
-        error = SLUGmaker_ToolBar(&toolbar);   
+        error = SLUGmaker_ToolBarDisplay(&toolbar);   
+        if(error == -1)
+            break;
+            
+        error = SLUGmaker_ActionButtonsMenuDisplay(&actionMenu);   
         if(error == -1)
             break;
 
@@ -176,7 +184,7 @@ int main(int argc, char *argv[])
                 printf("Save failure\n");      
         }
 
-        error = SLUGmaker_ChangeActionMode(map);
+        error = SLUGmaker_ChangeActionMode(&actionMenu, map);
         if(error == -1)
             break;
 
