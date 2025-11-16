@@ -6,8 +6,7 @@
 #include <inttypes.h>
 #include <raylib.h>
 #include <raygui.h>
-
-#include "string.h"
+#include <string.h>
 
 extern char SLUGmaker_IconBuffer[8];
 
@@ -23,11 +22,29 @@ int8_t SLUGmaker_ButtonLoad(Rectangle zone, uint16_t guiIcon, SLUGmaker_button *
 int8_t SLUGmaker_ButtonResize(float factor_x, float factor_y, SLUGmaker_button *button);
 int8_t SLUGmaker_ButtonPressed(SLUGmaker_button *button);
 
+typedef struct SLUGmaker_ComboBox SLUGmaker_ComboBox;
+struct SLUGmaker_ComboBox
+{
+    Rectangle zone;
+    int32_t state;
+    char options[1024];
+};
+
+int8_t SLUGmaker_ComboBoxLoad(Rectangle zone, int32_t default_state, const char *options, SLUGmaker_ComboBox *combobox);
+int8_t SLUGmaker_ComboBoxResize(float factor_x, float factor_y, SLUGmaker_ComboBox *combobox);
+int8_t SLUGmaker_ComboBoxPressed(SLUGmaker_ComboBox *combobox);
+
 typedef struct SLUGmaker_ToolBar SLUGmaker_ToolBar;
 struct SLUGmaker_ToolBar
 {
     Rectangle zone;
+    
+    //styles
+    Rectangle style_zone;
+    Rectangle style_label_zone;
+    
     SLUGmaker_button save;
+    SLUGmaker_ComboBox styles;
 };
 
 SLUGmaker_ToolBar SLUGmaker_ToolBarDevLoad();
@@ -50,5 +67,9 @@ SLUGmaker_ActionButtonsMenu SLUGmaker_ActionButtonsMenuDevLoad();
 int8_t SLUGmaker_ActionButtonsMenuResize(float factor_x, float factor_y, SLUGmaker_ActionButtonsMenu *menu);
 int8_t SLUGmaker_ActionButtonsMenuPressed(SLUGmaker_ActionButtonsMenu *menu);
 int8_t SLUGmaker_ActionButtonsMenuDisplay(SLUGmaker_ActionButtonsMenu *menu);
+
+
+//---functions
+int8_t SLUGmaker_ChangeGUIStyle(SLUGmaker_ToolBar *toolbar);
 
 #endif

@@ -31,6 +31,9 @@ int8_t SLUGmaker_GraphicInit()
         printf("Error while loading wall node sprite.\n");
         return -1;
     }
+    
+    graphic_vars.style = 0;
+    
     return 0;
 }
 

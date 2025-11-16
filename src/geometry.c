@@ -148,3 +148,16 @@ int32_t Vector2CrossProductInt(int32_t ax, int32_t ay, int32_t bx, int32_t by)
 {
     return ax*by - ay*bx;
 }
+
+int8_t RectangleMultiply(Rectangle *rect, float factor_x, float factor_y)
+{
+	if(rect == NULL)
+		return -1;
+		
+	rect->x *= factor_x;
+	rect->y *= factor_y;
+	rect->width *= factor_x;
+	rect->height *= factor_y;
+		
+	return 0;
+}

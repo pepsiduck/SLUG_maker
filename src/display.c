@@ -3,12 +3,8 @@
 #include "defines.h"
 
 int8_t SLUGmaker_DisplayUpdate(float factor_x, float factor_y, SLUGmaker_camera *cam)
-{
-		
-	cam->display->x *= factor_x;
-	cam->display->y *= factor_y;
-	cam->display->width *= factor_x;
-	cam->display->height *= factor_y;
+{	
+	RectangleMultiply(cam->display,factor_x,factor_y);
 
 	cam->ratiox = cam->display->width / cam->view_zone.width;
 	cam->ratioy = cam->display->height / cam->view_zone.height;

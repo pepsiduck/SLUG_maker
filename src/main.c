@@ -174,9 +174,12 @@ int main(int argc, char *argv[])
         error = SLUGmaker_Display(&cam);
         if(error == -1)
             break;
-            
-
+           
         EndDrawing();
+        
+        error = SLUGmaker_ChangeGUIStyle(&toolbar);
+        if(error == -1)
+        	break;
 
         if((IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL)) || toolbar.save.pressed)
         {
