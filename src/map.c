@@ -98,24 +98,10 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     }
     
     ///TODO : load les sprites à partir de maps/*/assets/sprites/name_file.txt
-    /*
-    char fixed_sprite[len + 37];
-    strcpy(fixed_sprite, loadMap);
-    strcat(fixed_sprite, "/assets/sprites/map_fixed_sprite.png");
-    map->fixed_sprite = LoadTexture(fixed_sprite);
-    if(map->fixed_sprite.id <= 0)
-    {
-        printf("Error while loading map sprite.\n");
-        free(map);     
-        map = NULL;   
-        return NULL;
-    }
-    SetTextureWrap(map->fixed_sprite, 1);
-    map->zone.width = map->fixed_sprite.width;
-    map->zone.height = map->fixed_sprite.height;
-    map->zone.x = 0;
-    map->zone.y = 0;
-	*/
+    //open namefile
+    //for each line, until 128, if not empty :
+        //check for line_nb.png
+        //if this works, add image and name
     
     int16_t sprites_nb;
     if(fread((void *) &sprites_nb, sizeof(int32_t), 1, f) != 1)
