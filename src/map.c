@@ -54,11 +54,46 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     uint32_t len = strlen(loadMap);
     if(len == 0)
         return NULL;
+        
+    char mapslug[len + 10];
+    strcpy(mapslug, loadMap);
+    strcat(mapslug, "/map.slug");
+    FILE *f = fopen(mapslug, "r");
+    if(f == NULL)
+    {
+        printf("Error while loading file.\n");
+        return NULL;
+    }
+    
+    unsigned char signature[7];
+    if(fread((void *) signature, sizeof(unsigned char), 7, f) != 7)
+    {
+        printf("File incomplete or error.\n");
+        return NULL;
+    }
+    unsigned char test[7] = {0x53, 0x4C, 0x55, 0x47, 0x4D, 0x41, 0x50};
+    if(memcmp(signature, test, 7) != 0)
+    {
+        printf("File signature is wrong.\n");
+        return NULL;
+    }
+    
+    uint32_t width, height;
+    if(fread((void *) &width, sizeof(int32_t), 1, f) != 1)
+    {
+        printf("File incomplete or error.\n");
+        return NULL;
+    }
+    if(fread((void *) &height, sizeof(int32_t), 1, f) != 1)
+    {
+        printf("File incomplete or error.\n");
+        return NULL;
+    }
 
-    SLUGmaker_map *map = (SLUGmaker_map*) malloc(sizeof(SLUGmaker_map));
+    SLUGmaker_map *map = SLUGmaker_NewMap(width,height);
     if(map == NULL)
     {
-        printf("Malloc Error\n");
+        printf("Map malloc Error\n");
         return NULL;
     }
     
@@ -81,33 +116,38 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     map->zone.x = 0;
     map->zone.y = 0;
 	*/
-
-	//TODO : load les SLUGmaker_PlacableSprite
-    char mapslug[len + 10];
-    strcpy(mapslug, loadMap);
-    strcat(mapslug, "/map.slug");
-    FILE *f = fopen(mapslug, "r");
-    if(f == NULL)
-    {
-        printf("Error while loading file.\n");
-        free(map);
-        map = NULL;
-        return NULL;
-    }
     
-    unsigned char signature[7];
-    if(fread((void *) signature, sizeof(unsigned char), 7, f) != 7)
+    int16_t sprites_nb;
+    if(fread((void *) &sprites_nb, sizeof(int32_t), 1, f) != 1)
     {
         printf("File incomplete or error.\n");
         SLUGmaker_UnloadMap(map);
         return NULL;
     }
-    unsigned char test[7] = {0x53, 0x4C, 0x55, 0x47, 0x4D, 0x41, 0x50};
-    if(memcmp(signature, test, 7) != 0)
+    
+    if(sprites_nb < 0)
     {
-        printf("File signature is wrong.\n");
+        printf("File incomplete or error.\n");
         SLUGmaker_UnloadMap(map);
         return NULL;
+    }
+    
+    if(sprites_nb > 0)
+    {
+    	SLUG_PlacableSprite sprites[sprites_nb];
+    	if(fread((void *) sprites, sizeof(SLUG_PlacableSprite), sprites_nb, f) != sprites_nb)
+		{
+		    printf("File incomplete or error.\n");
+		    SLUGmaker_UnloadMap(map);
+		    return NULL;
+		}
+		for(int16_t i = 0 < i < sprites_nb; ++i)
+		{
+			map->sprites[i].sprite_index = sprites[i].sprite_index;
+			map->sprites[i].zone = sprites[i].zone;
+			map->sprites[i].layer = sprites[i].layer;
+			map->sprites[i].exists = true;
+		}
     }
 
     size_t bsptree;

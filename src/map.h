@@ -17,15 +17,12 @@
 #define SPACE_SOLID -1
 #define SPACE_EMPTY -2
 
-typedef struct SLUGmaker_SegmentExtended SLUGmaker_SegmentExtended;
-struct SLUGmaker_SegmentExtended
+typedef struct SLUG_PlacableSprite SLUG_PlacableSprite;
+struct SLUG_PlacableSprite
 {
-    Vector2 A; 
-    Vector2 B;
-    Vector2 normal; //||norm|| = 1
-    Vector2 middlepoint;
-    SLUGmaker_SegmentExtended *next;
-    bool exists;
+	uint16_t sprite_index;
+	Rectangle zone;
+	uint8_t layer;
 };
 
 typedef struct SLUGmaker_PlacableSprite SLUGmaker_PlacableSprite;
