@@ -1,68 +1,6 @@
 #include "map.h"
 
-void SLUG_BSPTreeUnload(SLUG_BSPTree *tree)
-{
-    if(tree != NULL)
-    {
-        if(tree->tab != NULL)
-        {
-            free(tree->tab);
-            tree->tab = NULL;
-        }    
-        if(tree->elements != NULL)
-        {
-            free(tree->elements);
-            tree->elements = NULL;
-        }
-            
-        free(tree);
-        tree = NULL;
-    }
-}
-
-int32_t SLUGmaker_CountOnes(int8_t *tab, int32_t tab_size)
-{
-    if(tab == NULL || tab_size <= 0)
-        return -1;
-    int32_t count = 0;
-    for(int32_t i = 0; i < tab_size; ++i)
-    {
-        if(tab[i] != 0)
-            count += 1;
-    }
-    return count;
-}
-
-int8_t SLUGmaker_AllZeros(int8_t *tab, int32_t tab_size)
-{
-    if(tab == NULL || tab_size <= 0)
-        return -1;
-    for(int32_t i = 0; i < tab_size; ++i)
-    {
-        if(tab[i] != 0)
-            return false;
-    }
-    return true;
-}
-
-int32_t SLUGmaker_GetIndexForPosition(int8_t *tab, int32_t tab_size, int32_t position)
-{
-    if(tab == NULL || tab_size <= 0)
-        return -1;
-    int32_t count;
-    for(int32_t i = 0; i < tab_size; ++i)
-    {
-        if(tab[i] != 0)
-        {
-            count += 1;
-            if(count >= position)
-                return i;        
-        }
-    }
-    return -1;
-}
-
-SLUGmaker_map* SLUGmaker_NewMap(const char *filename)
+SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
 {
     SLUGmaker_map *map = (SLUGmaker_map *) malloc(sizeof(SLUGmaker_map));
     if(map == NULL)
@@ -70,19 +8,25 @@ SLUGmaker_map* SLUGmaker_NewMap(const char *filename)
         printf("Malloc Error in map allocation.\n");
         return NULL;
     }
-    map->fixed_sprite = LoadTexture(filename);
-    if(map->fixed_sprite.id <= 0)
-    {
-        printf("Error while loading new map sprite.\n");
-        free(map);
-        map = NULL;
-        return NULL;
-    }
-    SetTextureWrap(map->fixed_sprite, 1);
-    map->zone.width = map->fixed_sprite.width;
-    map->zone.height = map->fixed_sprite.height;
+    
+    map->zone.width = (float) witdh;
+    map->zone.height = (float) height;
     map->zone.x = 0;
     map->zone.y = 0;
+    
+    for(int16_t i = 0; i < MAX_SPRITES; ++i)
+    {
+    	map->loaded_sprites[i].id = -1;
+    	map->loaded_sprites_names[i] = "";
+    }
+    for(int16_t i = 0; i < MAX_PLACED_SPRITES; ++i)
+    {
+    	map->map_sprites[i].sprite_index = -1;
+    	map->map_sprites[i].zone = (Rectangle) {.x = 0, .y = 0, .width = 0, .height = 0};
+    	map->map_sprites[i].exists = false;
+    	map->map_sprites[i].layer = -1;
+    }
+    
     for(int16_t i = 0; i < MAX_WALLS_NB; ++ i)
         map->walls[i] = (SLUGmaker_SegmentExtended) {
             .A = (Vector2) {.x = 0, .y = 0},
@@ -92,7 +36,6 @@ SLUGmaker_map* SLUGmaker_NewMap(const char *filename)
             .next = NULL,
             .exists = false
         };
-    
     map->current_wall_index = 0;
     map->wall_nb = 0;
     map->wall_line_mode = false;
@@ -118,7 +61,9 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         printf("Malloc Error\n");
         return NULL;
     }
-
+    
+    ///TODO : load les sprites à partir de maps/*/assets/sprites/name_file.txt
+    /*
     char fixed_sprite[len + 37];
     strcpy(fixed_sprite, loadMap);
     strcat(fixed_sprite, "/assets/sprites/map_fixed_sprite.png");
@@ -135,8 +80,9 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     map->zone.height = map->fixed_sprite.height;
     map->zone.x = 0;
     map->zone.y = 0;
+	*/
 
-
+	//TODO : load les SLUGmaker_PlacableSprite
     char mapslug[len + 10];
     strcpy(mapslug, loadMap);
     strcat(mapslug, "/map.slug");
@@ -290,11 +236,78 @@ void SLUGmaker_UnloadMap(SLUGmaker_map *map)
 {
     if(map != NULL)
     {
-        if(map->fixed_sprite.id > 0)
-            UnloadTexture(map->fixed_sprite);
+    
+    	for(int16_t i = 0; i < MAX_SPRITES; ++i)
+    	{
+    		if(map->loaded_sprites[i].id > 0)
+    			UnloadTexture(map->loaded_sprites[i]);
+    	}
         free(map);
         map = NULL;
     }
+}
+
+
+void SLUG_BSPTreeUnload(SLUG_BSPTree *tree)
+{
+    if(tree != NULL)
+    {
+        if(tree->tab != NULL)
+        {
+            free(tree->tab);
+            tree->tab = NULL;
+        }    
+        if(tree->elements != NULL)
+        {
+            free(tree->elements);
+            tree->elements = NULL;
+        }
+            
+        free(tree);
+        tree = NULL;
+    }
+}
+
+int32_t SLUGmaker_CountOnes(int8_t *tab, int32_t tab_size)
+{
+    if(tab == NULL || tab_size <= 0)
+        return -1;
+    int32_t count = 0;
+    for(int32_t i = 0; i < tab_size; ++i)
+    {
+        if(tab[i] != 0)
+            count += 1;
+    }
+    return count;
+}
+
+int8_t SLUGmaker_AllZeros(int8_t *tab, int32_t tab_size)
+{
+    if(tab == NULL || tab_size <= 0)
+        return -1;
+    for(int32_t i = 0; i < tab_size; ++i)
+    {
+        if(tab[i] != 0)
+            return false;
+    }
+    return true;
+}
+
+int32_t SLUGmaker_GetIndexForPosition(int8_t *tab, int32_t tab_size, int32_t position)
+{
+    if(tab == NULL || tab_size <= 0)
+        return -1;
+    int32_t count;
+    for(int32_t i = 0; i < tab_size; ++i)
+    {
+        if(tab[i] != 0)
+        {
+            count += 1;
+            if(count >= position)
+                return i;        
+        }
+    }
+    return -1;
 }
 
 SLUG_SegmentExtended *SLUGmaker_GetSegments(SLUGmaker_map *map)

@@ -12,6 +12,8 @@
 #include "geometry.h"
 
 #define MAX_WALLS_NB 8192 
+#define MAX_PLACED_SPRITES 1024
+#define MAX_SPRITES 128
 #define SPACE_SOLID -1
 #define SPACE_EMPTY -2
 
@@ -26,11 +28,26 @@ struct SLUGmaker_SegmentExtended
     bool exists;
 };
 
+typedef struct SLUGmaker_PlacableSprite SLUGmaker_PlacableSprite;
+struct SLUGmaker_PlacableSprite
+{
+	uint16_t sprite_index;
+	Rectangle zone;
+	bool exists;
+	uint8_t layer;
+};
+
 typedef struct SLUGmaker_map SLUGmaker_map;
 struct SLUGmaker_map
 {
     Rectangle zone;
-    Texture2D fixed_sprite;
+    
+    Texture2D loaded_sprites[MAX_SPRITES];
+    char loaded_sprites_names[MAX_SPRITES][256];
+    SLUGmaker_PlacableSprite map_sprites[MAX_PLACED_SPRITES];
+    int16_t current_sprite_index;
+    int16_t sprite_nb;
+    int16_t selected_sprite;
     
     SLUGmaker_SegmentExtended walls[MAX_WALLS_NB];
     int16_t current_wall_index;
@@ -58,15 +75,15 @@ struct SLUG_BSPTree
     SLUG_BSPTreeElement *elements; //tree trunk is always element index 0
 };
 
+SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height);
+SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap);
+void SLUGmaker_UnloadMap(SLUGmaker_map *map);
+
 void SLUG_BSPTreeUnload(SLUG_BSPTree *tree);
 
 int32_t SLUGmaker_CountOnes(int8_t *tab, int32_t tab_size);
 int8_t SLUGmaker_AllZeros(int8_t *tab, int32_t tab_size);
 int32_t SLUGmaker_GetIndexForPosition(int8_t *tab, int32_t tab_size, int32_t position);
-
-SLUGmaker_map* SLUGmaker_NewMap(const char *filename);
-SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap);
-void SLUGmaker_UnloadMap(SLUGmaker_map *map);
 
 SLUG_SegmentExtended* SLUGmaker_GetSegments(SLUGmaker_map *map); 
 int32_t* SLUGmaker_GetWallsLinks(SLUGmaker_map *map);
