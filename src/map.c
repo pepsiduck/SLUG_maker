@@ -9,11 +9,13 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
         return NULL;
     }
     
+    //map size
     map->zone.width = (float) witdh;
     map->zone.height = (float) height;
     map->zone.x = 0;
     map->zone.y = 0;
     
+    //map sprite init
     for(int16_t i = 0; i < MAX_SPRITES; ++i)
     {
     	map->loaded_sprites[i].id = -1;
@@ -27,6 +29,7 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     	map->map_sprites[i].layer = -1;
     }
     
+    //wall init
     for(int16_t i = 0; i < MAX_WALLS_NB; ++ i)
         map->walls[i] = (SLUGmaker_SegmentExtended) {
             .A = (Vector2) {.x = 0, .y = 0},
@@ -42,7 +45,9 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     map->wall_line_origin_index = -1;
     map->wall_move_mode = -1;
     
+    //player spawn point init
     map->player_spawn_point = (Vector2) {.x = map->zone.width/2, .y = map->zone.height/2};
+
     return map;
 }
 
@@ -55,6 +60,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     if(len == 0)
         return NULL;
         
+    //read the map file
     char mapslug[len + 10];
     strcpy(mapslug, loadMap);
     strcat(mapslug, "/map.slug");
@@ -65,6 +71,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         return NULL;
     }
     
+    //signature test
     unsigned char signature[7];
     if(fread((void *) signature, sizeof(unsigned char), 7, f) != 7)
     {
@@ -78,6 +85,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         return NULL;
     }
     
+    //reading the width & height
     uint32_t width, height;
     if(fread((void *) &width, sizeof(int32_t), 1, f) != 1)
     {
@@ -90,20 +98,18 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         return NULL;
     }
 
+    //map init
     SLUGmaker_map *map = SLUGmaker_NewMap(width,height);
     if(map == NULL)
     {
         printf("Map malloc Error\n");
         return NULL;
     }
-    
-    ///TODO : load les sprites à partir de maps/*/assets/sprites/name_file.txt
-    //open namefile
-    //for each line, until 128, if not empty :
-        //check for line_nb.png
-        //if this works, add image and name
 
-    FILE *sprite_file = fopen(,"r");
+    //loaded sprites init
+    char sprite_file_name[len + 32];
+    sprintf(sprite_file_name,"%s/assets/sprites/sprite_names.txt",loadMap);
+    FILE *sprite_file = fopen(sprite_file_name,"r");
     if(sprite_file == NULL)
     {
         printf("No sprite name file.\n");
@@ -119,15 +125,17 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         if(line[strlen(line) - 1] == '\n')
             line[strlen(line) - 1] = '\0';
 
-        sprintf(sprite_name,"%s/assets/sprites/%s",loadMap,line);
-
-        map->loaded_sprites[counter] = LoadTexture(sprite_name);
-        if(map->loaded_sprites[counter] > 0)
-            strncpy(map->loaded_sprites_names[counter],line,256);
-        else
+        if(strlen(line) == 0)
         {
-            printf("Warning : incorrect sprite file name.\n");
-            map->loaded_sprites[counter] = LoadTexture("assets/sprites/missing.png");
+            sprintf(sprite_name,"%s/assets/sprites/%s",loadMap,line);
+            map->loaded_sprites[counter] = LoadTexture(sprite_name);
+            if(map->loaded_sprites[counter] > 0)
+                strncpy(map->loaded_sprites_names[counter],line,256);
+            else
+            {
+                printf("Warning : incorrect sprite file name.\n");
+                map->loaded_sprites[counter] = LoadTexture("assets/sprites/missing.png");
+            }
         }
 
         counter++;
@@ -135,8 +143,9 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
 
     fclose(sprite_file);
     
+    //map sprites init
     int16_t sprites_nb;
-    if(fread((void *) &sprites_nb, sizeof(int32_t), 1, f) != 1)
+    if(fread((void *) &sprites_nb, sizeof(int16_t), 1, f) != 1)
     {
         printf("File incomplete or error.\n");
         SLUGmaker_UnloadMap(map);
@@ -171,6 +180,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
 		}
     }
 
+    //wall init
     size_t bsptree;
     if(fread((void *) &bsptree, sizeof(size_t), 1, f) != 1)
     {
@@ -252,6 +262,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         else
             map->current_wall_index = -1;
             
+        //skip the BSP tree
   		int32_t elements_size;
   		if(fread((void *) &elements_size, sizeof(int32_t), 1, f) != 1)
         {
@@ -291,6 +302,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     map->wall_move_mode = -1;
     map->wall_line_origin_index = -1;
     
+    //player spawn point init
     if(fread((void *) &(map->player_spawn_point), sizeof(Vector2), 1, f) != 1)
     {
         printf("File incomplete or error.\n");
@@ -308,7 +320,6 @@ void SLUGmaker_UnloadMap(SLUGmaker_map *map)
 {
     if(map != NULL)
     {
-    
     	for(int16_t i = 0; i < MAX_SPRITES; ++i)
     	{
     		if(map->loaded_sprites[i].id > 0)
@@ -654,7 +665,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
     if(!SLUGmaker_CheckSave(map))
         return -1;
     
-
+    //create project
     printf("Enter Map Name : \n");
     char map_name[100];
     scanf("%s", map_name);
@@ -689,6 +700,8 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
         return -1;
     }
 
+    
+    //save sprites
     char buff2[256];
     strcpy(buff2, buff);
     strcat(buff2, "/assets");
@@ -705,13 +718,38 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
         printf("Error on folder creation.\n");
         return -1;
     }
-    strcat(buff2, "/map_fixed_sprite.png");
-    if(!ExportImage(LoadImageFromTexture(map->fixed_sprite), buff2))
+
+    //save images
+    char sprites_files_buffer[strlen(buff2) + 16];
+    sprintf(sprites_files_buffer, "%s/sprite_names.txt");
+    FILE *sprites_file = fopen(sprites_files_buffer,"w");
+    if(sprite_file == NULL)
     {
-        printf("Error on image export.\n");
+        printf("Error on psirte name file creation.\n");
         return -1;
     }
+    
+    for(int16_t s = 0; s < MAX_SPRITES; ++s)
+    {
+        if(map->loaded_sprites[s].id > 0)
+        {
+            char sprite_name[strlen(buff2) + strlen(map->loaded_sprites_names[s]) + 1];
+            sprintf(sprite_name,"%s/%s",buff2,map->loaded_sprites_names[s]);
+            if(ExportImage(LoadImageFromTexture(map->loaded_sprites[s]),sprite_name))
+                fwrite(map->loaded_sprites_names[s],sizeof(char),strlen(map->loaded_sprites_names[s]),sprites_file);
+            else
+            {
+                printf("Warning : image export did not work.\n");
+                fwrite("\n",sizeof(char),1,sprites_file);
+            }
+        }
+        else
+            fwrite("\n",sizeof(char),1,sprites_file);
+    }
+    
+    fclose(sprites_file);
 
+    //save sounds
     strcpy(buff2, buff);
     strcat(buff2, "/assets/sound");
     if(mkdir(buff2, 0777) != 0)
@@ -720,7 +758,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
         return -1;
     }
 
-    
+    //map file
     strcpy(buff2, buff);
     strcat(buff2, "/map.slug");
     FILE *f = fopen(buff2, "w");
@@ -730,6 +768,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
         return -1;
     }
     
+    //signature
     unsigned char slug[] = {0x53, 0x4C, 0x55, 0x47, 0x4D, 0x41, 0x50};
     if(fwrite((void *) slug, sizeof(slug), 1, f) == 0)
     {
@@ -737,8 +776,34 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
         return -1;
     }
 
+    //save sprites rect
+    if(fwrite((void *) &(map->sprite_nb), sizeof(int16_t), 1, f) == 0)
+    {
+        printf("Write Error\n");
+        return -1;
+    }
+
+    for(int6_t i = 0; i < MAX_PLACED_SPRITES; ++i)
+    {
+        if(map_sprites[i].exists)
+        {
+            SLUG_PlacableSprite sprite = (SLUG_PlacableSprite) {
+                .sprite_index = map_sprites[i].sprite_index,
+                .zone = map_sprites[i].zone,
+                .layer = map_sprites[i].layer
+            };
+            if(fwrite((void *) &(sprite), sizeof(SLUG_PlacableSprite), 1, f) == 0)
+            {
+                printf("Write Error\n");
+                return -1;
+            }
+        }
+    }
+
+    //if there are walls, save the structure
     if(map->wall_nb > 0)
     {
+        //create BSP Tree
         SLUG_BSPTree *tree = (SLUG_BSPTree *) malloc(sizeof(SLUG_BSPTree));
         if(tree == NULL)
         {
@@ -796,7 +861,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
             return -1;
         }
              
-                
+        //write walls       
         size_t s = 2*sizeof(int32_t) + tree->tab_size * sizeof(SLUG_SegmentExtended) + tree->elements_size * sizeof(SLUG_BSPTreeElement);
         if(fwrite((void *) &s, sizeof(size_t), 1, f) == 0)
         {
@@ -822,6 +887,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
             return -1;
         }
 
+        //write links
         int32_t *links = SLUGmaker_GetWallsLinks(map);
         if(links == NULL)
         {
@@ -844,6 +910,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
         free(links);
         links = NULL;
 
+        //write BSPTree
         if(fwrite((void *) &(tree->elements_size), sizeof(int32_t), 1, f) == 0)
         {
             printf("Write Error\n");
@@ -864,6 +931,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
     }
     else
     {
+        //write BSPTree size = 0
         size_t s = 0;
         if(fwrite((void *) &s, sizeof(size_t), 1, f) == 0)
         {
@@ -873,6 +941,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
         }
     }
     
+    //write player spawn point
     if(fwrite((void *) &(map->player_spawn_point), sizeof(Vector2), 1, f) == 0)
     {
         printf("Write Error\n");

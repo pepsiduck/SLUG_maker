@@ -22,7 +22,7 @@ struct SLUG_PlacableSprite
 {
 	uint16_t sprite_index;
 	Rectangle zone;
-	uint8_t layer;
+	int8_t layer;
 };
 
 typedef struct SLUGmaker_PlacableSprite SLUGmaker_PlacableSprite;
@@ -31,7 +31,7 @@ struct SLUGmaker_PlacableSprite
 	uint16_t sprite_index;
 	Rectangle zone;
 	bool exists;
-	uint8_t layer;
+	int8_t layer;
 };
 
 typedef struct SLUGmaker_map SLUGmaker_map;
