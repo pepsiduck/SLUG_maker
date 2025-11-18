@@ -102,12 +102,45 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     //for each line, until 128, if not empty :
         //check for line_nb.png
         //if this works, add image and name
+
+    FILE *sprite_file = fopen(,"r");
+    if(sprite_file == NULL)
+    {
+        printf("No sprite name file.\n");
+        SLUGmaker_UnloadMap(map);
+        fclose(f);
+        return NULL;
+    }
+    char line[256];
+    char sprite_name[272 + len];
+    uint16_t counter = 0;
+    while(counter < MAX_SPRITES && fgets(line, sizeof(line), sprite_file))
+    {   
+        if(line[strlen(line) - 1] == '\n')
+            line[strlen(line) - 1] = '\0';
+
+        sprintf(sprite_name,"%s/assets/sprites/%s",loadMap,line);
+
+        map->loaded_sprites[counter] = LoadTexture(sprite_name);
+        if(map->loaded_sprites[counter] > 0)
+            strncpy(map->loaded_sprites_names[counter],line,256);
+        else
+        {
+            printf("Warning : incorrect sprite file name.\n");
+            map->loaded_sprites[counter] = LoadTexture("assets/sprites/missing.png");
+        }
+
+        counter++;
+    }
+
+    fclose(sprite_file);
     
     int16_t sprites_nb;
     if(fread((void *) &sprites_nb, sizeof(int32_t), 1, f) != 1)
     {
         printf("File incomplete or error.\n");
         SLUGmaker_UnloadMap(map);
+        fclose(f);
         return NULL;
     }
     
@@ -115,6 +148,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     {
         printf("File incomplete or error.\n");
         SLUGmaker_UnloadMap(map);
+        fclose(f);
         return NULL;
     }
     
@@ -125,6 +159,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
 		{
 		    printf("File incomplete or error.\n");
 		    SLUGmaker_UnloadMap(map);
+            fclose(f);
 		    return NULL;
 		}
 		for(int16_t i = 0 < i < sprites_nb; ++i)
@@ -141,6 +176,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     {
         printf("File incomplete or error.\n");
         SLUGmaker_UnloadMap(map);
+        fclose(f);
         return NULL;
     }
 
@@ -153,6 +189,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         {
             printf("File incomplete or error.\n");
             SLUGmaker_UnloadMap(map);
+            fclose(f);
             return NULL;
         }
 
@@ -160,6 +197,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         {
             printf("Wtf there are no walls ???\n");
             SLUGmaker_UnloadMap(map);
+            fclose(f);
             return NULL;
         }
 
@@ -167,6 +205,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         {
             printf("Too many walls\n");
             SLUGmaker_UnloadMap(map);
+            fclose(f);
             return NULL;
         }
 
@@ -175,6 +214,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         {
             printf("File incomplete or error.\n");
             SLUGmaker_UnloadMap(map);
+            fclose(f);
             return NULL;
         }
 
@@ -183,6 +223,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         {
             printf("File incomplete or error.\n");
             SLUGmaker_UnloadMap(map);
+            fclose(f);
             return NULL;
         }
 
@@ -216,6 +257,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         {
             printf("File incomplete or error.\n");
             SLUGmaker_UnloadMap(map);
+            fclose(f);
             return NULL;
         }      
         
@@ -226,6 +268,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
 		    {
 		        printf("File incomplete or error.\n");
 		        SLUGmaker_UnloadMap(map);
+                fclose(f);
 		        return NULL;
 		    }  
         }
@@ -252,8 +295,11 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     {
         printf("File incomplete or error.\n");
         SLUGmaker_UnloadMap(map);
+        fclose(f);
         return NULL;
     }
+
+    fclose(f);
 
     return map; 
 }
