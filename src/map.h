@@ -22,7 +22,6 @@ struct SLUG_PlacableSprite
 {
 	uint16_t sprite_index;
 	Rectangle zone;
-	int8_t layer;
 };
 
 typedef struct SLUGmaker_PlacableSprite SLUGmaker_PlacableSprite;
@@ -31,8 +30,13 @@ struct SLUGmaker_PlacableSprite
 	uint16_t sprite_index;
 	Rectangle zone;
 	bool exists;
-	int8_t layer;
 };
+
+//Même pas besoin de layer : on affiche, on load et on exporte dans l'ordre de map_sprites. 
+//C'est ok puisque sprite_index réfère à loaded_sprites, qui n'a rien à voir avec le système de layering.
+//Lorsqu'on veut changer de layer, on échange deux éléments de la liste map_sprites. C'est ok puisque c'est un struct.
+//Attention : on peut pas laisser de vide : lorsqu'on supprime, on décale de 1 tous ceux qui sont après l'élément supprimé
+//O(n) mais ok vu qu'on le fait pas toutes les frames.
 
 typedef struct SLUGmaker_map SLUGmaker_map;
 struct SLUGmaker_map
