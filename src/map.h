@@ -17,19 +17,11 @@
 #define SPACE_SOLID -1
 #define SPACE_EMPTY -2
 
-typedef struct SLUG_PlacableSprite SLUG_PlacableSprite;
-struct SLUG_PlacableSprite
-{
-	uint16_t sprite_index;
-	Rectangle zone;
-};
-
-typedef struct SLUGmaker_PlacableSprite SLUGmaker_PlacableSprite;
+typedef struct SLUGmaker_PlacableSprite SLUGmaker_PlacableSprite; //same as in SLUG
 struct SLUGmaker_PlacableSprite
 {
 	uint16_t sprite_index;
 	Rectangle zone;
-	bool exists;
 };
 
 //Même pas besoin de layer : on affiche, on load et on exporte dans l'ordre de map_sprites. 
@@ -46,7 +38,6 @@ struct SLUGmaker_map
     Texture2D loaded_sprites[MAX_SPRITES];
     char loaded_sprites_names[MAX_SPRITES][256];
     SLUGmaker_PlacableSprite map_sprites[MAX_PLACED_SPRITES];
-    int16_t current_sprite_index;
     int16_t sprite_nb;
     int16_t selected_sprite;
     

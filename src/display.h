@@ -11,6 +11,8 @@
 
 int8_t SLUGmaker_DisplayUpdate(float factor_x, float factor_y, SLUGmaker_camera *cam);
 
+int8_t SLUGmaker_DisplaySprite(SLUGmaker_camera *cam);
+int8_t SLUGmaker_DisplaySprites(SLUGmaker_camera *cam);
 int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam);
 int8_t SLUGmaker_DisplayPlayerSpawnPoint(SLUGmaker_camera *cam);
 int8_t SLUGmaker_DisplayMap(SLUGmaker_camera *cam);

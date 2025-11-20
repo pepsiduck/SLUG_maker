@@ -25,9 +25,9 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     {
     	map->map_sprites[i].sprite_index = -1;
     	map->map_sprites[i].zone = (Rectangle) {.x = 0, .y = 0, .width = 0, .height = 0};
-    	map->map_sprites[i].exists = false;
-    	map->map_sprites[i].layer = -1;
     }
+    map->sprite_nb = 0;
+    map->selected_sprite = -1;
     
     //wall init
     for(int16_t i = 0; i < MAX_WALLS_NB; ++ i)
@@ -39,6 +39,7 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
             .next = NULL,
             .exists = false
         };
+
     map->current_wall_index = 0;
     map->wall_nb = 0;
     map->wall_line_mode = false;
@@ -144,8 +145,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     fclose(sprite_file);
     
     //map sprites init
-    int16_t sprites_nb;
-    if(fread((void *) &sprites_nb, sizeof(int16_t), 1, f) != 1)
+    if(fread((void *) &(map->sprite_nb), sizeof(int16_t), 1, f) != 1)
     {
         printf("File incomplete or error.\n");
         SLUGmaker_UnloadMap(map);
@@ -153,7 +153,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         return NULL;
     }
     
-    if(sprites_nb < 0)
+    if(map->sprite_nb < 0)
     {
         printf("File incomplete or error.\n");
         SLUGmaker_UnloadMap(map);
@@ -161,22 +161,14 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         return NULL;
     }
     
-    if(sprites_nb > 0)
+    if(map->sprite_nb > 0)
     {
-    	SLUG_PlacableSprite sprites[sprites_nb];
-    	if(fread((void *) sprites, sizeof(SLUG_PlacableSprite), sprites_nb, f) != sprites_nb)
+    	if(fread((void *) map->map_sprites, sizeof(SLUGmaker_PlacableSprite), map->sprite_nb, f) != map->sprite_nb)
 		{
 		    printf("File incomplete or error.\n");
 		    SLUGmaker_UnloadMap(map);
             fclose(f);
 		    return NULL;
-		}
-		for(int16_t i = 0 < i < sprites_nb; ++i)
-		{
-			map->sprites[i].sprite_index = sprites[i].sprite_index;
-			map->sprites[i].zone = sprites[i].zone;
-			map->sprites[i].layer = sprites[i].layer;
-			map->sprites[i].exists = true;
 		}
     }
 
@@ -783,21 +775,10 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
         return -1;
     }
 
-    for(int6_t i = 0; i < MAX_PLACED_SPRITES; ++i)
+    if(fwrite((void *) map->map_sprites, sizeof(SLUGmaker_PlacableSprite), map->sprite_nb, f) == 0)
     {
-        if(map_sprites[i].exists)
-        {
-            SLUG_PlacableSprite sprite = (SLUG_PlacableSprite) {
-                .sprite_index = map_sprites[i].sprite_index,
-                .zone = map_sprites[i].zone,
-                .layer = map_sprites[i].layer
-            };
-            if(fwrite((void *) &(sprite), sizeof(SLUG_PlacableSprite), 1, f) == 0)
-            {
-                printf("Write Error\n");
-                return -1;
-            }
-        }
+        printf("Write Error\n");
+        return -1;
     }
 
     //if there are walls, save the structure
