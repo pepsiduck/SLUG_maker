@@ -15,7 +15,7 @@
 
 //les 4 premiers bytes d'un .slmaker sont tjrs SLUGMAP en binaire
 
-SLUGmaker_map* SLUGmaker_Init(int argc, char *argv[])
+SLUGmaker_map* SLUGmaker_MapInit(int argc, char *argv[])
 {
     if(argc != 2)
     {
@@ -34,34 +34,7 @@ SLUGmaker_map* SLUGmaker_Init(int argc, char *argv[])
             return NULL;
         }
     }
-    else
-    {   
-        FILE *file = fopen(argv[1], "r");
-        if(file == NULL)
-        {
-            printf("File doesn't exist.\n");
-            return NULL;
-        }
-
-        unsigned char read[8];
-
-        fread((void *) &read, sizeof(unsigned char), 8, file);
-        fclose(file);
-        
-        unsigned char jpeg[] = {0xFF, 0xD8, 0xFF};
-        unsigned char png[] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
-
-        if(memcmp((void *) read, (void *) jpeg, 3) == 0 || memcmp((void *) read, (void *) png, 8) == 0)
-        {
-           
-            map = SLUGmaker_NewMap(argv[1]);
-            if(map == NULL)
-            {
-                printf("Error while initializing new map.\n");
-                return NULL;
-            }
-        }
-    }
+    
     
     return map;
 }
@@ -125,7 +98,7 @@ int main(int argc, char *argv[])
         
     InitAudioDevice();
 
-    map = SLUGmaker_Init(argc, argv);
+    SLUGmaker *map = SLUGmaker_NewMap(3360, 2100);
 
     if(map == NULL)
     {
@@ -150,50 +123,76 @@ int main(int argc, char *argv[])
     int8_t error = 0;
     bool resize = false;
     
+    BeginDrawing();
+	ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+	EndDrawing();
+    
     while (!WindowShouldClose())
     {
-    
-    	if(!SLUGmaker_ChangeFullscreen(screenWidth, screenHeight))
-    	    resize = SLUGmaker_Resize(&toolbar, &actionMenu, &cam);
-    
-        BeginDrawing();
-        ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
-        
-        error = SLUGmaker_ToolBarDisplay(&toolbar);   
-        if(error == -1)
-            break;
-            
-        error = SLUGmaker_ActionButtonsMenuDisplay(&actionMenu);   
-        if(error == -1)
-            break;
+		if(!SLUGmaker_ChangeFullscreen(screenWidth, screenHeight))
+			resize = SLUGmaker_Resize(&toolbar, &actionMenu, &cam);
+		
+		BeginDrawing();
+		ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+		    
+		error = SLUGmaker_ToolBarDisplay(&toolbar);   
+		if(error == -1)
+		    break;
+		        
+		error = SLUGmaker_ActionButtonsMenuDisplay(&actionMenu);   
+		if(error == -1)
+		    break;
 
-        error = SLUGmaker_CameraUpdate(&cam,resize);
-        if(error == -1)
-            break;
-        
-        error = SLUGmaker_Display(&cam);
-        if(error == -1)
-            break;
-           
-        EndDrawing();
-        
-        error = SLUGmaker_ChangeGUIStyle(&toolbar);
-        if(error == -1)
-        	break;
+		error = SLUGmaker_CameraUpdate(&cam,resize);
+		if(error == -1)
+		    break;
+		    
+		error = SLUGmaker_Display(&cam);
+		if(error == -1)
+		    break;
+		        
+		if(menu_vars.map_selection_menu)
+    	{
+    		int32_t new_map_result = GuiMessageBox((Rectangle){ (float)GetScreenWidth()/2 - 125, (float)GetScreenHeight()/2 - 50, 250, 100 }, "#159#New map", "Do tou want to open or create a new map ?", "Open;New map");
+    		if(new_map_result == 1)
+    		{
+    			//open
+    		}
+    		else if(new_map_result == 2)
+    		{
+    			//new
+    		}
+    		else
+    		{
+    			map_vars.map_selection_menu = false;
+    			//if this window is hte one that launches with the software, break
+    		}
+    	}
+		       
+		EndDrawing();
+		    
+		    
+		if(!menu_vars.map_selection_menu)
+		{
+			error = SLUGmaker_ChangeGUIStyle(&toolbar);
+			if(error == -1)
+				break;
 
-        if((IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL)) || toolbar.save.pressed)
-        {
-            if(SLUGmaker_WriteMap(map) == -1)
-                printf("Save failure\n");      
-        }
+			if((IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL)) || toolbar.save.pressed)
+			{
+				if(SLUGmaker_WriteMap(map) == -1)
+				    printf("Save failure\n");      
+			}
 
-        error = SLUGmaker_ChangeActionMode(&actionMenu, map);
-        if(error == -1)
-            break;
+			error = SLUGmaker_ChangeActionMode(&actionMenu, map);
+			if(error == -1)
+				break;
 
-        error = SLUGmaker_Action(map,&cam);
-        if(error == -1)
-            break;
+			error = SLUGmaker_Action(map,&cam);
+			if(error == -1)
+				break;
+		}
+		
 
     }
     

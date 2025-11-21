@@ -8,6 +8,19 @@
 #include <raygui.h>
 #include <string.h>
 
+//---global variables
+typedef struct SLUGmaker_MenuVariables SLUGmaker_MenuVariables;
+struct SLUG_maker SLUGmaker_MenuVariables
+{
+	bool map_selection_menu;
+};
+
+extern SLUGmaker_MenuVariables menu_vars;
+
+int8_t SLUGmaker_MenuInit();
+int8_t SLUGmaker_MenuUnload();
+
+//---buttons
 extern char SLUGmaker_IconBuffer[8];
 
 typedef struct SLUGmaker_button SLUGmaker_button;

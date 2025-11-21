@@ -18,6 +18,8 @@ struct SLUGmaker_GraphicVariables
     Texture2D player_spawn_point_sprite;
     
     int32_t style;
+    
+    bool selection_menu;
 };
 
 extern SLUGmaker_GraphicVariables graphic_vars;

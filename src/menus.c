@@ -20,6 +20,21 @@
 #include "styles/style_rltech.h"            // raygui style: rltech
 #include "styles/style_genesis.h"           // raygui style: genesis
 
+//--- global variables
+SLUGmaker_MenuVariables menu_vars;
+
+int8_t SLUGmaker_MenuInit()
+{
+	menu_vars.map_selection_menu = true;
+	return 0;
+}
+
+int8_t SLUGmaker_MenuUnload()
+{
+	return 0;
+}
+
+
 //---buttons
 char SLUGmaker_IconBuffer[8];
 

@@ -2,6 +2,7 @@
 
 SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
 {
+
     SLUGmaker_map *map = (SLUGmaker_map *) malloc(sizeof(SLUGmaker_map));
     if(map == NULL)
     {
@@ -10,8 +11,21 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     }
     
     //map size
-    map->zone.width = (float) witdh;
-    map->zone.height = (float) height;
+    
+    if(width < 1680)
+	{
+		printf("Map width too small. Extending to 1680 pixels.\n");
+		map->zone.width = 1680.0f;
+	}
+    else
+    	map->zone.width = (float) witdh;
+    if(height < 1050)
+	{
+		printf("Map height too small. Extending to 1050 pixels.\n");
+		map->zone.height = 1050.0f;
+	}
+    else
+    	map->zone.height = (float) height;
     map->zone.x = 0;
     map->zone.y = 0;
     
