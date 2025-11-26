@@ -9,9 +9,8 @@ option(BUILD_EXAMPLES "Build examples" OFF)
 # option(SUPPORT_MODULE_RAUDIO "Build RAudio" OFF)
 add_subdirectory(vendor/raylib)
 
-
 # Create the executable
-file(GLOB_RECURSE SOURCES src/**/*.c src/*.c src/raygui.c)
+file(GLOB_RECURSE SOURCES src/**/*.c src/*.c)
 add_executable(SLUG_maker ${SOURCES} )
 
 # Include raylib headers

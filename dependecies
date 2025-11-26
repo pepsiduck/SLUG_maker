@@ -1,0 +1,3 @@
+raylib
+raygui
+zenity/kdialog => if missing, install zenity

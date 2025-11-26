@@ -10,6 +10,7 @@
 #include "menus.h"
 #include "raygui.h"
 #include "defines.h"
+#include "external/tinyfiledialogs.h"
 
 //#define RAYGUI_IMPLEMENTATION
 
