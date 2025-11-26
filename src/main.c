@@ -157,17 +157,22 @@ int main(int argc, char *argv[])
     		int32_t new_map_result = GuiMessageBox((Rectangle){ (float)GetScreenWidth()/2 - 125, (float)GetScreenHeight()/2 - 50, 250, 100 }, "#159#New map", "Do tou want to open or create a new map ?", "Open;New map");
     		if(new_map_result == 1)
     		{
-    			//open
+                char map_file_name[256];
+    			char *tempFolderName = tinyfd_selectFolderDialog("Open map dirctory" ,NULL);
+                if(tempFolderName != NULL)
+                {
+                    strncpy(map_file_name,tempFolderName,255);
+                    SLUGmaker_map *map2 = SLUGmaker_LoadMap(map_file_name);
+                    if(map2 == NULL)
+                        printf("Could not open map.\n");
+                    else
+                    {
+                        SLUGmaker_UnloadMap(map);
+                        map = map2;
+                    }
+                }     
     		}
-    		else if(new_map_result == 2)
-    		{
-    			//new
-    		}
-    		else
-    		{
-    			map_vars.map_selection_menu = false;
-    			//if this window is hte one that launches with the software, break
-    		}
+    		menu_vars.map_selection_menu = false;
     	}
 		       
 		EndDrawing();
@@ -196,7 +201,6 @@ int main(int argc, char *argv[])
 		
 
     }
-    
 
     SLUGmaker_UnloadMap(map);
     SLUGmaker_GraphicUnload();
@@ -205,69 +209,6 @@ int main(int argc, char *argv[])
     CloseAudioDevice();
 
     return 0;
-    
-    
-    /*
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 1680;
-    const int screenHeight = 1050;
-
-    InitWindow(1680, 1050, "raylib [core] example - fullscreen toggle");
-    int display = GetCurrentMonitor();
-    SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
-    ToggleFullscreen();
-    
-    printf("%d %d jaaj\n",GetMonitorWidth(display),GetMonitorHeight(display));
-    
-
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-
-    //--------------------------------------------------------------------------------------
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-        // check for alt + enter
- 		if (IsKeyPressed(KEY_ENTER) && (IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT)))
- 		{
-            // see what display we are on right now
- 			int display = GetCurrentMonitor();
- 
-            
-            if (IsWindowFullscreen())
-            {
-                // if we are full screen, then go back to the windowed size
-                printf("%d %d\n",screenWidth, screenHeight);
-                SetWindowSize(screenWidth, screenHeight);
-            }
-            else
-            {
-                // if we are not full screen, set the window size to match the monitor we are on
-                printf("%d %d\n",GetMonitorWidth(display), GetMonitorHeight(display));
-                SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
-            }
- 
-            // toggle the state
- 			ToggleFullscreen();
- 		}
-
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
-
-        ClearBackground(RAYWHITE);
-
-        DrawText("Press Alt + Enter to Toggle full screen!", 190, 200, 20, LIGHTGRAY);
-
-        EndDrawing();
-        //----------------------------------------------------------------------------------
-    }
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
-    return 0;*/
 
 }
 
