@@ -43,7 +43,7 @@ int32_t SLUGmaker_GetIndexForPosition(int8_t *tab, int32_t tab_size, int32_t pos
     return -1;
 }
 
-int8_t SLUGmaker_RemoveDirRecursive(const char *dir)
+int8_t SLUGmaker_RemoveDirRecursive(const char *dir)//TODO:windows
 {
     if(dir == NULL)
         return -1;
@@ -130,8 +130,8 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     return map;
 }
 
-//"/home/pepsiduck/Desktop/SLUG_maker/maps/map/"
-SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap) //on va dire que loadMap se termine par un /
+//loadMap is expected to be like : "/home/pepsiduck/Desktop/SLUG_maker/maps/map/"
+SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
 {
     if(loadMap == NULL)
         return NULL;
@@ -707,7 +707,7 @@ bool SLUGmaker_CheckSave(SLUGmaker_map *map)
     return true;
 }
 
-int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
+int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)//TODO:windows
 {
     if(map == NULL)
         return -1;

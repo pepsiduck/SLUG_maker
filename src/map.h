@@ -75,7 +75,7 @@ struct SLUG_BSPTree
 int32_t SLUGmaker_CountOnes(int8_t *tab, int32_t tab_size);
 int8_t SLUGmaker_AllZeros(int8_t *tab, int32_t tab_size);
 int32_t SLUGmaker_GetIndexForPosition(int8_t *tab, int32_t tab_size, int32_t position);
-int8_t SLUGmaker_RemoveDirRecursive(const char *dir);
+int8_t SLUGmaker_RemoveDirRecursive(const char *dir);//TODO:windows
 
 //map load/unload
 SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height);
@@ -94,6 +94,6 @@ void SLUG_BSPTreeUnload(SLUG_BSPTree *tree);
 
 //map save
 bool SLUGmaker_CheckSave(SLUGmaker_map *map);
-int8_t SLUGmaker_WriteMap(SLUGmaker_map *map);
+int8_t SLUGmaker_WriteMap(SLUGmaker_map *map);//TODO:windows
 
 #endif
