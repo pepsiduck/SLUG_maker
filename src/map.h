@@ -8,6 +8,7 @@
 #include <math.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "geometry.h"
 
@@ -70,23 +71,28 @@ struct SLUG_BSPTree
     SLUG_BSPTreeElement *elements; //tree trunk is always element index 0
 };
 
+//utils
+int32_t SLUGmaker_CountOnes(int8_t *tab, int32_t tab_size);
+int8_t SLUGmaker_AllZeros(int8_t *tab, int32_t tab_size);
+int32_t SLUGmaker_GetIndexForPosition(int8_t *tab, int32_t tab_size, int32_t position);
+int8_t SLUGmaker_RemoveDirRecursive(const char *dir);
+
+//map load/unload
 SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height);
 SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap);
 void SLUGmaker_UnloadMap(SLUGmaker_map *map);
 
-void SLUG_BSPTreeUnload(SLUG_BSPTree *tree);
-
-int32_t SLUGmaker_CountOnes(int8_t *tab, int32_t tab_size);
-int8_t SLUGmaker_AllZeros(int8_t *tab, int32_t tab_size);
-int32_t SLUGmaker_GetIndexForPosition(int8_t *tab, int32_t tab_size, int32_t position);
-
+//map walls
 SLUG_SegmentExtended* SLUGmaker_GetSegments(SLUGmaker_map *map); 
 int32_t* SLUGmaker_GetWallsLinks(SLUGmaker_map *map);
 bool SLUGmaker_MapWallsTest(SLUG_SegmentExtended *segs, int32_t seg_size);
 
+//BSPTree
 int8_t SLUGmaker_BSPTreeBuildRecursive(SLUG_BSPTree *tree,int32_t *node_nb, int8_t *elements_taken);
 int8_t SLUGmaker_BSPTreeBuild(SLUG_BSPTree *tree,int32_t *node_nb);
+void SLUG_BSPTreeUnload(SLUG_BSPTree *tree);
 
+//map save
 bool SLUGmaker_CheckSave(SLUGmaker_map *map);
 int8_t SLUGmaker_WriteMap(SLUGmaker_map *map);
 

@@ -1,5 +1,65 @@
 #include "map.h"
 
+//utils
+int32_t SLUGmaker_CountOnes(int8_t *tab, int32_t tab_size)
+{
+    if(tab == NULL || tab_size <= 0)
+        return -1;
+    int32_t count = 0;
+    for(int32_t i = 0; i < tab_size; ++i)
+    {
+        if(tab[i] != 0)
+            count += 1;
+    }
+    return count;
+}
+
+int8_t SLUGmaker_AllZeros(int8_t *tab, int32_t tab_size)
+{
+    if(tab == NULL || tab_size <= 0)
+        return -1;
+    for(int32_t i = 0; i < tab_size; ++i)
+    {
+        if(tab[i] != 0)
+            return false;
+    }
+    return true;
+}
+
+int32_t SLUGmaker_GetIndexForPosition(int8_t *tab, int32_t tab_size, int32_t position)
+{
+    if(tab == NULL || tab_size <= 0)
+        return -1;
+    int32_t count;
+    for(int32_t i = 0; i < tab_size; ++i)
+    {
+        if(tab[i] != 0)
+        {
+            count += 1;
+            if(count >= position)
+                return i;        
+        }
+    }
+    return -1;
+}
+
+int8_t SLUGmaker_RemoveDirRecursive(const char *dir)
+{
+    if(dir == NULL)
+        return -1;
+
+    if(strncmp(dir,"/home/",6) != 0 || strncmp(dir,"/media/",7) != 0)
+    {
+        printf("Not deleting directory, too dangerous.\n");
+        return -1;
+    }
+
+    char cmd[strlen(dir) + 7];
+    sprintf(cmd,"rm -r %s",dir);
+    return system(cmd);
+}
+
+//map load/unload
 SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
 {
 
@@ -139,7 +199,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap) //on va dire que loadMap s
     strncpy(map->map-name, loadMap + index + 1, strlen(loadMap) - index - 2); //"map"
 
     //loaded sprites init
-    char sprite_file_name[len + 31];
+    char sprite_file_name[len + 32];
     sprintf(sprite_file_name,"%sassets/sprites/sprite_names.txt",loadMap);
     FILE *sprite_file = fopen(sprite_file_name,"r");
     if(sprite_file == NULL)
@@ -157,11 +217,11 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap) //on va dire que loadMap s
         if(line[strlen(line) - 1] == '\n')
             line[strlen(line) - 1] = '\0';
 
-        if(strlen(line) == 0)
+        if(strlen(line) > 0)
         {
             sprintf(sprite_name,"%sassets/sprites/%s",loadMap,line);
             map->loaded_sprites[counter] = LoadTexture(sprite_name);
-            if(map->loaded_sprites[counter] > 0)
+            if(map->loaded_sprites[counter].id > 0)
                 strncpy(map->loaded_sprites_names[counter],line,256);
             else
             {
@@ -353,69 +413,7 @@ void SLUGmaker_UnloadMap(SLUGmaker_map *map)
     }
 }
 
-
-void SLUG_BSPTreeUnload(SLUG_BSPTree *tree)
-{
-    if(tree != NULL)
-    {
-        if(tree->tab != NULL)
-        {
-            free(tree->tab);
-            tree->tab = NULL;
-        }    
-        if(tree->elements != NULL)
-        {
-            free(tree->elements);
-            tree->elements = NULL;
-        }
-            
-        free(tree);
-        tree = NULL;
-    }
-}
-
-int32_t SLUGmaker_CountOnes(int8_t *tab, int32_t tab_size)
-{
-    if(tab == NULL || tab_size <= 0)
-        return -1;
-    int32_t count = 0;
-    for(int32_t i = 0; i < tab_size; ++i)
-    {
-        if(tab[i] != 0)
-            count += 1;
-    }
-    return count;
-}
-
-int8_t SLUGmaker_AllZeros(int8_t *tab, int32_t tab_size)
-{
-    if(tab == NULL || tab_size <= 0)
-        return -1;
-    for(int32_t i = 0; i < tab_size; ++i)
-    {
-        if(tab[i] != 0)
-            return false;
-    }
-    return true;
-}
-
-int32_t SLUGmaker_GetIndexForPosition(int8_t *tab, int32_t tab_size, int32_t position)
-{
-    if(tab == NULL || tab_size <= 0)
-        return -1;
-    int32_t count;
-    for(int32_t i = 0; i < tab_size; ++i)
-    {
-        if(tab[i] != 0)
-        {
-            count += 1;
-            if(count >= position)
-                return i;        
-        }
-    }
-    return -1;
-}
-
+//map walls
 SLUG_SegmentExtended *SLUGmaker_GetSegments(SLUGmaker_map *map)
 {
     if(map == NULL)
@@ -558,6 +556,7 @@ bool SLUGmaker_MapWallsTest(SLUG_SegmentExtended *segs, int32_t seg_size)
     return true;
 }
 
+//BSPTree
 int8_t SLUGmaker_BSPTreeBuildRecursive(SLUG_BSPTree *tree,int32_t *node_nb, int8_t *elements_taken)
 {
     if(tree == NULL || elements_taken == NULL || node_nb == NULL)
@@ -665,6 +664,27 @@ int8_t SLUGmaker_BSPTreeBuild(SLUG_BSPTree *tree,int32_t *node_nb)
     return SLUGmaker_BSPTreeBuildRecursive(tree,node_nb,tab);
 }
 
+void SLUG_BSPTreeUnload(SLUG_BSPTree *tree)
+{
+    if(tree != NULL)
+    {
+        if(tree->tab != NULL)
+        {
+            free(tree->tab);
+            tree->tab = NULL;
+        }    
+        if(tree->elements != NULL)
+        {
+            free(tree->elements);
+            tree->elements = NULL;
+        }
+            
+        free(tree);
+        tree = NULL;
+    }
+}
+
+//map save
 bool SLUGmaker_CheckSave(SLUGmaker_map *map)
 {
     if(map == NULL)
@@ -679,45 +699,35 @@ bool SLUGmaker_CheckSave(SLUGmaker_map *map)
         printf("Cannot save while moving walls.\n");
         return false;
     }    
+    if(strlen(map->map_name) == 0)
+    {
+        printf("Map has no name.\n");
+        return false;
+    }
     return true;
 }
 
 int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
 {
+    if(map == NULL)
+        return -1;
     
     if(!SLUGmaker_CheckSave(map))
         return -1;
     
-    //create project
-    printf("Enter Map Name : \n");
-    char map_name[100];
-    scanf("%s", map_name);
-    while ((getchar()) != '\n');
-    char buff[106] = "maps/";
-    strcat(buff,map_name);
+    char path[strlen(map->map_path) + 6];
+    sprintf(path,"%s.temp",map_path,map_name);
     struct stat sb;
-    if(stat(buff, &sb) == 0 && S_ISDIR(sb.st_mode))
+    if(stat(path, &sb) == 0 && S_ISDIR(sb.st_mode))
     {
-        printf("Directory exists. Do you want to delete it [y/n]?\n");
-        char resp = (char) getchar();
-        if(resp != 'y' && resp != 'Y')
+        if(SLUGmaker_RemoveDirRecursive(path) == -1)
         {
-            printf("Save aborted.\n");
-            return 0;
-        }
-        else
-        {
-            char cmd[107] = "rm -rf ";
-            strcat(cmd, buff);
-            if(system(cmd) != 0)
-            {
-                printf("Error on folder deletion.\n");
-                return -1;
-            }        
+            printf("Remove Error.\n");
+            return -1;
         }
     }
 
-    if(mkdir(buff, 0777) != 0)
+    if(mkdir(path, 0777) != 0)
     {
         printf("Error on folder creation.\n");
         return -1;
@@ -725,30 +735,29 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
 
     
     //save sprites
-    char buff2[256];
-    strcpy(buff2, buff);
-    strcat(buff2, "/assets");
-    if(mkdir(buff2, 0777) != 0)
+    char assets[strlen(path) + 8];
+    sprintf(assets,"%s/assets",path)
+    if(mkdir(assets, 0777) != 0)
     {
         printf("Error on folder creation.\n");
         return -1;
     }
     
-    strcpy(buff2, buff);
-    strcat(buff2, "/assets/sprites");
-    if(mkdir(buff2, 0777) != 0)
+    char sprites[strlen(assets) + 9];
+    sprintf(sprites,"%s/sprites",path)
+    if(mkdir(sprites, 0777) != 0)
     {
         printf("Error on folder creation.\n");
         return -1;
     }
 
     //save images
-    char sprites_files_buffer[strlen(buff2) + 16];
-    sprintf(sprites_files_buffer, "%s/sprite_names.txt");
+    char sprites_files_buffer[strlen(sprites) + 18];
+    sprintf(sprites_files_buffer, "%s/sprite_names.txt", sprites);
     FILE *sprites_file = fopen(sprites_files_buffer,"w");
     if(sprite_file == NULL)
     {
-        printf("Error on psirte name file creation.\n");
+        printf("Error on sprite name file creation.\n");
         return -1;
     }
     
@@ -756,8 +765,8 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
     {
         if(map->loaded_sprites[s].id > 0)
         {
-            char sprite_name[strlen(buff2) + strlen(map->loaded_sprites_names[s]) + 1];
-            sprintf(sprite_name,"%s/%s",buff2,map->loaded_sprites_names[s]);
+            char sprite_name[strlen(sprites) + strlen(map->loaded_sprites_names[s]) + 2];
+            sprintf(sprite_name,"%s/%s",sprites,map->loaded_sprites_names[s]);
             if(ExportImage(LoadImageFromTexture(map->loaded_sprites[s]),sprite_name))
                 fwrite(map->loaded_sprites_names[s],sizeof(char),strlen(map->loaded_sprites_names[s]),sprites_file);
             else
@@ -773,17 +782,17 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
     fclose(sprites_file);
 
     //save sounds
-    strcpy(buff2, buff);
-    strcat(buff2, "/assets/sound");
-    if(mkdir(buff2, 0777) != 0)
+    char sounds[strlen(assets) + 7];
+    sprintf(sounds,"%s/sound",assets)
+    if(mkdir(sounds, 0777) != 0)
     {
         printf("Error on folder creation.\n");
         return -1;
     }
 
     //map file
-    strcpy(buff2, buff);
-    strcat(buff2, "/map.slug");
+    char map_file_name[strlen(path) + 10];
+    sprintf(map_file_name,"%s/map.slug",path)
     FILE *f = fopen(buff2, "w");
     if(f == NULL)
     {
@@ -963,7 +972,30 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)
 
     fclose(f);
 
-    printf("Succes !\n");
+    printf("Succes ! Moving temp file.\n");
+
+    char path_final[strlen(map->map_path) + strlen(map->map_name) + 1];
+    sprintf(path_final,"%s%s",map->map_path,map->map_name);
+
+    if(stat(path_final, &sb) == 0 && S_ISDIR(sb.st_mode))
+    {
+        if(SLUGmaker_RemoveDirRecursive(path_final) == -1)
+        {
+            printf("Remove Error.\n");
+            return -1;
+        }
+    }
+
+    if(rename(path,path_final) != 0)
+        printf("Could not rename your file. You will find your map in .temp");
+    else
+        printf("Temp file renamed");
+
+    if(SLUGmaker_RemoveDirRecursive(path) == -1)
+    {
+        printf("Remove Error.\n");
+        return -1;
+    }
     
     return 0;
 }
