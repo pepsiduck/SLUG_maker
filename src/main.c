@@ -90,8 +90,8 @@ int main(int argc, char *argv[])
 {
     SLUGmaker_map *map = NULL;
 
-    InitWindow(0, 0, "SLUGmaker");
     SetWindowState(FLAG_VSYNC_HINT|FLAG_WINDOW_RESIZABLE);
+    InitWindow(0, 0, "SLUGmaker");
     
     int display = GetCurrentMonitor();
     int16_t const screenWidth = GetMonitorWidth(display);
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
     		if(new_map_result == 1)
     		{
                 char map_file_name[256];
-    			char *tempFolderName = tinyfd_selectFolderDialog("Open map dirctory" ,NULL);
+    			char *tempFolderName = tinyfd_selectFolderDialog("Open map directory" ,NULL);
                 if(tempFolderName != NULL)
                 {
                     strncpy(map_file_name,tempFolderName,255);
@@ -169,6 +169,7 @@ int main(int argc, char *argv[])
                     {
                         SLUGmaker_UnloadMap(map);
                         map = map2;
+                        SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
                     }
                 }     
     		}

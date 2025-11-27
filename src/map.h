@@ -33,6 +33,9 @@ struct SLUGmaker_PlacableSprite
 typedef struct SLUGmaker_map SLUGmaker_map;
 struct SLUGmaker_map
 {
+	char map_name[256];
+	char map_path[256];
+
     Rectangle zone;
     
     Texture2D loaded_sprites[MAX_SPRITES];

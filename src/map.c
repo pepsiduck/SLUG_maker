@@ -10,6 +10,10 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
         return NULL;
     }
     
+    //map name
+    map->map_name = "Untitled";
+    map->map_path = "maps/";
+    
     //map size
     
     if(width < 1680)
@@ -66,7 +70,8 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     return map;
 }
 
-SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
+//"/home/pepsiduck/Desktop/SLUG_maker/maps/map/"
+SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap) //on va dire que loadMap se termine par un /
 {
     if(loadMap == NULL)
         return NULL;
@@ -76,9 +81,8 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         return NULL;
         
     //read the map file
-    char mapslug[len + 10];
-    strcpy(mapslug, loadMap);
-    strcat(mapslug, "/map.slug");
+    char mapslug[len + 9];
+    sprintf(mapslug,"%smap.slug",loadMap);
     FILE *f = fopen(mapslug, "r");
     if(f == NULL)
     {
@@ -120,10 +124,23 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         printf("Map malloc Error\n");
         return NULL;
     }
+    
+    //map name
+    
+    //separate the path from the name;
+    uint32_t index;
+    for(index = strlen(loadMap) - 2; index >= 0; index--)
+    {
+    	if(loadMap[index] == '\')
+    		break;
+    }   
+      
+    strncpy(map->map_path, loadMap, index + 1); //"/home/pepsiduck/Desktop/SLUG_maker/maps/"
+    strncpy(map->map-name, loadMap + index + 1, strlen(loadMap) - index - 2); //"map"
 
     //loaded sprites init
-    char sprite_file_name[len + 32];
-    sprintf(sprite_file_name,"%s/assets/sprites/sprite_names.txt",loadMap);
+    char sprite_file_name[len + 31];
+    sprintf(sprite_file_name,"%sassets/sprites/sprite_names.txt",loadMap);
     FILE *sprite_file = fopen(sprite_file_name,"r");
     if(sprite_file == NULL)
     {
@@ -133,7 +150,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
         return NULL;
     }
     char line[256];
-    char sprite_name[272 + len];
+    char sprite_name[271 + len];
     uint16_t counter = 0;
     while(counter < MAX_SPRITES && fgets(line, sizeof(line), sprite_file))
     {   
@@ -142,7 +159,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
 
         if(strlen(line) == 0)
         {
-            sprintf(sprite_name,"%s/assets/sprites/%s",loadMap,line);
+            sprintf(sprite_name,"%sassets/sprites/%s",loadMap,line);
             map->loaded_sprites[counter] = LoadTexture(sprite_name);
             if(map->loaded_sprites[counter] > 0)
                 strncpy(map->loaded_sprites_names[counter],line,256);
