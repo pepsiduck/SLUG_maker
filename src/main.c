@@ -4,6 +4,8 @@
 #include <string.h>
 #include <time.h>
 
+//#define RAYGUI_IMPLEMENTATION
+
 #include "map.h"
 #include "display.h"
 #include "action.h"
@@ -12,32 +14,31 @@
 #include "defines.h"
 #include "tinyfiledialogs.h"
 
-//#define RAYGUI_IMPLEMENTATION
-
-//les 4 premiers bytes d'un .slmaker sont tjrs SLUGMAP en binaire
-
-SLUGmaker_map* SLUGmaker_MapInit(int argc, char *argv[])
+int8_t SLUGmaker_OpenNewMapFileDialog(SLUGmaker_map *map, SLUGmaker_camera *cam)
 {
-    if(argc != 2)
-    {
-        printf("Wrong arguments.\n");
-        return NULL;
-    }
-
-    SLUGmaker_map *map;
-
-    if(strchr(argv[1], '.') == NULL)
-    {
-        map = SLUGmaker_LoadMap(argv[1]); //TODO Load map
-        if(map == NULL)
-        {
-            printf("Error while loading map.\n");
-            return NULL;
-        }
-    }
-    
-    
-    return map;
+	char map_file_name[256];
+	char *tempFolderName = tinyfd_selectFolderDialog("Open map directory" ,NULL);
+	if(tempFolderName != NULL)
+	{
+		printf("Open map.\n");
+		strncpy(map_file_name,tempFolderName,255);
+		SLUGmaker_map *map2 = SLUGmaker_LoadMap(map_file_name);
+		if(map2 == NULL)
+		{
+			printf("Could not open map.\n");
+			return -1;
+		}
+		else
+		{
+			SLUGmaker_UnloadMap(map);
+			map = map2;
+			*cam = SLUGmaker_DefaultCamera(map);
+		}
+	} 
+	
+	menu_vars.map_selection_result = -1;
+	
+	return 0;
 }
 
 int8_t SLUGmaker_ChangeFullscreen(int16_t const screenWidth, int16_t const screenHeight)
@@ -57,7 +58,7 @@ int8_t SLUGmaker_ChangeFullscreen(int16_t const screenWidth, int16_t const scree
     return 0;
 }
 
-int8_t SLUGmaker_Resize(SLUGmaker_ToolBar *toolbar, SLUGmaker_ActionButtonsMenu *actionMenu, SLUGmaker_camera *cam)
+int8_t SLUGmaker_Resize(SLUGmaker_camera *cam, SLUGmaker_Menu *menu)
 {
 	if(GetScreenWidth() != graphic_vars.screen_w || GetScreenHeight() != graphic_vars.screen_h)
 	{
@@ -67,12 +68,10 @@ int8_t SLUGmaker_Resize(SLUGmaker_ToolBar *toolbar, SLUGmaker_ActionButtonsMenu 
 		float factor_x = w / graphic_vars.screen_w;
 		float factor_y = h / graphic_vars.screen_h;
 			
-        int8_t error = SLUGmaker_ToolBarResize(factor_x, factor_y, toolbar);
+        int8_t error = SLUGmaker_MenuResize(factor_x, factor_y, menu);
         if(error == -1)
            	return -1;
-        error = SLUGmaker_ActionButtonsMenuResize(factor_x, factor_y, actionMenu);
-        if(error == -1)
-           	return -1;
+        
         error = SLUGmaker_DisplayUpdate(factor_x, factor_y, cam);
         if(error == -1)
            	return -1;
@@ -88,12 +87,25 @@ int8_t SLUGmaker_Resize(SLUGmaker_ToolBar *toolbar, SLUGmaker_ActionButtonsMenu 
 
 int main(int argc, char *argv[])
 {
-    SetWindowState(FLAG_VSYNC_HINT|FLAG_WINDOW_RESIZABLE);
+
     InitWindow(0, 0, "SLUGmaker");
+    SetWindowState(FLAG_VSYNC_HINT|FLAG_WINDOW_RESIZABLE);
     
     int display = GetCurrentMonitor();
     int16_t const screenWidth = GetMonitorWidth(display);
     int16_t const screenHeight = GetMonitorHeight(display);
+    
+    if(SLUGmaker_GraphicInit() != 0)
+    {
+        printf("Graphic initalization fail.\n");
+        return 1;
+    }
+    
+    if(SLUGmaker_MenuInit() != 0)
+    {
+        printf("Menu initalization fail.\n");
+        return 1;
+    }
         
     InitAudioDevice();
 
@@ -104,19 +116,11 @@ int main(int argc, char *argv[])
         printf("Map initialization fail.\n");
         return 1;
     }
-
-    if(SLUGmaker_GraphicInit() != 0)
-    {
-        printf("Graphic initalization fail.\n");
-        SLUGmaker_UnloadMap(map);
-        return 1;
-    }
-
+    
+	SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
+	SLUGmaker_Menu menu = SLUGmaker_MenuDevLoad(GetScreenWidth(), GetScreenHeight());
+	
     HideCursor();
-
-    SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
-    SLUGmaker_ToolBar toolbar = SLUGmaker_ToolBarDevLoad();
-    SLUGmaker_ActionButtonsMenu actionMenu = SLUGmaker_ActionButtonsMenuDevLoad();
     GuiEnableTooltip();
 
     int8_t error = 0;
@@ -129,67 +133,37 @@ int main(int argc, char *argv[])
     while (!WindowShouldClose())
     {
 		if(!SLUGmaker_ChangeFullscreen(screenWidth, screenHeight))
-			resize = SLUGmaker_Resize(&toolbar, &actionMenu, &cam);
+			resize = SLUGmaker_Resize(&cam, &menu);
 		
 		BeginDrawing();
 		ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
-		    
-		error = SLUGmaker_ToolBarDisplay(&toolbar);   
-		if(error == -1)
-		    break;
-		        
-		error = SLUGmaker_ActionButtonsMenuDisplay(&actionMenu);   
-		if(error == -1)
-		    break;
 
 		error = SLUGmaker_CameraUpdate(&cam,resize);
 		if(error == -1)
 		    break;
 		    
-		error = SLUGmaker_Display(&cam);
+		error = SLUGmaker_Display(&cam, &menu);
 		if(error == -1)
-		    break;
-		        
-		if(menu_vars.map_selection_menu)
-    	{
-    		int32_t new_map_result = GuiMessageBox((Rectangle){ (float)GetScreenWidth()/2 - 125, (float)GetScreenHeight()/2 - 50, 250, 100 }, "#159#New map", "Do tou want to open or create a new map ?", "Open;New map");
-    		if(new_map_result == 1)
-    		{
-                char map_file_name[256];
-    			char *tempFolderName = tinyfd_selectFolderDialog("Open map directory" ,NULL);
-                if(tempFolderName != NULL)
-                {
-                    strncpy(map_file_name,tempFolderName,255);
-                    SLUGmaker_map *map2 = SLUGmaker_LoadMap(map_file_name);
-                    if(map2 == NULL)
-                        printf("Could not open map.\n");
-                    else
-                    {
-                        SLUGmaker_UnloadMap(map);
-                        map = map2;
-                        cam = SLUGmaker_DefaultCamera(map);
-                    }
-                }     
-    		}
-    		menu_vars.map_selection_menu = false;
-    	}
+		    break;        
 		       
 		EndDrawing();
 		    
+		if(menu_vars.map_selection_result == 1)
+			SLUGmaker_OpenNewMapFileDialog(map, &cam);
 		    
-		if(!menu_vars.map_selection_menu)
+		if(!menu_vars.map_selection_menu) //or all the stuff
 		{
-			error = SLUGmaker_ChangeGUIStyle(&toolbar);
+			error = SLUGmaker_ChangeGUIStyle(&(menu.toolbar));
 			if(error == -1)
 				break;
 
-			if((IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL)) || toolbar.save.pressed)
+			if((IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL)) || menu.toolbar.save.pressed)
 			{
 				if(SLUGmaker_WriteMap(map) == -1)
 				    printf("Save failure\n");      
 			}
 
-			error = SLUGmaker_ChangeActionMode(&actionMenu, map);
+			error = SLUGmaker_ChangeActionMode(&(menu.actionMenu), map);
 			if(error == -1)
 				break;
 

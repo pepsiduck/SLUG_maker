@@ -26,6 +26,7 @@ SLUGmaker_MenuVariables menu_vars;
 int8_t SLUGmaker_MenuInit()
 {
 	menu_vars.map_selection_menu = true;
+	menu_vars.map_selection_result = -1;
 	return 0;
 }
 
@@ -113,7 +114,7 @@ int8_t SLUGmaker_ComboBoxPressed(SLUGmaker_ComboBox *combobox)
 }
 
 //---toolbar
-SLUGmaker_ToolBar SLUGmaker_ToolBarDevLoad(uint32_t screen_w, uint32_t screen_h)
+SLUGmaker_ToolBar SLUGmaker_ToolBarDevLoad()
 {
     SLUGmaker_ToolBar toolbar;
     
@@ -189,7 +190,7 @@ int8_t SLUGmaker_ToolBarDisplay(SLUGmaker_ToolBar *toolbar)
 }
 
 //--- action buttons menu
-SLUGmaker_ActionButtonsMenu SLUGmaker_ActionButtonsMenuDevLoad(uint32_t screen_w, uint32_t screen_h)
+SLUGmaker_ActionButtonsMenu SLUGmaker_ActionButtonsMenuDevLoad()
 {
 	SLUGmaker_ActionButtonsMenu menu;
 	
@@ -264,6 +265,21 @@ int8_t SLUGmaker_ActionButtonsMenuDisplay(SLUGmaker_ActionButtonsMenu *menu)
     return 0;
 }
 
+//pop-ups
+int8_t SLUGmaker_PopUpNewMap()
+{
+	if(menu_vars.map_selection_menu)
+	{
+		int32_t res = GuiMessageBox((Rectangle){ (float)GetScreenWidth()/2 - 125, (float)GetScreenHeight()/2 - 50, 250, 100 }, GuiIconText(ICON_EXIT, "Close Window"), "Do you want to open or create a new map ?", "Open;New map");
+		menu_vars.map_selection_result = res;
+		if(res != -1)
+			menu_vars.map_selection_menu = false;
+    }
+    else
+    	menu_vars.map_selection_result = -1;
+    return 0;
+}
+
 //---functions
 int8_t SLUGmaker_ChangeGUIStyle(SLUGmaker_ToolBar *toolbar)
 {
@@ -290,5 +306,40 @@ int8_t SLUGmaker_ChangeGUIStyle(SLUGmaker_ToolBar *toolbar)
         }
 		graphic_vars.style = toolbar->styles.state;
 	}
+	return 0;
+}
+
+//general menu
+SLUGmaker_Menu SLUGmaker_MenuDevLoad()
+{
+	SLUGmaker_Menu menu;
+    menu.toolbar = SLUGmaker_ToolBarDevLoad();
+    menu.actionMenu = SLUGmaker_ActionButtonsMenuDevLoad();
+    return menu;
+}
+
+int8_t SLUGmaker_MenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu)
+{
+	int8_t error = SLUGmaker_ToolBarResize(factor_x, factor_y, &(menu->toolbar));
+    if(error == -1)
+       	return -1;
+       	
+    error = SLUGmaker_ActionButtonsMenuResize(factor_x, factor_y, &(menu->actionMenu));
+    if(error == -1)
+       	return -1;
+       	
+    return 0;
+}
+
+int8_t SLUGmaker_MenuDisplay(SLUGmaker_Menu *menu)
+{
+	int8_t error = SLUGmaker_ToolBarDisplay(&(menu->toolbar));   
+	if(error == -1)
+		return -1;
+		        
+	error = SLUGmaker_ActionButtonsMenuDisplay(&(menu->actionMenu));   
+	if(error == -1)
+		return -1;
+		
 	return 0;
 }

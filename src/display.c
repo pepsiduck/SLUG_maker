@@ -160,22 +160,38 @@ int8_t SLUGmaker_DisplayMap(SLUGmaker_camera *cam)
     return 0;
 }
 
-int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
+int8_t SLUGmaker_PopUps()
+{
+	if(menu_vars.map_selection_menu)
+		SLUGmaker_PopUpNewMap();
+	return 0;
+}
+
+//display
+int8_t SLUGmaker_Display(SLUGmaker_camera *cam, SLUGmaker_Menu *menu)
 {
 	if(cam == NULL)
 		return -1;
     
-    if(SLUGmaker_DisplayMap(cam) == -1)
-        return -1;
+	if(SLUGmaker_DisplayMap(cam) == -1)
+		return -1;
     
-    if(SLUGmaker_DisplaySprites(cam) == -1)
-        return -1;
+	if(SLUGmaker_DisplaySprites(cam) == -1)
+		return -1;
 
-    if(SLUGmaker_DisplayWalls(cam) == -1)
-        return -1;
+	if(SLUGmaker_DisplayWalls(cam) == -1)
+		return -1;
         
-    if(SLUGmaker_DisplayPlayerSpawnPoint(cam) == -1)
-    	return -1;
+	if(SLUGmaker_DisplayPlayerSpawnPoint(cam) == -1)
+		return -1;
+		
+	if(SLUGmaker_MenuDisplay(menu) == -1)
+		return -1;
+    	
+	if(menu_vars.map_selection_menu) //or all the stuff
+		DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(RAYWHITE, 0.8f));
+
+	SLUGmaker_PopUps();
 
     DrawTexture(graphic_vars.mouse_cursor_sprite,GetMouseX(),GetMouseY(),WHITE);
     

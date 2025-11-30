@@ -13,6 +13,7 @@ typedef struct SLUGmaker_MenuVariables SLUGmaker_MenuVariables;
 struct SLUGmaker_MenuVariables
 {
 	bool map_selection_menu;
+	int32_t map_selection_result;
 };
 
 extern SLUGmaker_MenuVariables menu_vars;
@@ -82,7 +83,23 @@ int8_t SLUGmaker_ActionButtonsMenuPressed(SLUGmaker_ActionButtonsMenu *menu);
 int8_t SLUGmaker_ActionButtonsMenuDisplay(SLUGmaker_ActionButtonsMenu *menu);
 
 
+//pop-ups
+int8_t SLUGmaker_PopUpNewMap();
+
 //---functions
 int8_t SLUGmaker_ChangeGUIStyle(SLUGmaker_ToolBar *toolbar);
+
+//general menu
+typedef struct SLUGmaker_Menu SLUGmaker_Menu;
+struct SLUGmaker_Menu
+{
+    SLUGmaker_ToolBar toolbar;
+    SLUGmaker_ActionButtonsMenu actionMenu;
+};
+
+SLUGmaker_Menu SLUGmaker_MenuDevLoad();
+int8_t SLUGmaker_MenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
+int8_t SLUGmaker_MenuDisplay(SLUGmaker_Menu *menu);
+
 
 #endif
