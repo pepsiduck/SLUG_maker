@@ -10,7 +10,7 @@
 #include "menus.h"
 #include "raygui.h"
 #include "defines.h"
-#include "external/tinyfiledialogs.h"
+#include "tinyfiledialogs.h"
 
 //#define RAYGUI_IMPLEMENTATION
 
@@ -88,8 +88,6 @@ int8_t SLUGmaker_Resize(SLUGmaker_ToolBar *toolbar, SLUGmaker_ActionButtonsMenu 
 
 int main(int argc, char *argv[])
 {
-    SLUGmaker_map *map = NULL;
-
     SetWindowState(FLAG_VSYNC_HINT|FLAG_WINDOW_RESIZABLE);
     InitWindow(0, 0, "SLUGmaker");
     
@@ -99,7 +97,7 @@ int main(int argc, char *argv[])
         
     InitAudioDevice();
 
-    SLUGmaker *map = SLUGmaker_NewMap(3360, 2100);
+    SLUGmaker_map *map = SLUGmaker_NewMap(3360, 2100);
 
     if(map == NULL)
     {
@@ -169,7 +167,7 @@ int main(int argc, char *argv[])
                     {
                         SLUGmaker_UnloadMap(map);
                         map = map2;
-                        SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
+                        cam = SLUGmaker_DefaultCamera(map);
                     }
                 }     
     		}

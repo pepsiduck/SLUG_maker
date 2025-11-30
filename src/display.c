@@ -17,53 +17,53 @@ int8_t SLUGmaker_DisplaySprite(SLUGmaker_camera *cam, int16_t index)
     if(cam == NULL)
         return -1;
 
-    if(index >= map->sprite_nb)
+    if(index >= cam->map->sprite_nb)
     {
         printf("Sprite index out of range.\n");
         return -1;
     }
 
-    if(cam->map->loaded_sprites[cam->map->map_sprites[i].sprite_index].id <= 0)
+    if(cam->map->loaded_sprites[cam->map->map_sprites[index].sprite_index].id <= 0)
     {
         printf("Trying to display a sprite that doesn't exist");
         return -1;
     }
 
     Rectangle d1 = GetCollisionRec(cam->view_zone, cam->map->map_sprites[index].zone);
-    float w = (float) cam->map->loaded_sprites[cam->map->map_sprites[i].sprite_index].width;
-    float h = (float) cam->map->loaded_sprites[cam->map->map_sprites[i].sprite_index].height;
+    float w = (float) cam->map->loaded_sprites[cam->map->map_sprites[index].sprite_index].width;
+    float h = (float) cam->map->loaded_sprites[cam->map->map_sprites[index].sprite_index].height;
 
     if(d1.x == cam->view_zone.x && d1.y == cam->view_zone.y && d1.width == cam->view_zone.width && d1.height == cam->view_zone.height)
     {
         Rectangle d2 = (Rectangle) {
-            .x = ((cam->map->map_sprites[i].zone.x - d1.x) * w)/cam->map->map_sprites[i].zone.width,
-            .y = ((cam->map->map_sprites[i].zone.y - d1.y) * h)/cam->map->map_sprites[i].zone.height,
-            .width = (d1.width * w)/cam->map->map_sprites[i].zone.width,
-            .height = (d1.height * h)/cam->map->map_sprites[i].zone.height
+            .x = ((cam->map->map_sprites[index].zone.x - d1.x) * w)/cam->map->map_sprites[index].zone.width,
+            .y = ((cam->map->map_sprites[index].zone.y - d1.y) * h)/cam->map->map_sprites[index].zone.height,
+            .width = (d1.width * w)/cam->map->map_sprites[index].zone.width,
+            .height = (d1.height * h)/cam->map->map_sprites[index].zone.height
         };
-        DrawTexturePro(cam->map->loaded_sprites[cam->map->map_sprites[i].sprite_index], d2,*(cam->display), (Vector2) {.x = 0, .y = 0}, 0, WHITE);  
+        DrawTexturePro(cam->map->loaded_sprites[cam->map->map_sprites[index].sprite_index], d2,*(cam->display), (Vector2) {.x = 0, .y = 0}, 0, WHITE);  
     }
     else
     {
-        Rectangle d3 = (Rectangle) {
+        Rectangle src = (Rectangle) {
             .x = 0.0,
             .y = 0.0,
             .width = w,
             .height = h
         };
-        Rectangle d3 = (Rectangle) {
+        Rectangle dest = (Rectangle) {
             .x = cam->display->x + (d1.x - cam->view_zone.x) * cam->ratiox,
             .y = cam->display->y + (d1.y - cam->view_zone.y) * cam->ratioy,
             .width = d1.width * cam->ratiox,
             .height = d1.height * cam->ratioy
         };
-        DrawTexturePro(cam->map->loaded_sprites[cam->map->map_sprites[i].sprite_index,d1,d3,(Vector2) {.x = 0, .y = 0},0,WHITE);
+        DrawTexturePro(cam->map->loaded_sprites[cam->map->map_sprites[index].sprite_index],src,dest,(Vector2) {.x = 0, .y = 0},0,WHITE);
     }  
 
     return 0;
 }
 
-int8_t SLUGmaker_DisplaySprites(SLUGmaker_camera *cam);
+int8_t SLUGmaker_DisplaySprites(SLUGmaker_camera *cam)
 {
     if(cam == NULL)
         return -1;
@@ -168,7 +168,7 @@ int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
     if(SLUGmaker_DisplayMap(cam) == -1)
         return -1;
     
-    if(SLUGmaker_DisplaySprites(SLUGmaker_camera *cam) == -1)
+    if(SLUGmaker_DisplaySprites(cam) == -1)
         return -1;
 
     if(SLUGmaker_DisplayWalls(cam) == -1)

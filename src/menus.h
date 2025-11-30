@@ -10,7 +10,7 @@
 
 //---global variables
 typedef struct SLUGmaker_MenuVariables SLUGmaker_MenuVariables;
-struct SLUG_maker SLUGmaker_MenuVariables
+struct SLUGmaker_MenuVariables
 {
 	bool map_selection_menu;
 };

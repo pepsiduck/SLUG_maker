@@ -71,8 +71,8 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     }
     
     //map name
-    map->map_name = "Untitled";
-    map->map_path = "maps/";
+    strcpy(map->map_name,"Untitled");
+    strcpy(map->map_path,"maps/");
     
     //map size
     
@@ -82,7 +82,7 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
 		map->zone.width = 1680.0f;
 	}
     else
-    	map->zone.width = (float) witdh;
+    	map->zone.width = (float) width;
     if(height < 1050)
 	{
 		printf("Map height too small. Extending to 1050 pixels.\n");
@@ -97,7 +97,7 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     for(int16_t i = 0; i < MAX_SPRITES; ++i)
     {
     	map->loaded_sprites[i].id = -1;
-    	map->loaded_sprites_names[i] = "";
+    	map->loaded_sprites_names[i][0] = '\0';
     }
     for(int16_t i = 0; i < MAX_PLACED_SPRITES; ++i)
     {
@@ -191,12 +191,12 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     uint32_t index;
     for(index = strlen(loadMap) - 2; index >= 0; index--)
     {
-    	if(loadMap[index] == '\')
+    	if(loadMap[index] == '/')
     		break;
     }   
       
     strncpy(map->map_path, loadMap, index + 1); //"/home/pepsiduck/Desktop/SLUG_maker/maps/"
-    strncpy(map->map-name, loadMap + index + 1, strlen(loadMap) - index - 2); //"map"
+    strncpy(map->map_name, loadMap + index + 1, strlen(loadMap) - index - 2); //"map"
 
     //loaded sprites init
     char sprite_file_name[len + 32];
@@ -716,7 +716,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)//TODO:windows
         return -1;
     
     char path[strlen(map->map_path) + 6];
-    sprintf(path,"%s.temp",map_path,map_name);
+    sprintf(path,"%s.temp",map->map_path);
     struct stat sb;
     if(stat(path, &sb) == 0 && S_ISDIR(sb.st_mode))
     {
@@ -736,7 +736,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)//TODO:windows
     
     //save sprites
     char assets[strlen(path) + 8];
-    sprintf(assets,"%s/assets",path)
+    sprintf(assets,"%s/assets",path);
     if(mkdir(assets, 0777) != 0)
     {
         printf("Error on folder creation.\n");
@@ -744,7 +744,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)//TODO:windows
     }
     
     char sprites[strlen(assets) + 9];
-    sprintf(sprites,"%s/sprites",path)
+    sprintf(sprites,"%s/sprites",path);
     if(mkdir(sprites, 0777) != 0)
     {
         printf("Error on folder creation.\n");
@@ -755,7 +755,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)//TODO:windows
     char sprites_files_buffer[strlen(sprites) + 18];
     sprintf(sprites_files_buffer, "%s/sprite_names.txt", sprites);
     FILE *sprites_file = fopen(sprites_files_buffer,"w");
-    if(sprite_file == NULL)
+    if(sprites_file == NULL)
     {
         printf("Error on sprite name file creation.\n");
         return -1;
@@ -783,7 +783,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)//TODO:windows
 
     //save sounds
     char sounds[strlen(assets) + 7];
-    sprintf(sounds,"%s/sound",assets)
+    sprintf(sounds,"%s/sound",assets);
     if(mkdir(sounds, 0777) != 0)
     {
         printf("Error on folder creation.\n");
@@ -792,8 +792,8 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)//TODO:windows
 
     //map file
     char map_file_name[strlen(path) + 10];
-    sprintf(map_file_name,"%s/map.slug",path)
-    FILE *f = fopen(buff2, "w");
+    sprintf(map_file_name,"%s/map.slug",path);
+    FILE *f = fopen(map_file_name, "w");
     if(f == NULL)
     {
         printf("Could not open file.\n");
