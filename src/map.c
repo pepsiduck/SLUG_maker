@@ -43,20 +43,22 @@ int32_t SLUGmaker_GetIndexForPosition(int8_t *tab, int32_t tab_size, int32_t pos
     return -1;
 }
 
+int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf)
+{
+    int8_t rv = remove(fpath);
+
+    if (rv)
+        perror(fpath);
+
+    return rv;
+}
+
 int8_t SLUGmaker_RemoveDirRecursive(const char *dir)//TODO:windows
 {
     if(dir == NULL)
         return -1;
 
-    if(strncmp(dir,"/home/",6) != 0 || strncmp(dir,"/media/",7) != 0)
-    {
-        printf("Not deleting directory, too dangerous.\n");
-        return -1;
-    }
-
-    char cmd[strlen(dir) + 7];
-    sprintf(cmd,"rm -r %s",dir);
-    return system(cmd);
+    return nftw(dir, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
 }
 
 //map load/unload
@@ -704,6 +706,11 @@ bool SLUGmaker_CheckSave(SLUGmaker_map *map)
         printf("Map has no name.\n");
         return false;
     }
+    if(map->sprite_nb < 0)
+    {
+    	printf("Negative number of map sprites.\n");
+    	return false;
+    }
     return true;
 }
 
@@ -815,11 +822,14 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)//TODO:windows
         return -1;
     }
 
-    if(fwrite((void *) map->map_sprites, sizeof(SLUGmaker_PlacableSprite), map->sprite_nb, f) == 0)
-    {
-        printf("Write Error\n");
-        return -1;
-    }
+	if(map->sprite_nb > 0)
+	{
+		if(fwrite((void *) map->map_sprites, sizeof(SLUGmaker_PlacableSprite), map->sprite_nb, f) == 0)
+		{
+		    printf("Write Error\n");
+		    return -1;
+		}
+	}
 
     //if there are walls, save the structure
     if(map->wall_nb > 0)
@@ -989,13 +999,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)//TODO:windows
     if(rename(path,path_final) != 0)
         printf("Could not rename your file. You will find your map in .temp");
     else
-        printf("Temp file renamed");
-
-    if(SLUGmaker_RemoveDirRecursive(path) == -1)
-    {
-        printf("Remove Error.\n");
-        return -1;
-    }
+        printf("Temp file renamed.\n");
     
     return 0;
 }

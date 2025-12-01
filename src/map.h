@@ -1,6 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 
+#define _XOPEN_SOURCE 500
 #include <stdlib.h>
 #include <stdio.h>
 #include <raylib.h>
@@ -9,6 +10,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <ftw.h>
 
 #include "geometry.h"
 
