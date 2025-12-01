@@ -36,8 +36,6 @@ int8_t SLUGmaker_OpenNewMapFileDialog(SLUGmaker_map *map, SLUGmaker_camera *cam)
 		}
 	} 
 	
-	menu_vars.map_selection_result = -1;
-	
 	return 0;
 }
 
@@ -149,7 +147,11 @@ int main(int argc, char *argv[])
 		EndDrawing();
 		    
 		if(menu_vars.map_selection_result == 1)
-			SLUGmaker_OpenNewMapFileDialog(map, &cam);
+        {
+			if(SLUGmaker_OpenNewMapFileDialog(map, &cam) < 0)
+                printf("Load Error.\n");
+            menu_vars.map_selection_result = -1;
+        }
 		    
 		if(!menu_vars.map_selection_menu) //or all the stuff
 		{

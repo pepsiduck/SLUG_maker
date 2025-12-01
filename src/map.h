@@ -81,7 +81,7 @@ int8_t SLUGmaker_RemoveDirRecursive(const char *dir);//TODO:windows
 
 //map load/unload
 SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height);
-SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap);
+SLUGmaker_map* SLUGmaker_LoadMap(const char *map_dir);
 void SLUGmaker_UnloadMap(SLUGmaker_map *map);
 
 //map walls

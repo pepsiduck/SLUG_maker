@@ -132,11 +132,17 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     return map;
 }
 
-//loadMap is expected to be like : "/home/pepsiduck/Desktop/SLUG_maker/maps/map/"
-SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
+//loadMap is expected to be like : "/home/pepsiduck/Desktop/SLUG_maker/maps/map"
+SLUGmaker_map* SLUGmaker_LoadMap(const char *map_dir)
 {
-    if(loadMap == NULL)
+    if(map_dir == NULL)
         return NULL;
+
+    char loadMap[strlen(map_dir) + 1];
+    if(map_dir[strlen(map_dir) - 1] != '\n')
+        sprintf(loadMap,"%s/",map_dir);
+    else
+        sprintf(loadMap,"%s",map_dir);
 
     uint32_t len = strlen(loadMap);
     if(len == 0)
@@ -145,6 +151,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     //read the map file
     char mapslug[len + 9];
     sprintf(mapslug,"%smap.slug",loadMap);
+    printf("%s\n",loadMap);
     FILE *f = fopen(mapslug, "r");
     if(f == NULL)
     {
@@ -191,7 +198,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *loadMap)
     
     //separate the path from the name;
     uint32_t index;
-    for(index = strlen(loadMap) - 2; index >= 0; index--)
+    for(index = strlen(loadMap) - 1; index >= 0; index--)
     {
     	if(loadMap[index] == '/')
     		break;
@@ -810,6 +817,22 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)//TODO:windows
     //signature
     unsigned char slug[] = {0x53, 0x4C, 0x55, 0x47, 0x4D, 0x41, 0x50};
     if(fwrite((void *) slug, sizeof(slug), 1, f) == 0)
+    {
+        printf("Write Error\n");
+        return -1;
+    }
+
+    //map size
+    uint32_t width  = (uint32_t) map->zone.width;
+    uint32_t height = (uint32_t) map->zone.height;
+
+    if(fwrite((void *) &width, sizeof(uint32_t), 1, f) == 0)
+    {
+        printf("Write Error\n");
+        return -1;
+    }
+
+    if(fwrite((void *) &height, sizeof(uint32_t), 1, f) == 0)
     {
         printf("Write Error\n");
         return -1;
