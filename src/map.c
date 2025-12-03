@@ -98,7 +98,7 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     //map sprite init
     for(int16_t i = 0; i < MAX_SPRITES; ++i)
     {
-    	map->loaded_sprites[i].id = -1;
+    	map->loaded_sprites[i].id = 0;
     	map->loaded_sprites_names[i][0] = '\0';
     }
     for(int16_t i = 0; i < MAX_PLACED_SPRITES; ++i)
@@ -151,7 +151,6 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *map_dir)
     //read the map file
     char mapslug[len + 9];
     sprintf(mapslug,"%smap.slug",loadMap);
-    printf("%s\n",loadMap);
     FILE *f = fopen(mapslug, "r");
     if(f == NULL)
     {
@@ -238,9 +237,11 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *map_dir)
                 map->loaded_sprites[counter] = LoadTexture("assets/sprites/missing.png");
             }
         }
-
+        
         counter++;
     }
+    
+    printf("\n\n");
 
     fclose(sprite_file);
     
@@ -412,7 +413,7 @@ void SLUGmaker_UnloadMap(SLUGmaker_map *map)
 {
     if(map != NULL)
     {
-    	for(int16_t i = 0; i < MAX_SPRITES; ++i)
+    	for(uint16_t i = 0; i < MAX_SPRITES; ++i)
     	{
     		if(map->loaded_sprites[i].id > 0)
     			UnloadTexture(map->loaded_sprites[i]);
@@ -758,7 +759,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)//TODO:windows
     }
     
     char sprites[strlen(assets) + 9];
-    sprintf(sprites,"%s/sprites",path);
+    sprintf(sprites,"%s/sprites",assets);
     if(mkdir(sprites, 0777) != 0)
     {
         printf("Error on folder creation.\n");

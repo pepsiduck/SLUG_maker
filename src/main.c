@@ -14,7 +14,7 @@
 #include "defines.h"
 #include "tinyfiledialogs.h"
 
-int8_t SLUGmaker_OpenNewMapFileDialog(SLUGmaker_map *map, SLUGmaker_camera *cam)
+SLUGmaker_map* SLUGmaker_OpenNewMapFileDialog(SLUGmaker_map *map, SLUGmaker_camera *cam)
 {
 	char map_file_name[256];
 	char *tempFolderName = tinyfd_selectFolderDialog("Open map directory" ,NULL);
@@ -26,17 +26,17 @@ int8_t SLUGmaker_OpenNewMapFileDialog(SLUGmaker_map *map, SLUGmaker_camera *cam)
 		if(map2 == NULL)
 		{
 			printf("Could not open map.\n");
-			return -1;
+			return map;
 		}
 		else
 		{
 			SLUGmaker_UnloadMap(map);
-			map = map2;
-			*cam = SLUGmaker_DefaultCamera(map);
+			*cam = SLUGmaker_DefaultCamera(map2);
+			return map2;
 		}
 	} 
 	
-	return 0;
+	return map;
 }
 
 int8_t SLUGmaker_ChangeFullscreen(int16_t const screenWidth, int16_t const screenHeight)
@@ -148,8 +148,12 @@ int main(int argc, char *argv[])
 		    
 		if(menu_vars.map_selection_result == 1)
         {
-			if(SLUGmaker_OpenNewMapFileDialog(map, &cam) < 0)
+        	SLUGmaker_map *buff = SLUGmaker_OpenNewMapFileDialog(map, &cam);
+			if(buff == map)
                 printf("Load Error.\n");
+            else
+            	map = buff;  
+                
             menu_vars.map_selection_result = -1;
         }
 		    
