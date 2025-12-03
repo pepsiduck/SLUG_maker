@@ -138,6 +138,18 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *map_dir)
     if(map_dir == NULL)
         return NULL;
 
+    if(strlen(map_dir) < 1)
+    {
+        printf("Icorrect map file path.\n");
+        return NULL;
+    }
+    
+    if(strlen(map_dir) == 1 && map_dir[0]==  '/')
+    {
+        printf("Icorrect map file path.\n");
+        return NULL;
+    }
+
     char loadMap[strlen(map_dir) + 1];
     if(map_dir[strlen(map_dir) - 1] != '\n')
         sprintf(loadMap,"%s/",map_dir);
@@ -197,7 +209,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *map_dir)
     
     //separate the path from the name;
     uint32_t index;
-    for(index = strlen(loadMap) - 1; index >= 0; index--)
+    for(index = strlen(loadMap) - 2; index >= 0; index--)
     {
     	if(loadMap[index] == '/')
     		break;
