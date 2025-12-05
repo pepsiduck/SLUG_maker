@@ -1,4 +1,5 @@
 #include "action.h"
+#include "menus.h"
 #include "defines.h"
 
 //---camera
@@ -69,16 +70,16 @@ int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam, bool window_changed)
 }
 
 //---action handling
-int8_t SLUGmaker_ChangeActionMode(SLUGmaker_ActionButtonsMenu *actionMenu,SLUGmaker_map *map)
+int8_t SLUGmaker_ChangeActionMode(SLUGmaker_map *map)
 {
     previous_action = current_action;
-    if(IsKeyPressed(KEY_N) || actionMenu->none_mode.pressed)
+    if(IsKeyPressed(KEY_N) || general_menus.actionMenu.none_mode.pressed)
         current_action = ACTION_MODE_NONE;
-    else if(IsKeyPressed(KEY_BACKSPACE) || actionMenu->delete_mode.pressed)
+    else if(IsKeyPressed(KEY_BACKSPACE) || general_menus.actionMenu.delete_mode.pressed)
         current_action = ACTION_MODE_DELETE;
-    else if(IsKeyPressed(KEY_W) || actionMenu->wall_mode.pressed)
+    else if(IsKeyPressed(KEY_W) || general_menus.actionMenu.wall_mode.pressed)
         current_action = ACTION_MODE_WALL;
-    else if(IsKeyPressed(KEY_P) || actionMenu->player_mode.pressed)
+    else if(IsKeyPressed(KEY_P) || general_menus.actionMenu.player_mode.pressed)
         current_action = ACTION_MODE_PLAYER;
 	
 	//quit

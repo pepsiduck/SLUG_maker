@@ -1,6 +1,7 @@
 #include "display.h"
 #include "geometry.h"
 #include "defines.h"
+#include "menus.h"
 
 int8_t SLUGmaker_DisplayUpdate(float factor_x, float factor_y, SLUGmaker_camera *cam)
 {	
@@ -168,7 +169,7 @@ int8_t SLUGmaker_PopUps()
 }
 
 //display
-int8_t SLUGmaker_Display(SLUGmaker_camera *cam, SLUGmaker_Menu *menu)
+int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
 {
 	if(cam == NULL)
 		return -1;
@@ -185,7 +186,7 @@ int8_t SLUGmaker_Display(SLUGmaker_camera *cam, SLUGmaker_Menu *menu)
 	if(SLUGmaker_DisplayPlayerSpawnPoint(cam) == -1)
 		return -1;
 		
-	if(SLUGmaker_MenuDisplay(menu) == -1)
+	if(SLUGmaker_MenuDisplay() == -1)
 		return -1;
     	
 	if(menu_vars.map_selection_menu) //or all the stuff

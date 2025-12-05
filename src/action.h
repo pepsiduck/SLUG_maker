@@ -9,7 +9,6 @@
 #include <math.h>
 
 #include "map.h"
-#include "menus.h"
 
 typedef struct SLUGmaker_camera SLUGmaker_camera;
 struct SLUGmaker_camera
@@ -39,7 +38,7 @@ extern SLUGmaker_action_mode previous_action;
 extern SLUGmaker_action_mode current_action;
 
 //action handling 
-int8_t SLUGmaker_ChangeActionMode(SLUGmaker_ActionButtonsMenu *actionMenu,SLUGmaker_map *map);
+int8_t SLUGmaker_ChangeActionMode(SLUGmaker_map *map);
 int8_t SLUGmaker_Action(SLUGmaker_map *map, SLUGmaker_camera *cam);
 
 //delete handling

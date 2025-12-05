@@ -82,13 +82,6 @@ int8_t SLUGmaker_ActionButtonsMenuResize(float factor_x, float factor_y, SLUGmak
 int8_t SLUGmaker_ActionButtonsMenuPressed(SLUGmaker_ActionButtonsMenu *menu);
 int8_t SLUGmaker_ActionButtonsMenuDisplay(SLUGmaker_ActionButtonsMenu *menu);
 
-
-//pop-ups
-int8_t SLUGmaker_PopUpNewMap();
-
-//---functions
-int8_t SLUGmaker_ChangeGUIStyle(SLUGmaker_ToolBar *toolbar);
-
 //general menu
 typedef struct SLUGmaker_Menu SLUGmaker_Menu;
 struct SLUGmaker_Menu
@@ -97,9 +90,16 @@ struct SLUGmaker_Menu
     SLUGmaker_ActionButtonsMenu actionMenu;
 };
 
-SLUGmaker_Menu SLUGmaker_MenuDevLoad();
-int8_t SLUGmaker_MenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
-int8_t SLUGmaker_MenuDisplay(SLUGmaker_Menu *menu);
+extern SLUGmaker_Menu general_menus;
 
+int8_t SLUGmaker_MenuDevLoad();
+int8_t SLUGmaker_MenuResize(float factor_x, float factor_y);
+int8_t SLUGmaker_MenuDisplay();
+
+//pop-ups
+int8_t SLUGmaker_PopUpNewMap();
+
+//---functions
+int8_t SLUGmaker_ChangeGUIStyle();
 
 #endif

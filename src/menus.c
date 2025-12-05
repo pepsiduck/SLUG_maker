@@ -265,6 +265,42 @@ int8_t SLUGmaker_ActionButtonsMenuDisplay(SLUGmaker_ActionButtonsMenu *menu)
     return 0;
 }
 
+//general menu
+SLUGmaker_Menu general_menus;
+
+int8_t SLUGmaker_MenuDevLoad()
+{
+    general_menus.toolbar = SLUGmaker_ToolBarDevLoad();
+    general_menus.actionMenu = SLUGmaker_ActionButtonsMenuDevLoad();
+    return 0;
+}
+
+int8_t SLUGmaker_MenuResize(float factor_x, float factor_y)
+{
+	int8_t error = SLUGmaker_ToolBarResize(factor_x, factor_y, &(general_menus.toolbar));
+    if(error == -1)
+       	return -1;
+       	
+    error = SLUGmaker_ActionButtonsMenuResize(factor_x, factor_y, &(general_menus.actionMenu));
+    if(error == -1)
+       	return -1;
+       	
+    return 0;
+}
+
+int8_t SLUGmaker_MenuDisplay()
+{
+	int8_t error = SLUGmaker_ToolBarDisplay(&(general_menus.toolbar));   
+	if(error == -1)
+		return -1;
+		        
+	error = SLUGmaker_ActionButtonsMenuDisplay(&(general_menus.actionMenu));   
+	if(error == -1)
+		return -1;
+		
+	return 0;
+}
+
 //pop-ups
 int8_t SLUGmaker_PopUpNewMap()
 {
@@ -281,11 +317,11 @@ int8_t SLUGmaker_PopUpNewMap()
 }
 
 //---functions
-int8_t SLUGmaker_ChangeGUIStyle(SLUGmaker_ToolBar *toolbar)
+int8_t SLUGmaker_ChangeGUIStyle()
 {
-	if(graphic_vars.style != toolbar->styles.state)
+	if(graphic_vars.style != general_menus.toolbar.styles.state)
 	{
-		switch (toolbar->styles.state)
+		switch (general_menus.toolbar.styles.state)
         {
         	case 0: GuiLoadStyleDefault(); break;
             case 1: GuiLoadStyleJungle(); break;
@@ -304,42 +340,7 @@ int8_t SLUGmaker_ChangeGUIStyle(SLUGmaker_ToolBar *toolbar)
             case 14: GuiLoadStyleGenesis(); break;
             default: break;
         }
-		graphic_vars.style = toolbar->styles.state;
+		graphic_vars.style = general_menus.toolbar.styles.state;
 	}
-	return 0;
-}
-
-//general menu
-SLUGmaker_Menu SLUGmaker_MenuDevLoad()
-{
-	SLUGmaker_Menu menu;
-    menu.toolbar = SLUGmaker_ToolBarDevLoad();
-    menu.actionMenu = SLUGmaker_ActionButtonsMenuDevLoad();
-    return menu;
-}
-
-int8_t SLUGmaker_MenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu)
-{
-	int8_t error = SLUGmaker_ToolBarResize(factor_x, factor_y, &(menu->toolbar));
-    if(error == -1)
-       	return -1;
-       	
-    error = SLUGmaker_ActionButtonsMenuResize(factor_x, factor_y, &(menu->actionMenu));
-    if(error == -1)
-       	return -1;
-       	
-    return 0;
-}
-
-int8_t SLUGmaker_MenuDisplay(SLUGmaker_Menu *menu)
-{
-	int8_t error = SLUGmaker_ToolBarDisplay(&(menu->toolbar));   
-	if(error == -1)
-		return -1;
-		        
-	error = SLUGmaker_ActionButtonsMenuDisplay(&(menu->actionMenu));   
-	if(error == -1)
-		return -1;
-		
 	return 0;
 }

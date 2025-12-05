@@ -56,7 +56,7 @@ int8_t SLUGmaker_ChangeFullscreen(int16_t const screenWidth, int16_t const scree
     return 0;
 }
 
-int8_t SLUGmaker_Resize(SLUGmaker_camera *cam, SLUGmaker_Menu *menu)
+int8_t SLUGmaker_Resize(SLUGmaker_camera *cam)
 {
 	if(GetScreenWidth() != graphic_vars.screen_w || GetScreenHeight() != graphic_vars.screen_h)
 	{
@@ -66,7 +66,7 @@ int8_t SLUGmaker_Resize(SLUGmaker_camera *cam, SLUGmaker_Menu *menu)
 		float factor_x = w / graphic_vars.screen_w;
 		float factor_y = h / graphic_vars.screen_h;
 			
-        int8_t error = SLUGmaker_MenuResize(factor_x, factor_y, menu);
+        int8_t error = SLUGmaker_MenuResize(factor_x, factor_y);
         if(error == -1)
            	return -1;
         
@@ -116,7 +116,12 @@ int main(int argc, char *argv[])
     }
     
 	SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
-	SLUGmaker_Menu menu = SLUGmaker_MenuDevLoad(GetScreenWidth(), GetScreenHeight());
+	
+	if(SLUGmaker_MenuDevLoad() == -1)
+	{
+		printf("Error while loading general menu");
+		return -1;
+	}
 	
     HideCursor();
     GuiEnableTooltip();
@@ -131,7 +136,7 @@ int main(int argc, char *argv[])
     while (!WindowShouldClose())
     {
 		if(!SLUGmaker_ChangeFullscreen(screenWidth, screenHeight))
-			resize = SLUGmaker_Resize(&cam, &menu);
+			resize = SLUGmaker_Resize(&cam);
 		
 		BeginDrawing();
 		ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
@@ -140,7 +145,7 @@ int main(int argc, char *argv[])
 		if(error == -1)
 		    break;
 		    
-		error = SLUGmaker_Display(&cam, &menu);
+		error = SLUGmaker_Display(&cam);
 		if(error == -1)
 		    break;        
 		       
@@ -159,17 +164,17 @@ int main(int argc, char *argv[])
 		    
 		if(!menu_vars.map_selection_menu) //or all the stuff
 		{
-			error = SLUGmaker_ChangeGUIStyle(&(menu.toolbar));
+			error = SLUGmaker_ChangeGUIStyle(&(general_menus.toolbar));
 			if(error == -1)
 				break;
 
-			if((IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL)) || menu.toolbar.save.pressed)
+			if((IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL)) || general_menus.toolbar.save.pressed)
 			{
 				if(SLUGmaker_WriteMap(map) == -1)
 				    printf("Save failure\n");      
 			}
 
-			error = SLUGmaker_ChangeActionMode(&(menu.actionMenu), map);
+			error = SLUGmaker_ChangeActionMode(map);
 			if(error == -1)
 				break;
 
