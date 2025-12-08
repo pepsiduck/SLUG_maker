@@ -290,13 +290,13 @@ int8_t SLUGmaker_MenuResize(float factor_x, float factor_y)
 
 int8_t SLUGmaker_MenuDisplay()
 {
-	int8_t error = SLUGmaker_ToolBarDisplay(&(general_menus.toolbar));   
+	int8_t error = SLUGmaker_ActionButtonsMenuDisplay(&(general_menus.actionMenu));   
 	if(error == -1)
 		return -1;
-		        
-	error = SLUGmaker_ActionButtonsMenuDisplay(&(general_menus.actionMenu));   
+
+	error = SLUGmaker_ToolBarDisplay(&(general_menus.toolbar));   
 	if(error == -1)
-		return -1;
+		return -1;		        
 		
 	return 0;
 }
