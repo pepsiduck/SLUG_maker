@@ -10,6 +10,8 @@
 
 #include "map.h"
 
+#define ACTIONS_NB 5
+
 typedef struct SLUGmaker_camera SLUGmaker_camera;
 struct SLUGmaker_camera
 {
@@ -32,7 +34,8 @@ typedef enum {
 	ACTION_MODE_NONE,
 	ACTION_MODE_DELETE, 
 	ACTION_MODE_WALL,
-	ACTION_MODE_PLAYER
+	ACTION_MODE_PLAYER, 
+    ACTION_MODE_SPRITE
 	} SLUGmaker_action_mode;
 extern SLUGmaker_action_mode previous_action;
 extern SLUGmaker_action_mode current_action;

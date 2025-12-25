@@ -1,6 +1,8 @@
 #include "menus.h"
 #include "defines.h"
 #include "geometry.h"
+#include "action.h"
+#include "map.h"
 
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
@@ -46,6 +48,17 @@ int8_t SLUGmaker_ButtonLoad(Rectangle zone, uint16_t guiIcon, SLUGmaker_button *
     button->zone = zone;
     button->guiIcon = guiIcon;
     button->pressed = false;
+    button->tooltip[0] = '\0';
+    return 0;
+}
+
+int8_t SLUGmaker_ButtonSetToolTip(const char * text, SLUGmaker_button *button)
+{
+    if(text == NULL || button == NULL)
+        return -1;
+
+    strncpy(button->tooltip, text, 256);
+
     return 0;
 }
 
@@ -59,10 +72,14 @@ int8_t SLUGmaker_ButtonResize(float factor_x, float factor_y, SLUGmaker_button *
     return 0;
 }
 
-int8_t SLUGmaker_ButtonPressed(SLUGmaker_button *button)
+int8_t SLUGmaker_ButtonPressed(SLUGmaker_button *button, bool tooltip)
 {
     if(button == NULL)
         return -1;
+
+    if(tooltip)
+        GuiSetTooltip(button->tooltip);
+
     sprintf(SLUGmaker_IconBuffer,"#%u#",button->guiIcon);
     button->pressed = GuiButton(button->zone, SLUGmaker_IconBuffer);
     return 0;
@@ -92,6 +109,16 @@ int8_t SLUGmaker_ComboBoxLoad(Rectangle zone, int32_t default_state, const char 
 	return 0;
 }
 
+int8_t SLUGmaker_ComboBoxSetToolTip(const char * text, SLUGmaker_ComboBox *combobox)
+{
+    if(text == NULL || combobox == NULL)
+        return -1;
+
+    strncpy(combobox->tooltip, text, 256);
+
+    return 0;
+}
+
 int8_t SLUGmaker_ComboBoxResize(float factor_x, float factor_y, SLUGmaker_ComboBox *combobox)
 {
 	if(combobox == NULL)
@@ -103,14 +130,17 @@ int8_t SLUGmaker_ComboBoxResize(float factor_x, float factor_y, SLUGmaker_ComboB
 }
 
 
-int8_t SLUGmaker_ComboBoxPressed(SLUGmaker_ComboBox *combobox)
+int8_t SLUGmaker_ComboBoxPressed(SLUGmaker_ComboBox *combobox, bool tooltip)
 {
-	if(combobox == NULL)
-		return -1;
+    if(combobox == NULL)
+        return -1;
 		
-	GuiComboBox(combobox->zone, combobox->options, &(combobox->state));
+    if(tooltip)
+        GuiSetTooltip(combobox->tooltip);
+
+    GuiComboBox(combobox->zone, combobox->options, &(combobox->state));
 		
-	return 0;
+    return 0;
 }
 
 //---toolbar
@@ -129,6 +159,8 @@ SLUGmaker_ToolBar SLUGmaker_ToolBarDevLoad()
     								 .height = GetScreenHeight() * 0.025f},
     								 ICON_FILE_SAVE,
     								 &toolbar.save);
+
+    SLUGmaker_ButtonSetToolTip("Save map (CTRL+S)", &toolbar.save);
     
     SLUGmaker_ComboBoxLoad((Rectangle){.x = toolbar.style_label_zone.x + toolbar.style_label_zone.width,
     								   .y = GetScreenHeight() * 0.0025f, 
@@ -137,6 +169,8 @@ SLUGmaker_ToolBar SLUGmaker_ToolBarDevLoad()
     								   0, 
     								   "Light;Jungle;Candy;Lavanda;Cyber;Terminal;Ashes;Bluish;Dark;Cherry;Sunny;Enefete;Amber;Genesis",
     								   &toolbar.styles);
+
+    SLUGmaker_ComboBoxSetToolTip("Choose interface style", &toolbar.styles);
     
     return toolbar;
 }
@@ -161,12 +195,10 @@ int8_t SLUGmaker_ToolBarButtonPressed(SLUGmaker_ToolBar *toolbar)
 	if(toolbar == NULL)
 		return -1;
 
-	GuiSetTooltip("Save map (CTRL+S)");
-    SLUGmaker_ButtonPressed(&(toolbar->save));
+    SLUGmaker_ButtonPressed(&(toolbar->save), true);
     
-    GuiSetTooltip("Choose interface style");
     GuiSetStyle(COMBOBOX, COMBO_BUTTON_WIDTH, 50);
-    SLUGmaker_ComboBoxPressed(&(toolbar->styles));
+    SLUGmaker_ComboBoxPressed(&(toolbar->styles), true);
 
     GuiSetTooltip(NULL);
     
@@ -207,29 +239,37 @@ SLUGmaker_ActionButtonsMenu SLUGmaker_ActionButtonsMenuDevLoad()
 		.width = 0.9f * menu.zone.width,
 		.height = 0.9f * menu.zone.height,
 	};
+
+    menu.icons[0] = ICON_CURSOR_CLASSIC;
+    menu.icons[1] = ICON_WALL;
+    menu.icons[2] = ICON_PLAYER;   
+    menu.icons[3] = ICON_DELETE; 
+    menu.icons[4] = ICON_SPRITE;
 	
-	SLUGmaker_ButtonLoad((Rectangle){.x = menu.group_zone.x + menu.group_zone.width * 0.015f, .y = menu.group_zone.y + menu.group_zone.height * 0.05f, .width = 27, .height = 27},ICON_CURSOR_CLASSIC,&menu.none_mode);
-	SLUGmaker_ButtonLoad((Rectangle){.x = menu.none_mode.zone.x + menu.group_zone.width * 0.015f + menu.none_mode.zone.width, .y = menu.group_zone.y + menu.group_zone.height * 0.05f, .width = menu.none_mode.zone.width, .height = menu.none_mode.zone.height},ICON_WALL,&menu.wall_mode);
-	SLUGmaker_ButtonLoad((Rectangle){.x = menu.wall_mode.zone.x + menu.group_zone.width * 0.015f + menu.none_mode.zone.width, .y = menu.group_zone.y + menu.group_zone.height * 0.05f, .width = menu.none_mode.zone.width, .height = menu.none_mode.zone.height},ICON_PLAYER,&menu.player_mode);
-	SLUGmaker_ButtonLoad((Rectangle){.x = menu.player_mode.zone.x + menu.group_zone.width * 0.015f + menu.none_mode.zone.width, .y = menu.group_zone.y + menu.group_zone.height * 0.05f, .width = menu.none_mode.zone.width, .height = menu.none_mode.zone.height},ICON_DELETE,&menu.delete_mode);
+    for(uint16_t u = 0; u < ACTION_MENU_NB; ++u)
+        SLUGmaker_ButtonLoad((Rectangle){.x = menu.group_zone.x + menu.group_zone.width * 0.015f + (u % 10)*(27 + 0.05f * menu.zone.width), .y = menu.group_zone.y + menu.group_zone.height * 0.05f + (u / 10) * (27 + 0.05f * menu.zone.height), .width = 27, .height = 27},menu.icons[u],&(menu.modes[u]));
+
+    SLUGmaker_ButtonSetToolTip("No editing (N)", &menu.modes[0]);
+    SLUGmaker_ButtonSetToolTip("Place and move walls (W)", &menu.modes[1]);
+    SLUGmaker_ButtonSetToolTip("Move Player spawn point (P)", &menu.modes[2]);
+    SLUGmaker_ButtonSetToolTip("Delete elements (BACKSPACE)", &menu.modes[3]);
+    SLUGmaker_ButtonSetToolTip("Place and load sprites (S)", &menu.modes[4]);
 	
 	return menu;
 }
 
 int8_t SLUGmaker_ActionButtonsMenuResize(float factor_x, float factor_y, SLUGmaker_ActionButtonsMenu *menu)
 {
-	if(menu == NULL)
-		return -1;
+    if(menu == NULL)
+        return -1;
 		
-	RectangleMultiply(&(menu->zone),factor_x,factor_y);
-	RectangleMultiply(&(menu->group_zone),factor_x,factor_y);
+    RectangleMultiply(&(menu->zone),factor_x,factor_y);
+    RectangleMultiply(&(menu->group_zone),factor_x,factor_y);
 
-    SLUGmaker_ButtonResize(factor_x, factor_y, &(menu->none_mode));
-    SLUGmaker_ButtonResize(factor_x, factor_y, &(menu->wall_mode));
-    SLUGmaker_ButtonResize(factor_x, factor_y, &(menu->player_mode));
-    SLUGmaker_ButtonResize(factor_x, factor_y, &(menu->delete_mode));
+    for(uint16_t u = 0; u < ACTION_MENU_NB; ++u)
+        SLUGmaker_ButtonResize(factor_x, factor_y, &(menu->modes[u]));
 		
-	return 0;
+    return 0;
 }
 
 int8_t SLUGmaker_ActionButtonsMenuPressed(SLUGmaker_ActionButtonsMenu *menu)
@@ -237,14 +277,8 @@ int8_t SLUGmaker_ActionButtonsMenuPressed(SLUGmaker_ActionButtonsMenu *menu)
 	if(menu == NULL)
 		return -1;
 		
-	GuiSetTooltip("No editing (N)");
-	SLUGmaker_ButtonPressed(&(menu->none_mode));
-	GuiSetTooltip("Place and move walls (W)");
-	SLUGmaker_ButtonPressed(&(menu->wall_mode));
-	GuiSetTooltip("Move Player spawn point (P)");
-	SLUGmaker_ButtonPressed(&(menu->player_mode));
-	GuiSetTooltip("Delete elements (BACKSPACE)");
-	SLUGmaker_ButtonPressed(&(menu->delete_mode));
+	for(uint16_t u = 0; u < ACTION_MENU_NB; ++u)
+	    SLUGmaker_ButtonPressed(&(menu->modes[u]), true);
 	
 	GuiSetTooltip(NULL);
 		
@@ -265,6 +299,94 @@ int8_t SLUGmaker_ActionButtonsMenuDisplay(SLUGmaker_ActionButtonsMenu *menu)
     return 0;
 }
 
+//Info menu
+SLUGmaker_InfoMenu SLUGmaker_InfoMenuDevLoad()
+{
+    SLUGmaker_InfoMenu info_menu;
+
+
+    info_menu.panel_zone = (Rectangle) {
+        .x = 0,
+		.y = GetScreenHeight() * 0.23f,
+		.width = GetScreenWidth() * 0.2f,
+		.height = GetScreenHeight() * 0.2f,
+    };
+
+    info_menu.text_zone = (Rectangle) {
+        .x = info_menu.panel_zone.x + 0.05f * info_menu.panel_zone.width,
+		.y = info_menu.panel_zone.y + 0.05f * info_menu.panel_zone.height,
+		.width = 0.9f * info_menu.panel_zone.width,
+		.height = 0.9f * info_menu.panel_zone.height,
+    };
+
+    return info_menu;
+}
+
+int8_t SLUGmaker_InfoMenuResize(float factor_x, float factor_y, SLUGmaker_InfoMenu *info_menu)
+{
+    if(info_menu == NULL)
+		return -1;
+		
+	RectangleMultiply(&(info_menu->panel_zone),factor_x,factor_y);
+	RectangleMultiply(&(info_menu->text_zone),factor_x,factor_y);
+
+    return 0;
+}
+
+int8_t SLUGmaker_InfoMenuDisplay(SLUGmaker_InfoMenu *info_menu, void *ptr)
+{
+    if(info_menu == NULL)
+		return -1;
+
+    GuiGroupBox(info_menu->panel_zone,"Action info");
+
+    SLUGmaker_InfoMenuPrintFct[current_action](ptr, info_menu->text_zone);
+
+    return 0;
+}
+
+void (*SLUGmaker_InfoMenuPrintFct[ACTION_MENU_NB])(void *,Rectangle) = {
+    SLUGmaker_InfoMenuPrintNone,
+    SLUGmaker_InfoMenuPrintWall,
+    SLUGmaker_InfoMenuPrintPlayerSpawn,
+    SLUGmaker_InfoMenuPrintDelete,
+    SLUGmaker_InfoMenuPrintSprites
+};
+
+void SLUGmaker_InfoMenuPrintNone(void *ptr, Rectangle bounds)
+{
+    GuiLabelButton(bounds, "Press right click to move around. You can do that in any mode.");
+}
+
+void SLUGmaker_InfoMenuPrintWall(void *ptr, Rectangle bounds)
+{
+    char msg[256]; //watch out for the size
+    SLUGmaker_map *map = (SLUGmaker_map *) ptr;
+    sprintf(msg, "Left Click to place a new wall chain.\nShift + Left Click to move wall nodes\nRight click to select a wall node\nNumber of walls nodes : %u/%u .", map->wall_nb, MAX_WALLS_NB);
+    GuiLabelButton(bounds, msg);
+}
+
+void SLUGmaker_InfoMenuPrintPlayerSpawn(void *ptr, Rectangle bounds)
+{
+    char msg[256]; //watch out for the size
+    SLUGmaker_map *map = (SLUGmaker_map *) ptr;
+    sprintf(msg, "Left Click to place the player's spawn.\nCoordinates of player spawn : %.2f ; %.2f .", map->player_spawn_point.x, map->player_spawn_point.y);
+    GuiLabelButton(bounds, msg);
+}
+
+void SLUGmaker_InfoMenuPrintDelete(void *ptr, Rectangle bounds)
+{
+    GuiLabelButton(bounds, "Press leftt click to delete stuff.");
+}
+
+void SLUGmaker_InfoMenuPrintSprites(void *ptr, Rectangle bounds)
+{
+    char msg[256]; //watch out for the size
+    SLUGmaker_map *map = (SLUGmaker_map *) ptr;
+    sprintf(msg, "Left Click to place a rectangle sprite.\nShift + Left Click to move a sprite\nRight click to select a sprite\nNumber of sprites placed : %u", map->sprite_nb);
+    GuiLabelButton(bounds, msg);
+}
+
 //general menu
 SLUGmaker_Menu general_menus;
 
@@ -272,6 +394,8 @@ int8_t SLUGmaker_MenuDevLoad()
 {
     general_menus.toolbar = SLUGmaker_ToolBarDevLoad();
     general_menus.actionMenu = SLUGmaker_ActionButtonsMenuDevLoad();
+    general_menus.infoMenu = SLUGmaker_InfoMenuDevLoad();
+
     return 0;
 }
 
@@ -284,11 +408,15 @@ int8_t SLUGmaker_MenuResize(float factor_x, float factor_y)
     error = SLUGmaker_ActionButtonsMenuResize(factor_x, factor_y, &(general_menus.actionMenu));
     if(error == -1)
        	return -1;
+
+    error = SLUGmaker_InfoMenuResize(factor_x, factor_y, &(general_menus.infoMenu));
+    if(error == -1)
+       	return -1;
        	
     return 0;
 }
 
-int8_t SLUGmaker_MenuDisplay()
+int8_t SLUGmaker_MenuDisplay(void *ptr)
 {
 	int8_t error = SLUGmaker_ActionButtonsMenuDisplay(&(general_menus.actionMenu));   
 	if(error == -1)
@@ -296,7 +424,11 @@ int8_t SLUGmaker_MenuDisplay()
 
 	error = SLUGmaker_ToolBarDisplay(&(general_menus.toolbar));   
 	if(error == -1)
-		return -1;		        
+		return -1;	
+
+    error = SLUGmaker_InfoMenuDisplay(&(general_menus.infoMenu), ptr) ; 
+	if(error == -1)
+		return -1;	 	        
 		
 	return 0;
 }

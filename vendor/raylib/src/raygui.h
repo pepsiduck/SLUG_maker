@@ -1012,7 +1012,7 @@ typedef enum {
     ICON_COLLISION                = 233,
     ICON_WALL                     = 234,
     ICON_DELETE                   = 235,
-    ICON_236                      = 236,
+    ICON_SPRITE                   = 236,
     ICON_237                      = 237,
     ICON_238                      = 238,
     ICON_239                      = 239,

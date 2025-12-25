@@ -73,14 +73,16 @@ int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam, bool window_changed)
 int8_t SLUGmaker_ChangeActionMode(SLUGmaker_map *map)
 {
     previous_action = current_action;
-    if(IsKeyPressed(KEY_N) || general_menus.actionMenu.none_mode.pressed)
+    if(IsKeyPressed(KEY_N) || general_menus.actionMenu.modes[0].pressed)
         current_action = ACTION_MODE_NONE;
-    else if(IsKeyPressed(KEY_BACKSPACE) || general_menus.actionMenu.delete_mode.pressed)
+    else if(IsKeyPressed(KEY_BACKSPACE) || general_menus.actionMenu.modes[1].pressed)
         current_action = ACTION_MODE_DELETE;
-    else if(IsKeyPressed(KEY_W) || general_menus.actionMenu.wall_mode.pressed)
+    else if(IsKeyPressed(KEY_W) || general_menus.actionMenu.modes[2].pressed)
         current_action = ACTION_MODE_WALL;
-    else if(IsKeyPressed(KEY_P) || general_menus.actionMenu.player_mode.pressed)
+    else if(IsKeyPressed(KEY_P) || general_menus.actionMenu.modes[3].pressed)
         current_action = ACTION_MODE_PLAYER;
+    else if((IsKeyPressed(KEY_S) && !IsKeyDown(KEY_LEFT_CONTROL))|| general_menus.actionMenu.modes[4].pressed)
+        current_action = ACTION_MODE_SPRITE;
 	
 	//quit
     if(previous_action != current_action)
