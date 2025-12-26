@@ -133,6 +133,8 @@ int main(int argc, char *argv[])
 	ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 	EndDrawing();
     
+    GuiSetStyle(DEFAULT, TEXT_WRAP_MODE, TEXT_WRAP_WORD);
+
     while (!WindowShouldClose())
     {
 		if(!SLUGmaker_ChangeFullscreen(screenWidth, screenHeight))

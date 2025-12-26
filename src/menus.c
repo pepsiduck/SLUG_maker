@@ -247,7 +247,7 @@ SLUGmaker_ActionButtonsMenu SLUGmaker_ActionButtonsMenuDevLoad()
     menu.icons[4] = ICON_SPRITE;
 	
     for(uint16_t u = 0; u < ACTION_MENU_NB; ++u)
-        SLUGmaker_ButtonLoad((Rectangle){.x = menu.group_zone.x + menu.group_zone.width * 0.015f + (u % 10)*(27 + 0.05f * menu.zone.width), .y = menu.group_zone.y + menu.group_zone.height * 0.05f + (u / 10) * (27 + 0.05f * menu.zone.height), .width = 27, .height = 27},menu.icons[u],&(menu.modes[u]));
+        SLUGmaker_ButtonLoad((Rectangle){.x = menu.group_zone.x + menu.group_zone.width * 0.015f + (u % 10)*(27 + menu.group_zone.width * 0.015f), .y = menu.group_zone.y + menu.group_zone.height * 0.05f + (u / 10) * (27 + menu.group_zone.height * 0.015f), .width = 27, .height = 27},menu.icons[u],&(menu.modes[u]));
 
     SLUGmaker_ButtonSetToolTip("No editing (N)", &menu.modes[0]);
     SLUGmaker_ButtonSetToolTip("Place and move walls (W)", &menu.modes[1]);
@@ -304,12 +304,18 @@ SLUGmaker_InfoMenu SLUGmaker_InfoMenuDevLoad()
 {
     SLUGmaker_InfoMenu info_menu;
 
-
-    info_menu.panel_zone = (Rectangle) {
+    Rectangle zone = (Rectangle) {
         .x = 0,
 		.y = GetScreenHeight() * 0.23f,
 		.width = GetScreenWidth() * 0.2f,
 		.height = GetScreenHeight() * 0.2f,
+    };
+
+    info_menu.panel_zone = (Rectangle) {
+        .x = zone.x + 0.05f * zone.width,
+		.y = zone.y + 0.05f * zone.height,
+		.width = 0.9f * zone.width,
+		.height = 0.9f * zone.height,
     };
 
     info_menu.text_zone = (Rectangle) {
@@ -325,8 +331,8 @@ SLUGmaker_InfoMenu SLUGmaker_InfoMenuDevLoad()
 int8_t SLUGmaker_InfoMenuResize(float factor_x, float factor_y, SLUGmaker_InfoMenu *info_menu)
 {
     if(info_menu == NULL)
-		return -1;
-		
+		return -1; 
+
 	RectangleMultiply(&(info_menu->panel_zone),factor_x,factor_y);
 	RectangleMultiply(&(info_menu->text_zone),factor_x,factor_y);
 
@@ -355,7 +361,7 @@ void (*SLUGmaker_InfoMenuPrintFct[ACTION_MENU_NB])(void *,Rectangle) = {
 
 void SLUGmaker_InfoMenuPrintNone(void *ptr, Rectangle bounds)
 {
-    GuiLabelButton(bounds, "Press right click to move around. You can do that in any mode.");
+    GuiLabel(bounds, "Press right click to move around. You can do that in any mode.");
 }
 
 void SLUGmaker_InfoMenuPrintWall(void *ptr, Rectangle bounds)
@@ -363,7 +369,7 @@ void SLUGmaker_InfoMenuPrintWall(void *ptr, Rectangle bounds)
     char msg[256]; //watch out for the size
     SLUGmaker_map *map = (SLUGmaker_map *) ptr;
     sprintf(msg, "Left Click to place a new wall chain.\nShift + Left Click to move wall nodes\nRight click to select a wall node\nNumber of walls nodes : %u/%u .", map->wall_nb, MAX_WALLS_NB);
-    GuiLabelButton(bounds, msg);
+    GuiLabel(bounds, msg);
 }
 
 void SLUGmaker_InfoMenuPrintPlayerSpawn(void *ptr, Rectangle bounds)
@@ -371,12 +377,12 @@ void SLUGmaker_InfoMenuPrintPlayerSpawn(void *ptr, Rectangle bounds)
     char msg[256]; //watch out for the size
     SLUGmaker_map *map = (SLUGmaker_map *) ptr;
     sprintf(msg, "Left Click to place the player's spawn.\nCoordinates of player spawn : %.2f ; %.2f .", map->player_spawn_point.x, map->player_spawn_point.y);
-    GuiLabelButton(bounds, msg);
+    GuiLabel(bounds, msg);
 }
 
 void SLUGmaker_InfoMenuPrintDelete(void *ptr, Rectangle bounds)
 {
-    GuiLabelButton(bounds, "Press leftt click to delete stuff.");
+    GuiLabel(bounds, "Press leftt click to delete stuff.");
 }
 
 void SLUGmaker_InfoMenuPrintSprites(void *ptr, Rectangle bounds)
@@ -384,7 +390,7 @@ void SLUGmaker_InfoMenuPrintSprites(void *ptr, Rectangle bounds)
     char msg[256]; //watch out for the size
     SLUGmaker_map *map = (SLUGmaker_map *) ptr;
     sprintf(msg, "Left Click to place a rectangle sprite.\nShift + Left Click to move a sprite\nRight click to select a sprite\nNumber of sprites placed : %u", map->sprite_nb);
-    GuiLabelButton(bounds, msg);
+    GuiLabel(bounds, msg);
 }
 
 //general menu

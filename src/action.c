@@ -76,11 +76,11 @@ int8_t SLUGmaker_ChangeActionMode(SLUGmaker_map *map)
     if(IsKeyPressed(KEY_N) || general_menus.actionMenu.modes[0].pressed)
         current_action = ACTION_MODE_NONE;
     else if(IsKeyPressed(KEY_BACKSPACE) || general_menus.actionMenu.modes[1].pressed)
-        current_action = ACTION_MODE_DELETE;
-    else if(IsKeyPressed(KEY_W) || general_menus.actionMenu.modes[2].pressed)
         current_action = ACTION_MODE_WALL;
-    else if(IsKeyPressed(KEY_P) || general_menus.actionMenu.modes[3].pressed)
+    else if(IsKeyPressed(KEY_W) || general_menus.actionMenu.modes[2].pressed)
         current_action = ACTION_MODE_PLAYER;
+    else if(IsKeyPressed(KEY_P) || general_menus.actionMenu.modes[3].pressed)
+        current_action = ACTION_MODE_DELETE;
     else if((IsKeyPressed(KEY_S) && !IsKeyDown(KEY_LEFT_CONTROL))|| general_menus.actionMenu.modes[4].pressed)
         current_action = ACTION_MODE_SPRITE;
 	
@@ -132,7 +132,7 @@ int8_t SLUGmaker_MapElementDelete(SLUGmaker_map *map,SLUGmaker_camera *cam)
         r = SLUGmaker_WallDelete(map,cam);
         if(r == -1)
             return -1;
-        else if(r == 1)
+        else
             return 0;
     }
     return 0;
@@ -143,9 +143,9 @@ int8_t SLUGmaker_WallDelete(SLUGmaker_map *map,SLUGmaker_camera *cam)
     if(map == NULL || cam == NULL)
         return -1;
     if(map->wall_line_mode)
-        return -1;
+        return 0;
     int16_t w = SLUGmaker_WallUnderMouseA(map,cam);
-    if(w >= -1)
+    if(w > -1)
     {
         int16_t count = 1;
         SLUGmaker_SegmentExtended *seg = &(map->walls[w]);

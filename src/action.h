@@ -32,9 +32,9 @@ int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam, bool window_changed);
 //action types
 typedef enum {
 	ACTION_MODE_NONE,
-	ACTION_MODE_DELETE, 
-	ACTION_MODE_WALL,
+    ACTION_MODE_WALL,
 	ACTION_MODE_PLAYER, 
+    ACTION_MODE_DELETE, 
     ACTION_MODE_SPRITE
 	} SLUGmaker_action_mode;
 extern SLUGmaker_action_mode previous_action;
