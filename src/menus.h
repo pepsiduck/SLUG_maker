@@ -54,11 +54,37 @@ int8_t SLUGmaker_ComboBoxSetToolTip(const char * text, SLUGmaker_ComboBox *combo
 int8_t SLUGmaker_ComboBoxResize(float factor_x, float factor_y, SLUGmaker_ComboBox *combobox);
 int8_t SLUGmaker_ComboBoxPressed(SLUGmaker_ComboBox *combobox, bool tooltip);
 
+
+//! Menus
+typedef enum {
+              MENU_TOOLBAR, 
+              MENU_ACTION, 
+              MENU_INFO, 
+              MENU_ACTION_MODIF,
+              MENU_NUMBER} SLUGmaker_MenuType;
+
+typedef struct SLUGmaker_Menu SLUGmaker_Menu;
+struct SLUGmaker_Menu 
+{
+    SLUGmaker_MenuType menu_type;
+    Rectangle zone;
+};
+
+SLUGmaker_Menu* SLUGmaker_MenuDevLoad(SLUGmaker_MenuType menu_type, Rectangle zone, size_t size);
+int8_t SLUGmaker_MenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
+extern SLUGmaker_Menu* (*SLUGmaker_MenuDevLoadFunctions[MENU_NUMBER])(void);
+extern int8_t (*SLUGmaker_MenuFreeFunctions[MENU_NUMBER])(SLUGmaker_Menu *menu);
+extern int8_t (*SLUGmaker_MenuResizeFunctions[MENU_NUMBER])(float factor_x, float factor_y, SLUGmaker_Menu *menu);
+extern int8_t (*SLUGmaker_MenuPressedFunctions[MENU_NUMBER])(SLUGmaker_Menu *menu);
+extern int8_t (*SLUGmaker_MenuDisplayFunctions[MENU_NUMBER])(SLUGmaker_Menu *menu, void *ptr);
+
 //toobar
 typedef struct SLUGmaker_ToolBar SLUGmaker_ToolBar;
 struct SLUGmaker_ToolBar
 {
-    Rectangle zone;
+    //--- Universal
+    SLUGmaker_Menu m;
+    //---  
     
     //styles
     Rectangle style_zone;
@@ -68,37 +94,46 @@ struct SLUGmaker_ToolBar
     SLUGmaker_ComboBox styles;
 };
 
-SLUGmaker_ToolBar SLUGmaker_ToolBarDevLoad();
-int8_t SLUGmaker_ToolBarResize(float factor_x, float factor_y, SLUGmaker_ToolBar *toolbar);
-int8_t SLUGmaker_ToolBarButtonPressed(SLUGmaker_ToolBar *toolbar);
-int8_t SLUGmaker_ToolBarDisplay(SLUGmaker_ToolBar *toolbar);
+SLUGmaker_Menu* SLUGmaker_ToolBarDevLoad();
+int8_t SLUGmaker_ToolBarFree(SLUGmaker_Menu *menu);
+int8_t SLUGmaker_ToolBarResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
+int8_t SLUGmaker_ToolBarPressed(SLUGmaker_Menu *menu);
+int8_t SLUGmaker_ToolBarDisplay(SLUGmaker_Menu *menu, void *ptr);
 
 //Action Menu
 typedef struct SLUGmaker_ActionButtonsMenu SLUGmaker_ActionButtonsMenu;
 struct SLUGmaker_ActionButtonsMenu
 {
-    Rectangle zone;
-    Rectangle group_zone;
+    //--- Universal
+    SLUGmaker_Menu m;
+    //--- 
+
     GuiIconName icons[ACTION_MENU_NB];
     SLUGmaker_button modes[ACTION_MENU_NB];
 };
 
-SLUGmaker_ActionButtonsMenu SLUGmaker_ActionButtonsMenuDevLoad();
-int8_t SLUGmaker_ActionButtonsMenuResize(float factor_x, float factor_y, SLUGmaker_ActionButtonsMenu *menu);
-int8_t SLUGmaker_ActionButtonsMenuPressed(SLUGmaker_ActionButtonsMenu *menu);
-int8_t SLUGmaker_ActionButtonsMenuDisplay(SLUGmaker_ActionButtonsMenu *menu);
+SLUGmaker_Menu* SLUGmaker_ActionButtonsMenuDevLoad();
+int8_t SLUGmaker_ActionButtonsMenuFree(SLUGmaker_Menu *menu);
+int8_t SLUGmaker_ActionButtonsMenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
+int8_t SLUGmaker_ActionButtonsMenuPressed(SLUGmaker_Menu *menu);
+int8_t SLUGmaker_ActionButtonsMenuDisplay(SLUGmaker_Menu *menu, void *ptr);
 
 //Info menu
 typedef struct SLUGmaker_InfoMenu SLUGmaker_InfoMenu;
 struct SLUGmaker_InfoMenu
 {
-    Rectangle panel_zone;
+    //--- Universal
+    SLUGmaker_Menu m;
+    //--- 
+
     Rectangle text_zone;
 }; 
 
-SLUGmaker_InfoMenu SLUGmaker_InfoMenuDevLoad();
-int8_t SLUGmaker_InfoMenuResize(float factor_x, float factor_y, SLUGmaker_InfoMenu *info_menu);
-int8_t SLUGmaker_InfoMenuDisplay(SLUGmaker_InfoMenu *info_menu, void *ptr);
+SLUGmaker_Menu* SLUGmaker_InfoMenuDevLoad();
+int8_t SLUGmaker_InfoMenuFree(SLUGmaker_Menu *menu);
+int8_t SLUGmaker_InfoMenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
+int8_t SLUGmaker_InfoMenuPressed(SLUGmaker_Menu *menu);
+int8_t SLUGmaker_InfoMenuDisplay(SLUGmaker_Menu *menu, void *ptr);
 
 extern void (*SLUGmaker_InfoMenuPrintFct[ACTION_MENU_NB])(void *,Rectangle);
 void SLUGmaker_InfoMenuPrintNone(void *ptr, Rectangle bounds);
@@ -107,20 +142,36 @@ void SLUGmaker_InfoMenuPrintPlayerSpawn(void *ptr, Rectangle bounds);
 void SLUGmaker_InfoMenuPrintDelete(void *ptr, Rectangle bounds);
 void SLUGmaker_InfoMenuPrintSprites(void *ptr, Rectangle bounds);
 
-//general menu
-typedef struct SLUGmaker_Menu SLUGmaker_Menu;
-struct SLUGmaker_Menu
+//Action modif Menu
+typedef struct SLUGmaker_ActionModifMenu SLUGmaker_ActionModifMenu ;
+struct SLUGmaker_ActionModifMenu 
 {
-    SLUGmaker_ToolBar toolbar;
-    SLUGmaker_ActionButtonsMenu actionMenu;
-    SLUGmaker_InfoMenu infoMenu;
+    //--- Universal
+    SLUGmaker_Menu m;
+    //--- 
+
+    Rectangle group_zone; 
 };
 
-extern SLUGmaker_Menu general_menus;
+SLUGmaker_Menu* SLUGmaker_ActionModifMenuDevLoad();
+int8_t SLUGmaker_ActionModifMenuFree(SLUGmaker_Menu *menu);
+int8_t SLUGmaker_ActionModifMenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
+int8_t SLUGmaker_ActionModifMenuPressed(SLUGmaker_Menu *menu);
+int8_t SLUGmaker_ActionModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr);
 
-int8_t SLUGmaker_MenuDevLoad();
-int8_t SLUGmaker_MenuResize(float factor_x, float factor_y);
-int8_t SLUGmaker_MenuDisplay(void *ptr);
+//general menu
+typedef struct SLUGmaker_GeneralMenu SLUGmaker_GeneralMenu;
+struct SLUGmaker_GeneralMenu
+{
+    SLUGmaker_Menu* menus[MENU_NUMBER];
+};
+
+extern SLUGmaker_GeneralMenu general_menu;
+
+int8_t SLUGmaker_GeneralMenuDevLoad();
+int8_t SLUGmaker_GeneralMenuFree();
+int8_t SLUGmaker_GeneralMenuResize(float factor_x, float factor_y);
+int8_t SLUGmaker_GeneralMenuDisplay(void *ptr);
 
 //pop-ups
 int8_t SLUGmaker_PopUpNewMap();

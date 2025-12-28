@@ -186,7 +186,7 @@ int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
 	if(SLUGmaker_DisplayPlayerSpawnPoint(cam) == -1)
 		return -1;
 		
-	if(SLUGmaker_MenuDisplay((void *) (cam->map)) == -1)
+	if(SLUGmaker_GeneralMenuDisplay((void *) (cam->map)) == -1)
 		return -1;
     	
 	if(menu_vars.map_selection_menu) //or all the stuff

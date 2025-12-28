@@ -66,7 +66,7 @@ int8_t SLUGmaker_Resize(SLUGmaker_camera *cam)
 		float factor_x = w / graphic_vars.screen_w;
 		float factor_y = h / graphic_vars.screen_h;
 			
-        int8_t error = SLUGmaker_MenuResize(factor_x, factor_y);
+        int8_t error = SLUGmaker_GeneralMenuResize(factor_x, factor_y);
         if(error == -1)
            	return -1;
         
@@ -117,11 +117,12 @@ int main(int argc, char *argv[])
     
 	SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
 	
-	if(SLUGmaker_MenuDevLoad() == -1)
+	if(SLUGmaker_GeneralMenuDevLoad() == -1)
 	{
 		printf("Error while loading general menu");
 		return -1;
 	}
+    SLUGmaker_ToolBar *toolbar = (SLUGmaker_ToolBar *) general_menu.menus[MENU_TOOLBAR];
 	
     HideCursor();
     GuiEnableTooltip();
@@ -166,11 +167,11 @@ int main(int argc, char *argv[])
 		    
 		if(!menu_vars.map_selection_menu) //or all the stuff
 		{
-			error = SLUGmaker_ChangeGUIStyle(&(general_menus.toolbar));
+			error = SLUGmaker_ChangeGUIStyle();
 			if(error == -1)
 				break;
 
-			if((IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL)) || general_menus.toolbar.save.pressed)
+			if((IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL)) || toolbar->save.pressed)
 			{
 				if(SLUGmaker_WriteMap(map) == -1)
 				    printf("Save failure\n");      
@@ -190,6 +191,7 @@ int main(int argc, char *argv[])
 
     SLUGmaker_UnloadMap(map);
     SLUGmaker_GraphicUnload();
+    SLUGmaker_GeneralMenuFree();
 
     CloseWindow(); // Close window and OpenGL context
     CloseAudioDevice();
