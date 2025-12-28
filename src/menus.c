@@ -169,34 +169,44 @@ SLUGmaker_Menu* (*SLUGmaker_MenuDevLoadFunctions[MENU_NUMBER])(void) = {
     SLUGmaker_ActionButtonsMenuDevLoad,
     SLUGmaker_InfoMenuDevLoad,
     SLUGmaker_ActionModifMenuDevLoad,
+    SLUGmaker_ModifMenuDevLoad,
+    SLUGmaker_LogsMenuDevLoad
 };
 
 int8_t (*SLUGmaker_MenuFreeFunctions[MENU_NUMBER])(SLUGmaker_Menu *menu) = {
     SLUGmaker_ToolBarFree,
     SLUGmaker_ActionButtonsMenuFree,
     SLUGmaker_InfoMenuFree,
-    SLUGmaker_ActionModifMenuFree
+    SLUGmaker_ActionModifMenuFree,
+    SLUGmaker_ModifMenuFree,
+    SLUGmaker_LogsMenuFree
 };
 
 int8_t (*SLUGmaker_MenuResizeFunctions[MENU_NUMBER])(float factor_x, float factor_y, SLUGmaker_Menu *menu) = {
     SLUGmaker_ToolBarResize,
     SLUGmaker_ActionButtonsMenuResize,
     SLUGmaker_InfoMenuResize,
-    SLUGmaker_ActionModifMenuResize
+    SLUGmaker_ActionModifMenuResize,
+    SLUGmaker_ModifMenuResize,
+    SLUGmaker_LogsMenuResize,
 };
 
 int8_t (*SLUGmaker_MenuPressedFunctions[MENU_NUMBER])(SLUGmaker_Menu *menu) = {
     SLUGmaker_ToolBarPressed,
     SLUGmaker_ActionButtonsMenuPressed,
     SLUGmaker_InfoMenuPressed,
-    SLUGmaker_ActionModifMenuPressed
+    SLUGmaker_ActionModifMenuPressed,
+    SLUGmaker_ModifMenuPressed,
+    SLUGmaker_LogsMenuPressed
 };
 
 int8_t (*SLUGmaker_MenuDisplayFunctions[MENU_NUMBER])(SLUGmaker_Menu *menu, void *ptr) = {
     SLUGmaker_ToolBarDisplay,
     SLUGmaker_ActionButtonsMenuDisplay,
     SLUGmaker_InfoMenuDisplay,
-    SLUGmaker_ActionModifMenuDisplay
+    SLUGmaker_ActionModifMenuDisplay,
+    SLUGmaker_ModifMenuDisplay,
+    SLUGmaker_LogsMenuDisplay
 };
 
 //---toolbar
@@ -220,7 +230,7 @@ SLUGmaker_Menu* SLUGmaker_ToolBarDevLoad()
     								   .y = GetScreenHeight() * 0.0025f, 
     								   .width = toolbar->style_zone.width * 0.65f, 
     								   .height = GetScreenHeight() * 0.025f},
-    								   0, 
+    								   4, 
     								   "Light;Jungle;Candy;Lavanda;Cyber;Terminal;Ashes;Bluish;Dark;Cherry;Sunny;Enefete;Amber;Genesis",
     								   &(toolbar->styles));
 
@@ -428,6 +438,11 @@ int8_t SLUGmaker_InfoMenuResize(float factor_x, float factor_y, SLUGmaker_Menu *
 
 int8_t SLUGmaker_InfoMenuPressed(SLUGmaker_Menu *menu)
 {
+    if(menu == NULL)
+		return -1; 
+
+    SLUGmaker_InfoMenu *info_menu = (SLUGmaker_InfoMenu *) menu;  
+
     return 0;
 }
 
@@ -538,6 +553,11 @@ int8_t SLUGmaker_ActionModifMenuResize(float factor_x, float factor_y, SLUGmaker
 
 int8_t SLUGmaker_ActionModifMenuPressed(SLUGmaker_Menu *menu)
 {
+    if(menu == NULL)
+        return -1;
+
+    SLUGmaker_ActionModifMenu *action_modif_menu = (SLUGmaker_ActionModifMenu *) menu;
+
     return 0;
 }
 
@@ -549,6 +569,144 @@ int8_t SLUGmaker_ActionModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr)
     SLUGmaker_ActionModifMenu *action_modif_menu = (SLUGmaker_ActionModifMenu *) menu;
 
     GuiGroupBox(action_modif_menu->m.zone,"Action");
+    
+    return 0;
+}
+
+//Modif Menu
+SLUGmaker_Menu* SLUGmaker_ModifMenuDevLoad()
+{
+    Rectangle zone = (Rectangle) {
+        .x = GetScreenWidth() * 0.2f,
+		.y = GetScreenHeight() * 0.83f,
+		.width = GetScreenWidth() * 0.6f,
+		.height = GetScreenHeight() * 0.17f,
+    };
+
+    SLUGmaker_ModifMenu *modif_menu = (SLUGmaker_ModifMenu *) SLUGmaker_MenuDevLoad(MENU_MODIF,(Rectangle) { .x = zone.x + 20.0f,.y = zone.y + 11.0f,.width = zone.width - 40.0f,.height = zone.height - 22.0f}, sizeof(SLUGmaker_ModifMenu));
+
+    modif_menu->group_zone = (Rectangle) {
+        .x = modif_menu->m.zone.x + 20.0f,
+		.y = modif_menu->m.zone.y + 11.0f,
+		.width = modif_menu->m.zone.width - 40.0f,
+		.height = modif_menu->m.zone.height - 22.0f,
+    };
+
+    return (SLUGmaker_Menu*) modif_menu; 
+}
+
+int8_t SLUGmaker_ModifMenuFree(SLUGmaker_Menu *menu)
+{
+    if(menu == NULL)
+        return -1;
+
+    SLUGmaker_ModifMenu *modif_menu = (SLUGmaker_ModifMenu *) menu;
+
+    free(modif_menu);
+
+    return 0;
+}
+
+int8_t SLUGmaker_ModifMenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu)
+{
+    if(menu == NULL)
+        return -1;
+
+    SLUGmaker_MenuResize(factor_x,factor_y,menu);
+    SLUGmaker_ModifMenu *modif_menu = (SLUGmaker_ModifMenu *) menu;
+
+    RectangleMultiply(&(modif_menu->group_zone),factor_x,factor_y);
+
+    return 0;
+}
+
+int8_t SLUGmaker_ModifMenuPressed(SLUGmaker_Menu *menu)
+{
+    if(menu == NULL)
+        return -1;
+
+    SLUGmaker_ModifMenu *modif_menu = (SLUGmaker_ModifMenu *) menu;
+
+    return 0;
+}
+
+int8_t SLUGmaker_ModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr)
+{
+    if(menu == NULL)
+        return -1;
+
+    SLUGmaker_ModifMenu *modif_menu = (SLUGmaker_ModifMenu *) menu;
+
+    GuiGroupBox(modif_menu->m.zone,"Modifications");
+    
+    return 0;
+}
+
+//Logs Menu
+SLUGmaker_Menu* SLUGmaker_LogsMenuDevLoad()
+{
+    Rectangle zone = (Rectangle) {
+        .x = GetScreenWidth() * 0.8f,
+		.y = GetScreenHeight() * 0.83f,
+		.width = GetScreenWidth() * 0.2f,
+		.height = GetScreenHeight() * 0.17f,
+    };
+
+    SLUGmaker_LogsMenu *logs_menu = (SLUGmaker_LogsMenu *) SLUGmaker_MenuDevLoad(MENU_LOGS,(Rectangle) { .x = zone.x + 20.0f,.y = zone.y + 11.0f,.width = zone.width - 40.0f,.height = zone.height - 22.0f}, sizeof(SLUGmaker_LogsMenu));
+
+    logs_menu->group_zone = (Rectangle) {
+        .x = logs_menu->m.zone.x + 20.0f,
+		.y = logs_menu->m.zone.y + 11.0f,
+		.width = logs_menu->m.zone.width - 40.0f,
+		.height = logs_menu->m.zone.height - 22.0f,
+    };
+
+    return (SLUGmaker_Menu*) logs_menu; 
+}
+
+int8_t SLUGmaker_LogsMenuFree(SLUGmaker_Menu *menu)
+{
+    if(menu == NULL)
+        return -1;
+
+    SLUGmaker_LogsMenu *logs_menu = (SLUGmaker_LogsMenu *) menu;
+
+    free(logs_menu);
+
+    return 0;
+}
+
+int8_t SLUGmaker_LogsMenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu)
+{
+    if(menu == NULL)
+        return -1;
+
+    SLUGmaker_MenuResize(factor_x,factor_y,menu);
+    SLUGmaker_LogsMenu *logs_menu = (SLUGmaker_LogsMenu *) menu;
+
+    RectangleMultiply(&(logs_menu->group_zone),factor_x,factor_y);
+
+    return 0;
+}
+
+int8_t SLUGmaker_LogsMenuPressed(SLUGmaker_Menu *menu)
+{
+    if(menu == NULL)
+        return -1;
+
+    SLUGmaker_LogsMenu *logs_menu = (SLUGmaker_LogsMenu *) menu;
+
+    return 0;
+}
+
+int8_t SLUGmaker_LogsMenuDisplay(SLUGmaker_Menu *menu, void *ptr)
+{
+    if(menu == NULL)
+        return -1;
+
+    SLUGmaker_LogsMenu *logs_menu = (SLUGmaker_LogsMenu *) menu;
+
+    GuiGroupBox(logs_menu->m.zone,"Logs");
     
     return 0;
 }

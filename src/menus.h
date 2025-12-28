@@ -61,6 +61,8 @@ typedef enum {
               MENU_ACTION, 
               MENU_INFO, 
               MENU_ACTION_MODIF,
+              MENU_MODIF,
+              MENU_LOGS,
               MENU_NUMBER} SLUGmaker_MenuType;
 
 typedef struct SLUGmaker_Menu SLUGmaker_Menu;
@@ -158,6 +160,40 @@ int8_t SLUGmaker_ActionModifMenuFree(SLUGmaker_Menu *menu);
 int8_t SLUGmaker_ActionModifMenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
 int8_t SLUGmaker_ActionModifMenuPressed(SLUGmaker_Menu *menu);
 int8_t SLUGmaker_ActionModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr);
+
+//Modif Menu
+typedef struct SLUGmaker_ModifMenu SLUGmaker_ModifMenu ;
+struct SLUGmaker_ModifMenu 
+{
+    //--- Universal
+    SLUGmaker_Menu m;
+    //--- 
+
+    Rectangle group_zone; 
+};
+
+SLUGmaker_Menu* SLUGmaker_ModifMenuDevLoad();
+int8_t SLUGmaker_ModifMenuFree(SLUGmaker_Menu *menu);
+int8_t SLUGmaker_ModifMenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
+int8_t SLUGmaker_ModifMenuPressed(SLUGmaker_Menu *menu);
+int8_t SLUGmaker_ModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr);
+
+//Logs Menu
+typedef struct SLUGmaker_LogsMenu SLUGmaker_LogsMenu ;
+struct SLUGmaker_LogsMenu 
+{
+    //--- Universal
+    SLUGmaker_Menu m;
+    //--- 
+
+    Rectangle group_zone; 
+};
+
+SLUGmaker_Menu* SLUGmaker_LogsMenuDevLoad();
+int8_t SLUGmaker_LogsMenuFree(SLUGmaker_Menu *menu);
+int8_t SLUGmaker_LogsMenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
+int8_t SLUGmaker_LogsMenuPressed(SLUGmaker_Menu *menu);
+int8_t SLUGmaker_LogsMenuDisplay(SLUGmaker_Menu *menu, void *ptr);
 
 //general menu
 typedef struct SLUGmaker_GeneralMenu SLUGmaker_GeneralMenu;

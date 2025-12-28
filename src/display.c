@@ -200,7 +200,7 @@ int8_t SLUGmaker_Display(SLUGmaker_camera *cam)
     
     
     if(CheckCollisionPointRec(mouse, *(cam->display)))
-    	DrawText(TextFormat("%f ; %f",SLUGmaker_GetMousePosX(cam),SLUGmaker_GetMousePosY(cam)), 0, (float) (graphic_vars.screen_h) * 0.30f, 20,GREEN);
+    	DrawText(TextFormat("%f ; %f",SLUGmaker_GetMousePosX(cam),SLUGmaker_GetMousePosY(cam)), (float) (graphic_vars.screen_w) * 0.20f, (float) (graphic_vars.screen_h) * 0.83f - 20, 20,GREEN);
     
    
     return 0;
