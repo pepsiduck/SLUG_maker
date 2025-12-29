@@ -7,6 +7,7 @@
 #include <raylib.h>
 #include <raygui.h>
 #include <string.h>
+#include <stdarg.h>
 
 #define ACTION_MENU_NB 5
 
@@ -188,6 +189,13 @@ struct SLUGmaker_LogsMenu
 
     Rectangle group_zone; 
 };
+
+#define MAX_LOG_STR 256
+#define MAX_LOG 31
+extern char logs[MAX_LOG][MAX_LOG_STR];
+extern uint8_t logs_counter;
+int8_t SLUGmaker_WriteLog(const char * log, ...);
+int8_t SLUGmaker_FlushLogs();
 
 SLUGmaker_Menu* SLUGmaker_LogsMenuDevLoad();
 int8_t SLUGmaker_LogsMenuFree(SLUGmaker_Menu *menu);

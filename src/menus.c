@@ -643,6 +643,43 @@ int8_t SLUGmaker_ModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr)
 }
 
 //Logs Menu
+char logs[MAX_LOG][MAX_LOG_STR];
+uint8_t logs_counter = 0;
+
+int8_t SLUGmaker_WriteLog(const char * log, ...)
+{
+    if(log == NULL)
+        return -1;
+
+    char buffer[MAX_LOG_STR];
+    va_list args;
+    va_start(args, log);
+    vsnprintf(buffer, MAX_LOG_STR, log, args);
+    vprintf(buffer, args);
+    va_end(args);
+
+    if(logs_counter >= MAX_LOG)
+    {
+        for(uint8_t u = 0; u < MAX_LOG - 1; ++u)
+            strncpy(logs[u], logs[u + 1], MAX_LOG_STR);
+        strncpy(logs[MAX_LOG - 1], buffer, MAX_LOG_STR);
+    }
+    else
+    {   
+        strncpy(logs[logs_counter], buffer, MAX_LOG_STR);
+        logs_counter++;
+    }
+
+    return 0;
+}
+
+int8_t SLUGmaker_FlushLogs()
+{
+    for(uint8_t u = 0; u < MAX_LOG; ++u)
+        strncpy(logs[u], "\n", MAX_LOG_STR);
+    return 0;
+}
+
 SLUGmaker_Menu* SLUGmaker_LogsMenuDevLoad()
 {
     Rectangle zone = (Rectangle) {
@@ -655,9 +692,9 @@ SLUGmaker_Menu* SLUGmaker_LogsMenuDevLoad()
     SLUGmaker_LogsMenu *logs_menu = (SLUGmaker_LogsMenu *) SLUGmaker_MenuDevLoad(MENU_LOGS,(Rectangle) { .x = zone.x + 20.0f,.y = zone.y + 11.0f,.width = zone.width - 40.0f,.height = zone.height - 22.0f}, sizeof(SLUGmaker_LogsMenu));
 
     logs_menu->group_zone = (Rectangle) {
-        .x = logs_menu->m.zone.x + 20.0f,
+        .x = logs_menu->m.zone.x + 11.0f,
 		.y = logs_menu->m.zone.y + 11.0f,
-		.width = logs_menu->m.zone.width - 40.0f,
+		.width = logs_menu->m.zone.width - 22.0f,
 		.height = logs_menu->m.zone.height - 22.0f,
     };
 
@@ -708,6 +745,33 @@ int8_t SLUGmaker_LogsMenuDisplay(SLUGmaker_Menu *menu, void *ptr)
 
     GuiGroupBox(logs_menu->m.zone,"Logs");
     
+    uint8_t lines = ((uint8_t) logs_menu->group_zone.height) / 20 - 1;
+    char log_buffer[MAX_LOG_STR * lines];
+
+    uint8_t counter = 0;
+    int16_t u;
+    for(u = MAX_LOG - 1; u >= 0; --u)
+    {
+        if(strncmp(logs[u], "\n", MAX_LOG) != 0)
+            counter++;
+        if(counter == lines)
+            break;
+    }
+    u = fmax(u, 0);
+
+    if(counter > 0)
+    {
+        size_t str_start = 0;
+        for(uint8_t i = 0; i < fmin(lines, counter); ++i)
+        {
+            strncpy(log_buffer + str_start, logs[u + i], MAX_LOG_STR);
+            //printf("%s", logs[u + i]);
+            str_start += strlen(logs[u + i]);
+        }
+
+        GuiTextBox(logs_menu->group_zone, log_buffer, 20, false);
+    }
+    
     return 0;
 }
 
@@ -718,6 +782,9 @@ int8_t SLUGmaker_GeneralMenuDevLoad()
 {
     for(uint8_t u = 0; u < MENU_NUMBER; ++u)
         general_menu.menus[u] = SLUGmaker_MenuDevLoadFunctions[u]();
+
+    for(uint8_t u = 0; u < MAX_LOG; ++u)
+        strncpy(logs[u], "\n", MAX_LOG_STR);
 
     return 0;
 }

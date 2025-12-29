@@ -138,6 +138,7 @@ int main(int argc, char *argv[])
 
     while (!WindowShouldClose())
     {
+
 		if(!SLUGmaker_ChangeFullscreen(screenWidth, screenHeight))
 			resize = SLUGmaker_Resize(&cam);
 		

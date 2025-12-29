@@ -168,7 +168,7 @@ int8_t SLUGmaker_WallDelete(SLUGmaker_map *map,SLUGmaker_camera *cam)
 
         if(map->wall_nb < 0)
         {
-            printf("Bruh there is a negative number of walls.");
+            SLUGmaker_WriteLog("Bruh there is a negative number of walls.");
             return -1;
         }
 
@@ -323,7 +323,7 @@ int8_t SLUGmaker_PlaceNewWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
 
         if(!map->walls[map->current_wall_index].exists)
         {
-            printf("Currently placed wall doesn't exist ???\n");
+            SLUGmaker_WriteLog("Currently placed wall doesn't exist ???\n");
             return -1;
         }
 
@@ -397,7 +397,7 @@ int8_t SLUGmaker_PlaceNewWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
                 map->wall_nb += 1;
             }
             else
-                printf("Too many walls\n");
+                SLUGmaker_WriteLog("Too many walls\n");
         }
 
     }
@@ -409,7 +409,7 @@ int8_t SLUGmaker_PlaceNewWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
             {
                 if(map->walls[map->current_wall_index].exists)  
                 {
-                    printf("Error : Trying to overwrite existing wall.\n");
+                    SLUGmaker_WriteLog("Error : Trying to overwrite existing wall.\n");
                     return -1;
                 }   
 
@@ -424,9 +424,11 @@ int8_t SLUGmaker_PlaceNewWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
                 map->wall_line_mode = true;
                 map->wall_nb += 1;
             }
+            else
+                SLUGmaker_WriteLog("There is already a wall node there.\n");
         }
         else
-            printf("Too many walls\n");
+            SLUGmaker_WriteLog("Too many walls\n");
     }
 
     
@@ -471,6 +473,7 @@ int8_t SLUGmaker_PlayerSpawnPointMove(SLUGmaker_map *map, SLUGmaker_camera *cam)
 		
 	if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 	{
+
 		Vector2 msb = (Vector2) {.x = (float) GetMouseX(), .y = (float) GetMouseY()};
 		if(CheckCollisionPointRec(msb,graphic_vars.display))
 		{
