@@ -42,6 +42,7 @@ struct SLUGmaker_map
     Rectangle zone;
     
     Texture2D loaded_sprites[MAX_SPRITES];
+    uint16_t loaded_sprites_nb;
     char loaded_sprites_names[MAX_SPRITES][256];
     SLUGmaker_PlacableSprite map_sprites[MAX_PLACED_SPRITES];
     int16_t sprite_nb;

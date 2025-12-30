@@ -101,6 +101,8 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     	map->loaded_sprites[i].id = 0;
     	map->loaded_sprites_names[i][0] = '\0';
     }
+    map->loaded_sprites_nb = 0;
+    
     for(int16_t i = 0; i < MAX_PLACED_SPRITES; ++i)
     {
     	map->map_sprites[i].sprite_index = -1;
@@ -252,6 +254,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *map_dir)
         
         counter++;
     }
+    map->loaded_sprites_nb = counter;
     
     printf("\n\n");
 
@@ -788,7 +791,7 @@ int8_t SLUGmaker_WriteMap(SLUGmaker_map *map)//TODO:windows
         return -1;
     }
     
-    for(int16_t s = 0; s < MAX_SPRITES; ++s)
+    for(int16_t s = 0; s < fmin(MAX_SPRITES, map->loaded_sprites_nb); ++s)
     {
         if(map->loaded_sprites[s].id > 0)
         {

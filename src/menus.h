@@ -27,19 +27,20 @@ int8_t SLUGmaker_MenuUnload();
 //---buttons
 extern char SLUGmaker_IconBuffer[8];
 
-typedef struct SLUGmaker_button SLUGmaker_button;
-struct SLUGmaker_button
+typedef struct SLUGmaker_Button SLUGmaker_Button;
+struct SLUGmaker_Button
 {
     Rectangle zone;
     uint16_t guiIcon;
     bool pressed;
-    char tooltip[256];
+    bool icon_button;
+    char text[256];
 };
 
-int8_t SLUGmaker_ButtonLoad(Rectangle zone, uint16_t guiIcon, SLUGmaker_button *button);
-int8_t SLUGmaker_ButtonSetToolTip(const char * text, SLUGmaker_button *button);
-int8_t SLUGmaker_ButtonResize(float factor_x, float factor_y, SLUGmaker_button *button);
-int8_t SLUGmaker_ButtonPressed(SLUGmaker_button *button, bool tooltip);
+int8_t SLUGmaker_ButtonLoad(Rectangle zone, uint16_t guiIcon, bool icon_button, SLUGmaker_Button *button);
+int8_t SLUGmaker_ButtonSetText(const char * text, SLUGmaker_Button *button);
+int8_t SLUGmaker_ButtonResize(float factor_x, float factor_y, SLUGmaker_Button *button);
+int8_t SLUGmaker_ButtonPressed(SLUGmaker_Button *button, bool tooltip);
 
 typedef struct SLUGmaker_ComboBox SLUGmaker_ComboBox;
 struct SLUGmaker_ComboBox
@@ -58,12 +59,12 @@ int8_t SLUGmaker_ComboBoxPressed(SLUGmaker_ComboBox *combobox, bool tooltip);
 
 //! Menus
 typedef enum {
-              MENU_TOOLBAR, 
-              MENU_ACTION, 
-              MENU_INFO, 
               MENU_ACTION_MODIF,
               MENU_MODIF,
               MENU_LOGS,
+              MENU_INFO, 
+              MENU_ACTION,
+              MENU_TOOLBAR,
               MENU_NUMBER} SLUGmaker_MenuType;
 
 typedef struct SLUGmaker_Menu SLUGmaker_Menu;
@@ -93,7 +94,7 @@ struct SLUGmaker_ToolBar
     Rectangle style_zone;
     Rectangle style_label_zone;
     
-    SLUGmaker_button save;
+    SLUGmaker_Button save;
     SLUGmaker_ComboBox styles;
 };
 
@@ -112,7 +113,7 @@ struct SLUGmaker_ActionButtonsMenu
     //--- 
 
     GuiIconName icons[ACTION_MENU_NB];
-    SLUGmaker_button modes[ACTION_MENU_NB];
+    SLUGmaker_Button modes[ACTION_MENU_NB];
 };
 
 SLUGmaker_Menu* SLUGmaker_ActionButtonsMenuDevLoad();
@@ -146,6 +147,17 @@ void SLUGmaker_InfoMenuPrintDelete(void *ptr, Rectangle bounds);
 void SLUGmaker_InfoMenuPrintSprites(void *ptr, Rectangle bounds);
 
 //Action modif Menu
+typedef struct SLUGmaker_SpriteActionModifMenu SLUGmaker_SpriteActionModifMenu;
+struct SLUGmaker_SpriteActionModifMenu
+{
+    SLUGmaker_Button load_sprite_button;
+};
+
+int8_t SLUGmaker_SpriteActionModifMenuLoad(Rectangle *parent_zone, SLUGmaker_SpriteActionModifMenu *sprite_menu);
+int8_t SLUGmaker_SpriteActionModifMenuResize(float factor_x, float factor_y, SLUGmaker_SpriteActionModifMenu *sprite_menu);
+int8_t SLUGmaker_SpriteActionModifMenuPressed(SLUGmaker_SpriteActionModifMenu *sprite_menu);
+int8_t SLUGmaker_SpriteActionModifMenuDisplay(SLUGmaker_SpriteActionModifMenu *sprite_menu, void *ptr);
+
 typedef struct SLUGmaker_ActionModifMenu SLUGmaker_ActionModifMenu ;
 struct SLUGmaker_ActionModifMenu 
 {
@@ -154,6 +166,7 @@ struct SLUGmaker_ActionModifMenu
     //--- 
 
     Rectangle group_zone; 
+    SLUGmaker_SpriteActionModifMenu sprite_menu;
 };
 
 SLUGmaker_Menu* SLUGmaker_ActionModifMenuDevLoad();
