@@ -59,4 +59,7 @@ int8_t SLUGmaker_WallModeQuit(SLUGmaker_map *map);
 //player spawn point
 int8_t SLUGmaker_PlayerSpawnPointMove(SLUGmaker_map *map, SLUGmaker_camera *cam);
 
+//sprites
+int8_t SLUGmaker_SpriteMode(SLUGmaker_map *map, SLUGmaker_camera *cam);
+
 #endif

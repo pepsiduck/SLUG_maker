@@ -451,7 +451,7 @@ int8_t SLUGmaker_InfoMenuPressed(SLUGmaker_Menu *menu)
     if(menu == NULL)
 		return -1; 
 
-    SLUGmaker_InfoMenu *info_menu = (SLUGmaker_InfoMenu *) menu;  
+    //SLUGmaker_InfoMenu *info_menu = (SLUGmaker_InfoMenu *) menu;  
 
     return 0;
 }
@@ -620,7 +620,7 @@ int8_t SLUGmaker_ActionModifMenuPressed(SLUGmaker_Menu *menu)
     if(menu == NULL)
         return -1;
 
-    SLUGmaker_ActionModifMenu *action_modif_menu = (SLUGmaker_ActionModifMenu *) menu;
+    //SLUGmaker_ActionModifMenu *action_modif_menu = (SLUGmaker_ActionModifMenu *) menu;
 
     return 0;
 }
@@ -702,7 +702,7 @@ int8_t SLUGmaker_ModifMenuPressed(SLUGmaker_Menu *menu)
     if(menu == NULL)
         return -1;
 
-    SLUGmaker_ModifMenu *modif_menu = (SLUGmaker_ModifMenu *) menu;
+    //SLUGmaker_ModifMenu *modif_menu = (SLUGmaker_ModifMenu *) menu;
 
     return 0;
 }
@@ -808,7 +808,7 @@ int8_t SLUGmaker_LogsMenuPressed(SLUGmaker_Menu *menu)
     if(menu == NULL)
         return -1;
 
-    SLUGmaker_LogsMenu *logs_menu = (SLUGmaker_LogsMenu *) menu;
+    //SLUGmaker_LogsMenu *logs_menu = (SLUGmaker_LogsMenu *) menu;
 
     return 0;
 }

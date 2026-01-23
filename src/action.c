@@ -1,6 +1,7 @@
 #include "action.h"
 #include "menus.h"
 #include "defines.h"
+#include "tinyfiledialogs.h"
 
 //---camera
 SLUGmaker_camera SLUGmaker_DefaultCamera(SLUGmaker_map *map)
@@ -116,6 +117,8 @@ int8_t SLUGmaker_Action(SLUGmaker_map *map, SLUGmaker_camera *cam)
             return SLUGmaker_WallMode(map,cam);
         case ACTION_MODE_PLAYER :
         	return SLUGmaker_PlayerSpawnPointMove(map,cam);
+        case ACTION_MODE_SPRITE :
+        	return SLUGmaker_SpriteMode(map,cam);
         default:
             return 0;
     }   
@@ -483,5 +486,30 @@ int8_t SLUGmaker_PlayerSpawnPointMove(SLUGmaker_map *map, SLUGmaker_camera *cam)
 		}
 	}	
 		
+	return 0;
+}
+
+//--- sprites
+int8_t SLUGmaker_SpriteMode(SLUGmaker_map *map, SLUGmaker_camera *cam)
+{
+	if(map == NULL || cam == NULL)
+		return -1;
+		
+	SLUGmaker_ActionModifMenu *action_modif_menu = (SLUGmaker_ActionModifMenu *) general_menu.menus[MENU_ACTION_MODIF];
+	if(action_modif_menu->sprite_menu.load_sprite_button.pressed)
+	{
+		if(map->loaded_sprites_nb >= MAX_SPRITES)
+			SLUGmaker_WriteLog("Too many loaded sprites. Make Room.\n");
+		else
+		{
+			char const * lFilterPatterns[2]={"*.png","*.jpg"};
+			char *FileName = tinyfd_openFileDialog("Select a sprite",NULL,2,lFilterPatterns,"image files",0);
+			if(FileName != NULL)
+			{
+				SLUGmaker_WriteLog(FileName);
+			}
+		}
+	}
+
 	return 0;
 }
