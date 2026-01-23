@@ -506,7 +506,31 @@ int8_t SLUGmaker_SpriteMode(SLUGmaker_map *map, SLUGmaker_camera *cam)
 			char *FileName = tinyfd_openFileDialog("Select a sprite",NULL,2,lFilterPatterns,"image files",0);
 			if(FileName != NULL)
 			{
-				SLUGmaker_WriteLog(FileName);
+				char *buf = FileName + strlen(FileName);
+				while(*buf != '/') 
+					buf--;
+				buf++;
+			
+				SLUGmaker_WriteLog("Loading %s\n", buf);
+				
+				if(strlen(buf) > 255)
+				{
+					SLUGmaker_WriteLog("Filename exceeded %d character limit\n", 256);
+					return 0;
+				}
+				
+				map->loaded_sprites[map->loaded_sprites_nb] = LoadTexture(FileName);
+				if(map->loaded_sprites[map->loaded_sprites_nb].id <= 0)
+				{
+					SLUGmaker_WriteLog("Failed to load sprite");
+					return 0;
+				}
+				
+				strncpy(map->loaded_sprites_names[map->loaded_sprites_nb], buf, 256);
+				
+				SLUGmaker_WriteLog("Succesfully loaded %s\n", map->loaded_sprites_names[map->loaded_sprites_nb]);
+				
+				map->loaded_sprites_nb++;
 			}
 		}
 	}
