@@ -39,32 +39,36 @@ int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam, bool window_changed)
     if(cam == NULL)
         return -1;
                 
-    bool zoom = false;    
-        
-    if(GetMouseWheelMove() > 0 || IsKeyPressed(KEY_U))
+    if(CheckCollisionPointRec(GetMousePosition(), *(cam->display)))
     {
-        cam->unzoom /= 1.1;
-        zoom = true;
-    }
-    else if(GetMouseWheelMove() < 0 || IsKeyPressed(KEY_I))
-    {
-        cam->unzoom *= 1.1;
-        zoom = true;
-    }
 
-    if(IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
-    {
-        Vector2 v = GetMouseDelta();
-        cam->view_zone.x -= v.x * cam->unzoom;
-        cam->view_zone.y -= v.y * cam->unzoom;
-    }
-    
-    if(zoom || window_changed)
-    {
-    	cam->view_zone.width = graphic_vars.screen_w * cam->unzoom;
-		cam->view_zone.height = graphic_vars.screen_h * cam->unzoom;
-		cam->ratiox = cam->display->width / cam->view_zone.width;
-		cam->ratioy = cam->display->height / cam->view_zone.height;
+        bool zoom = false;    
+            
+        if(GetMouseWheelMove() > 0 || IsKeyPressed(KEY_U))
+        {
+            cam->unzoom /= 1.1;
+            zoom = true;
+        }
+        else if(GetMouseWheelMove() < 0 || IsKeyPressed(KEY_I))
+        {
+            cam->unzoom *= 1.1;
+            zoom = true;
+        }
+
+        if(IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+        {
+            Vector2 v = GetMouseDelta();
+            cam->view_zone.x -= v.x * cam->unzoom;
+            cam->view_zone.y -= v.y * cam->unzoom;
+        }
+        
+        if(zoom || window_changed)
+        {
+        	cam->view_zone.width = graphic_vars.screen_w * cam->unzoom;
+		    cam->view_zone.height = graphic_vars.screen_h * cam->unzoom;
+		    cam->ratiox = cam->display->width / cam->view_zone.width;
+		    cam->ratioy = cam->display->height / cam->view_zone.height;
+        }
     }
 
     return 0;
@@ -526,7 +530,7 @@ int8_t SLUGmaker_SpriteMode(SLUGmaker_map *map, SLUGmaker_camera *cam)
 					return 0;
 				}
 				
-				strncpy(map->loaded_sprites_names[map->loaded_sprites_nb], buf, 256);
+				snprintf(map->loaded_sprites_names[map->loaded_sprites_nb], MAX_MAP_CHAR, "%s", buf);
 				
 				SLUGmaker_WriteLog("Succesfully loaded %s\n", map->loaded_sprites_names[map->loaded_sprites_nb]);
 				

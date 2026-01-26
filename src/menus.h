@@ -56,6 +56,20 @@ int8_t SLUGmaker_ComboBoxSetToolTip(const char * text, SLUGmaker_ComboBox *combo
 int8_t SLUGmaker_ComboBoxResize(float factor_x, float factor_y, SLUGmaker_ComboBox *combobox);
 int8_t SLUGmaker_ComboBoxPressed(SLUGmaker_ComboBox *combobox, bool tooltip);
 
+typedef struct SLUGmaker_ListView SLUGmaker_ListView;
+struct SLUGmaker_ListView
+{
+    Rectangle zone;
+    const char **options;
+    uint16_t *nb;
+    int scrollIndex;
+    int active;
+    int focus;
+};
+
+int8_t SLUGmaker_ListViewLoad(Rectangle zone, char **options, uint16_t *nb, int scrollIndex, int active, int focus, SLUGmaker_ListView *listview);
+int8_t SLUGmaker_ListViewResize(float factor_x, float factor_y, SLUGmaker_ListView *listview);
+int8_t SLUGmaker_ListViewPressed(SLUGmaker_ListView *listview);
 
 //! Menus
 typedef enum {
@@ -76,7 +90,7 @@ struct SLUGmaker_Menu
 
 SLUGmaker_Menu* SLUGmaker_MenuDevLoad(SLUGmaker_MenuType menu_type, Rectangle zone, size_t size);
 int8_t SLUGmaker_MenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
-extern SLUGmaker_Menu* (*SLUGmaker_MenuDevLoadFunctions[MENU_NUMBER])(void);
+extern SLUGmaker_Menu* (*SLUGmaker_MenuDevLoadFunctions[MENU_NUMBER])(void *ptr);
 extern int8_t (*SLUGmaker_MenuFreeFunctions[MENU_NUMBER])(SLUGmaker_Menu *menu);
 extern int8_t (*SLUGmaker_MenuResizeFunctions[MENU_NUMBER])(float factor_x, float factor_y, SLUGmaker_Menu *menu);
 extern int8_t (*SLUGmaker_MenuPressedFunctions[MENU_NUMBER])(SLUGmaker_Menu *menu);
@@ -133,7 +147,7 @@ struct SLUGmaker_InfoMenu
     Rectangle text_zone;
 }; 
 
-SLUGmaker_Menu* SLUGmaker_InfoMenuDevLoad();
+SLUGmaker_Menu* SLUGmaker_InfoMenuDevLoad(void *ptr);
 int8_t SLUGmaker_InfoMenuFree(SLUGmaker_Menu *menu);
 int8_t SLUGmaker_InfoMenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
 int8_t SLUGmaker_InfoMenuPressed(SLUGmaker_Menu *menu);
@@ -151,9 +165,10 @@ typedef struct SLUGmaker_SpriteActionModifMenu SLUGmaker_SpriteActionModifMenu;
 struct SLUGmaker_SpriteActionModifMenu
 {
     SLUGmaker_Button load_sprite_button;
+    SLUGmaker_ListView sprite_list;
 };
 
-int8_t SLUGmaker_SpriteActionModifMenuLoad(Rectangle *parent_zone, SLUGmaker_SpriteActionModifMenu *sprite_menu);
+int8_t SLUGmaker_SpriteActionModifMenuLoad(Rectangle *parent_zone, void *ptr, SLUGmaker_SpriteActionModifMenu *sprite_menu);
 int8_t SLUGmaker_SpriteActionModifMenuResize(float factor_x, float factor_y, SLUGmaker_SpriteActionModifMenu *sprite_menu);
 int8_t SLUGmaker_SpriteActionModifMenuPressed(SLUGmaker_SpriteActionModifMenu *sprite_menu);
 int8_t SLUGmaker_SpriteActionModifMenuDisplay(SLUGmaker_SpriteActionModifMenu *sprite_menu, void *ptr);
@@ -169,7 +184,7 @@ struct SLUGmaker_ActionModifMenu
     SLUGmaker_SpriteActionModifMenu sprite_menu;
 };
 
-SLUGmaker_Menu* SLUGmaker_ActionModifMenuDevLoad();
+SLUGmaker_Menu* SLUGmaker_ActionModifMenuDevLoad(void *ptr);
 int8_t SLUGmaker_ActionModifMenuFree(SLUGmaker_Menu *menu);
 int8_t SLUGmaker_ActionModifMenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
 int8_t SLUGmaker_ActionModifMenuPressed(SLUGmaker_Menu *menu);
@@ -186,7 +201,7 @@ struct SLUGmaker_ModifMenu
     Rectangle group_zone; 
 };
 
-SLUGmaker_Menu* SLUGmaker_ModifMenuDevLoad();
+SLUGmaker_Menu* SLUGmaker_ModifMenuDevLoad(void *ptr);
 int8_t SLUGmaker_ModifMenuFree(SLUGmaker_Menu *menu);
 int8_t SLUGmaker_ModifMenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
 int8_t SLUGmaker_ModifMenuPressed(SLUGmaker_Menu *menu);
@@ -210,7 +225,7 @@ extern uint8_t logs_counter;
 int8_t SLUGmaker_WriteLog(const char * log, ...);
 int8_t SLUGmaker_FlushLogs();
 
-SLUGmaker_Menu* SLUGmaker_LogsMenuDevLoad();
+SLUGmaker_Menu* SLUGmaker_LogsMenuDevLoad(void *ptr);
 int8_t SLUGmaker_LogsMenuFree(SLUGmaker_Menu *menu);
 int8_t SLUGmaker_LogsMenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu);
 int8_t SLUGmaker_LogsMenuPressed(SLUGmaker_Menu *menu);
@@ -225,7 +240,7 @@ struct SLUGmaker_GeneralMenu
 
 extern SLUGmaker_GeneralMenu general_menu;
 
-int8_t SLUGmaker_GeneralMenuDevLoad();
+int8_t SLUGmaker_GeneralMenuDevLoad(void *ptr);
 int8_t SLUGmaker_GeneralMenuFree();
 int8_t SLUGmaker_GeneralMenuResize(float factor_x, float factor_y);
 int8_t SLUGmaker_GeneralMenuDisplay(void *ptr);

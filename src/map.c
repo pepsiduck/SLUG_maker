@@ -99,7 +99,8 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     for(int16_t i = 0; i < MAX_SPRITES; ++i)
     {
     	map->loaded_sprites[i].id = 0;
-    	map->loaded_sprites_names[i][0] = '\0';
+    	map->loaded_sprites_names[i] = malloc(MAX_MAP_CHAR);
+        snprintf(map->loaded_sprites_names[i], MAX_MAP_CHAR, "jaaj");
     }
     map->loaded_sprites_nb = 0;
     
@@ -231,7 +232,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *map_dir)
         fclose(f);
         return NULL;
     }
-    char line[256];
+    char line[MAX_MAP_CHAR];
     char sprite_name[271 + len];
     uint16_t counter = 0;
     while(counter < MAX_SPRITES && fgets(line, sizeof(line), sprite_file))
@@ -244,7 +245,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *map_dir)
             sprintf(sprite_name,"%sassets/sprites/%s",loadMap,line);
             map->loaded_sprites[counter] = LoadTexture(sprite_name);
             if(map->loaded_sprites[counter].id > 0)
-                strncpy(map->loaded_sprites_names[counter],line,256);
+                snprintf(map->loaded_sprites_names[counter], MAX_MAP_CHAR, "%s", line);
             else
             {
                 printf("Warning : incorrect sprite file name.\n");
@@ -433,6 +434,10 @@ void SLUGmaker_UnloadMap(SLUGmaker_map *map)
     		if(map->loaded_sprites[i].id > 0)
     			UnloadTexture(map->loaded_sprites[i]);
     	}
+
+        for(int16_t i = 0; i < MAX_SPRITES; ++i)
+            free(map->loaded_sprites_names[i]);
+
         free(map);
         map = NULL;
     }

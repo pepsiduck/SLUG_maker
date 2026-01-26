@@ -149,6 +149,43 @@ int8_t SLUGmaker_ComboBoxPressed(SLUGmaker_ComboBox *combobox, bool tooltip)
     return 0;
 }
 
+//---list view
+int8_t SLUGmaker_ListViewLoad(Rectangle zone, char **options, uint16_t *nb, int scrollIndex, int active, int focus, SLUGmaker_ListView *listview)
+{
+    if(listview == NULL)
+        return -1;
+
+    listview->zone = zone;
+    printf("%f %f %f %f\n", listview->zone.x, listview->zone.y, listview->zone.width, listview->zone.height);
+    listview->options = (const char **) options;
+    listview->nb = nb;
+    listview->scrollIndex = scrollIndex;
+    listview->active = active;
+    listview->focus = focus;
+
+    return 0;
+}
+
+int8_t SLUGmaker_ListViewResize(float factor_x, float factor_y, SLUGmaker_ListView *listview)
+{
+    if(listview == NULL)
+        return -1;
+
+    RectangleMultiply(&(listview->zone),factor_x, factor_y);
+
+    return 0;
+}
+
+int8_t SLUGmaker_ListViewPressed(SLUGmaker_ListView *listview)
+{
+    if(listview == NULL)
+        return -1;
+    
+    GuiListViewEx(listview->zone, listview->options, *(listview->nb), &(listview->scrollIndex), &(listview->active), &(listview->focus));
+
+    return 0;
+}
+
 //! Menus
 SLUGmaker_Menu* SLUGmaker_MenuDevLoad(SLUGmaker_MenuType menu_type, Rectangle zone, size_t size)
 {
@@ -172,7 +209,7 @@ int8_t SLUGmaker_MenuResize(float factor_x, float factor_y, SLUGmaker_Menu *menu
 
 //!!The menus are ordred from bottom to top
 //!The order has to be the same on all arrays
-SLUGmaker_Menu* (*SLUGmaker_MenuDevLoadFunctions[MENU_NUMBER])(void) = {
+SLUGmaker_Menu* (*SLUGmaker_MenuDevLoadFunctions[MENU_NUMBER])(void *ptr) = {
     SLUGmaker_ActionModifMenuDevLoad,
     SLUGmaker_ModifMenuDevLoad,
     SLUGmaker_LogsMenuDevLoad,
@@ -218,7 +255,7 @@ int8_t (*SLUGmaker_MenuDisplayFunctions[MENU_NUMBER])(SLUGmaker_Menu *menu, void
 };
 
 //---toolbar
-SLUGmaker_Menu* SLUGmaker_ToolBarDevLoad()
+SLUGmaker_Menu* SLUGmaker_ToolBarDevLoad(void *ptr)
 {
     SLUGmaker_ToolBar *toolbar = (SLUGmaker_ToolBar *) SLUGmaker_MenuDevLoad(MENU_TOOLBAR, (Rectangle) {.x = 0, .y = 0, .width = GetScreenWidth(), .height = GetScreenHeight() * 0.03f}, sizeof(SLUGmaker_ToolBar));
     
@@ -312,7 +349,7 @@ int8_t SLUGmaker_ToolBarDisplay(SLUGmaker_Menu *menu, void *ptr)
 }
 
 //--- action buttons menu
-SLUGmaker_Menu* SLUGmaker_ActionButtonsMenuDevLoad()
+SLUGmaker_Menu* SLUGmaker_ActionButtonsMenuDevLoad(void *ptr)
 {
     Rectangle zone = (Rectangle) {
         .x = 0,
@@ -399,7 +436,7 @@ int8_t SLUGmaker_ActionButtonsMenuDisplay(SLUGmaker_Menu *menu, void *ptr)
 }
 
 //Info menu
-SLUGmaker_Menu* SLUGmaker_InfoMenuDevLoad()
+SLUGmaker_Menu* SLUGmaker_InfoMenuDevLoad(void *ptr)
 {
     
     Rectangle zone = (Rectangle) {
@@ -515,9 +552,9 @@ void SLUGmaker_InfoMenuPrintSprites(void *ptr, Rectangle bounds)
 //!Action Modif Menu
 
 //Sprite modif menu
-int8_t SLUGmaker_SpriteActionModifMenuLoad(Rectangle *parent_zone, SLUGmaker_SpriteActionModifMenu *sprite_menu)
+int8_t SLUGmaker_SpriteActionModifMenuLoad(Rectangle *parent_zone, void *ptr, SLUGmaker_SpriteActionModifMenu *sprite_menu)
 {
-    if(sprite_menu == NULL || parent_zone == NULL)
+    if(sprite_menu == NULL || parent_zone == NULL || ptr == NULL)
         return -1;
 
     SLUGmaker_ButtonLoad((Rectangle) {
@@ -529,6 +566,15 @@ int8_t SLUGmaker_SpriteActionModifMenuLoad(Rectangle *parent_zone, SLUGmaker_Spr
 
     SLUGmaker_ButtonSetText("Load a Sprite", &(sprite_menu->load_sprite_button));
 
+    SLUGmaker_map *map = (SLUGmaker_map *) ptr;
+
+    SLUGmaker_ListViewLoad((Rectangle) {
+        .x = parent_zone->x + parent_zone->width * 0.05f,
+        .y = sprite_menu->load_sprite_button.zone.y + sprite_menu->load_sprite_button.zone.height + 11,
+        .width = parent_zone->width * 0.9f,
+        .height = 200
+    },map->loaded_sprites_names, (uint16_t *) &(map->loaded_sprites_nb), 0, -1, -1, &(sprite_menu->sprite_list));
+
     return 0;
 }
 
@@ -538,6 +584,7 @@ int8_t SLUGmaker_SpriteActionModifMenuResize(float factor_x, float factor_y, SLU
         return -1;
 
     SLUGmaker_ButtonResize(factor_x, factor_y, &(sprite_menu->load_sprite_button));
+    SLUGmaker_ListViewResize(factor_x, factor_y, &(sprite_menu->sprite_list));
 
     return 0;
 }
@@ -548,6 +595,7 @@ int8_t SLUGmaker_SpriteActionModifMenuPressed(SLUGmaker_SpriteActionModifMenu *s
         return -1;
 
     SLUGmaker_ButtonPressed(&(sprite_menu->load_sprite_button), false);
+    SLUGmaker_ListViewPressed(&(sprite_menu->sprite_list));
 
     return 0;
 }
@@ -565,7 +613,7 @@ int8_t SLUGmaker_SpriteActionModifMenuDisplay(SLUGmaker_SpriteActionModifMenu *s
 }
 
 //Action modif menu proper
-SLUGmaker_Menu* SLUGmaker_ActionModifMenuDevLoad()
+SLUGmaker_Menu* SLUGmaker_ActionModifMenuDevLoad(void *ptr)
 {
 
     Rectangle zone = (Rectangle) {
@@ -584,7 +632,7 @@ SLUGmaker_Menu* SLUGmaker_ActionModifMenuDevLoad()
 		.height = action_modif_menu->m.zone.height - 22.0f,
     };
 
-    SLUGmaker_SpriteActionModifMenuLoad(&(action_modif_menu->m.zone), &(action_modif_menu->sprite_menu));
+    SLUGmaker_SpriteActionModifMenuLoad(&(action_modif_menu->m.zone), ptr, &(action_modif_menu->sprite_menu));
 
     return (SLUGmaker_Menu*) action_modif_menu;   
 }
@@ -651,7 +699,7 @@ int8_t SLUGmaker_ActionModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr)
 }
 
 //Modif Menu
-SLUGmaker_Menu* SLUGmaker_ModifMenuDevLoad()
+SLUGmaker_Menu* SLUGmaker_ModifMenuDevLoad(void *ptr)
 {
     Rectangle zone = (Rectangle) {
         .x = GetScreenWidth() * 0.2f,
@@ -757,7 +805,7 @@ int8_t SLUGmaker_FlushLogs()
     return 0;
 }
 
-SLUGmaker_Menu* SLUGmaker_LogsMenuDevLoad()
+SLUGmaker_Menu* SLUGmaker_LogsMenuDevLoad(void *ptr)
 {
     Rectangle zone = (Rectangle) {
         .x = GetScreenWidth() * 0.8f,
@@ -842,7 +890,6 @@ int8_t SLUGmaker_LogsMenuDisplay(SLUGmaker_Menu *menu, void *ptr)
         for(uint8_t i = 0; i < fmin(lines, counter); ++i)
         {
             strncpy(log_buffer + str_start, logs[u + i], MAX_LOG_STR);
-            //printf("%s", logs[u + i]);
             str_start += strlen(logs[u + i]);
         }
 
@@ -855,10 +902,10 @@ int8_t SLUGmaker_LogsMenuDisplay(SLUGmaker_Menu *menu, void *ptr)
 //general menu
 SLUGmaker_GeneralMenu general_menu;
 
-int8_t SLUGmaker_GeneralMenuDevLoad()
+int8_t SLUGmaker_GeneralMenuDevLoad(void *ptr)
 {
     for(uint8_t u = 0; u < MENU_NUMBER; ++u)
-        general_menu.menus[u] = SLUGmaker_MenuDevLoadFunctions[u]();
+        general_menu.menus[u] = SLUGmaker_MenuDevLoadFunctions[u](ptr);
 
     for(uint8_t u = 0; u < MAX_LOG; ++u)
         strncpy(logs[u], "\n", MAX_LOG_STR);

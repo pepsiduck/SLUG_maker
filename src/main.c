@@ -85,7 +85,6 @@ int8_t SLUGmaker_Resize(SLUGmaker_camera *cam)
 
 int main(int argc, char *argv[])
 {
-
     InitWindow(0, 0, "SLUGmaker");
     SetWindowState(FLAG_VSYNC_HINT|FLAG_WINDOW_RESIZABLE);
     
@@ -108,7 +107,6 @@ int main(int argc, char *argv[])
     InitAudioDevice();
 
     SLUGmaker_map *map = SLUGmaker_NewMap(3360, 2100);
-
     if(map == NULL)
     {
         printf("Map initialization fail.\n");
@@ -117,11 +115,12 @@ int main(int argc, char *argv[])
     
 	SLUGmaker_camera cam = SLUGmaker_DefaultCamera(map);
 	
-	if(SLUGmaker_GeneralMenuDevLoad() == -1)
+	if(SLUGmaker_GeneralMenuDevLoad((void *) map) == -1)
 	{
 		printf("Error while loading general menu");
 		return -1;
 	}
+
     SLUGmaker_ToolBar *toolbar = (SLUGmaker_ToolBar *) general_menu.menus[MENU_TOOLBAR];
 	
     HideCursor();

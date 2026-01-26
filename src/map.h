@@ -17,6 +17,7 @@
 #define MAX_WALLS_NB 8192 
 #define MAX_PLACED_SPRITES 1024
 #define MAX_SPRITES 128
+#define MAX_MAP_CHAR 256
 #define SPACE_SOLID -1
 #define SPACE_EMPTY -2
 
@@ -36,14 +37,14 @@ struct SLUGmaker_PlacableSprite
 typedef struct SLUGmaker_map SLUGmaker_map;
 struct SLUGmaker_map
 {
-	char map_name[256];
-	char map_path[256];
+	char map_name[MAX_MAP_CHAR];
+	char map_path[MAX_MAP_CHAR];
 
     Rectangle zone;
     
     Texture2D loaded_sprites[MAX_SPRITES];
     uint16_t loaded_sprites_nb;
-    char loaded_sprites_names[MAX_SPRITES][256];
+    char *loaded_sprites_names[MAX_SPRITES];
     SLUGmaker_PlacableSprite map_sprites[MAX_PLACED_SPRITES];
     int16_t sprite_nb;
     int16_t selected_sprite;
