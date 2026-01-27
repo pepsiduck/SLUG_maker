@@ -501,43 +501,97 @@ int8_t SLUGmaker_SpriteMode(SLUGmaker_map *map, SLUGmaker_camera *cam)
 		
 	SLUGmaker_ActionModifMenu *action_modif_menu = (SLUGmaker_ActionModifMenu *) general_menu.menus[MENU_ACTION_MODIF];
 	if(action_modif_menu->sprite_menu.load_sprite_button.pressed)
-	{
-		if(map->loaded_sprites_nb >= MAX_SPRITES)
-			SLUGmaker_WriteLog("Too many loaded sprites. Make Room.\n");
-		else
-		{
-			char const * lFilterPatterns[2]={"*.png","*.jpg"};
-			char *FileName = tinyfd_openFileDialog("Select a sprite",NULL,2,lFilterPatterns,"image files",0);
-			if(FileName != NULL)
-			{
-				char *buf = FileName + strlen(FileName);
-				while(*buf != '/') 
-					buf--;
-				buf++;
-			
-				SLUGmaker_WriteLog("Loading %s\n", buf);
-				
-				if(strlen(buf) > 255)
-				{
-					SLUGmaker_WriteLog("Filename exceeded %d character limit\n", 256);
-					return 0;
-				}
-				
-				map->loaded_sprites[map->loaded_sprites_nb] = LoadTexture(FileName);
-				if(map->loaded_sprites[map->loaded_sprites_nb].id <= 0)
-				{
-					SLUGmaker_WriteLog("Failed to load sprite");
-					return 0;
-				}
-				
-				snprintf(map->loaded_sprites_names[map->loaded_sprites_nb], MAX_MAP_CHAR, "%s", buf);
-				
-				SLUGmaker_WriteLog("Succesfully loaded %s\n", map->loaded_sprites_names[map->loaded_sprites_nb]);
-				
-				map->loaded_sprites_nb++;
-			}
-		}
-	}
+	    SLUGmaker_LoadSprite(map,cam);
+    else if(action_modif_menu->sprite_menu.delete_sprite_button.pressed)
+	    SLUGmaker_UnLoadSprite(map,cam);
+    else if(action_modif_menu->sprite_menu.place_sprite_button.pressed)
+	    SLUGmaker_PlaceSprite(map,cam);
 
 	return 0;
+}
+
+int8_t SLUGmaker_LoadSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
+{
+    if(map == NULL || cam == NULL)
+		return -1;
+
+    if(map->loaded_sprites_nb >= MAX_SPRITES)
+	    SLUGmaker_WriteLog("Too many loaded sprites. Make Room.\n");
+	else
+	{
+		char const * lFilterPatterns[2]={"*.png","*.jpg"};
+		char *FileName = tinyfd_openFileDialog("Select a sprite",NULL,2,lFilterPatterns,"image files",0);
+		if(FileName != NULL)
+		{
+			char *buf = FileName + strlen(FileName);
+			while(*buf != '/') 
+				buf--;
+			buf++;
+			
+			SLUGmaker_WriteLog("Loading %s\n", buf);
+				
+			if(strlen(buf) > 255)
+			{
+				SLUGmaker_WriteLog("Filename exceeded %d character limit\n", 256);
+				return 0;
+			}
+				
+			map->loaded_sprites[map->loaded_sprites_nb] = LoadTexture(FileName);
+			if(map->loaded_sprites[map->loaded_sprites_nb].id <= 0)
+			{
+				SLUGmaker_WriteLog("Failed to load sprite");
+				return 0;
+			}
+				
+			snprintf(map->loaded_sprites_names[map->loaded_sprites_nb], MAX_MAP_CHAR, "%s", buf);
+				
+			SLUGmaker_WriteLog("Succesfully loaded %s\n", map->loaded_sprites_names[map->loaded_sprites_nb]);
+				
+			map->loaded_sprites_nb++;
+		}
+	}
+    
+    return 0;
+}
+
+int8_t SLUGmaker_UnLoadSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
+{
+    if(map == NULL || cam == NULL)
+		return -1;
+
+    SLUGmaker_ActionModifMenu *action_modif_menu = (SLUGmaker_ActionModifMenu *) general_menu.menus[MENU_ACTION_MODIF];
+
+    //sanity checks
+    if(action_modif_menu->sprite_menu.sprite_list.active < 0 || action_modif_menu->sprite_menu.sprite_list.active >= map->loaded_sprites_nb)
+        return -1;
+
+    //unload sprite
+    if(map->loaded_sprites[action_modif_menu->sprite_menu.sprite_list.active].id > 0)
+        UnloadTexture(map->loaded_sprites[action_modif_menu->sprite_menu.sprite_list.active]);
+
+    //update map loaded sprites list
+    for(uint16_t i = (uint16_t) action_modif_menu->sprite_menu.sprite_list.active; i < map->loaded_sprites_nb - 1; ++i)
+    {
+        map->loaded_sprites[i] = map->loaded_sprites[i + 1];
+        snprintf(map->loaded_sprites_names[i], MAX_MAP_CHAR, "%s", map->loaded_sprites_names[i + 1]);
+    }
+
+    map->loaded_sprites_nb--;
+    //active proprety edge cases
+    if(action_modif_menu->sprite_menu.sprite_list.active >= map->loaded_sprites_nb)
+        action_modif_menu->sprite_menu.sprite_list.active = (int) map->loaded_sprites_nb - 1;
+
+    SLUGmaker_WriteLog("Succesfully unloaded sprite");
+    
+    return 0;
+}
+
+int8_t SLUGmaker_PlaceSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
+{
+    if(map == NULL || cam == NULL)
+		return -1;
+
+    SLUGmaker_WriteLog("Jaaj\n");
+    
+    return 0;
 }

@@ -598,7 +598,7 @@ int8_t SLUGmaker_SpriteActionModifMenuLoad(Rectangle *parent_zone, void *ptr, SL
         .height = 30
     }, 0, false, &(sprite_menu->delete_sprite_button));
 
-    SLUGmaker_ButtonSetText("Delete Sprite", &(sprite_menu->delete_sprite_button));
+    SLUGmaker_ButtonSetText("Delete Sprite from list", &(sprite_menu->delete_sprite_button));
 
     return 0;
 }

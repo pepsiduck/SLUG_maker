@@ -61,5 +61,8 @@ int8_t SLUGmaker_PlayerSpawnPointMove(SLUGmaker_map *map, SLUGmaker_camera *cam)
 
 //sprites
 int8_t SLUGmaker_SpriteMode(SLUGmaker_map *map, SLUGmaker_camera *cam);
+int8_t SLUGmaker_LoadSprite(SLUGmaker_map *map, SLUGmaker_camera *cam);
+int8_t SLUGmaker_UnLoadSprite(SLUGmaker_map *map, SLUGmaker_camera *cam);
+int8_t SLUGmaker_PlaceSprite(SLUGmaker_map *map, SLUGmaker_camera *cam);
 
 #endif
