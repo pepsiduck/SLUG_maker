@@ -38,7 +38,7 @@ int8_t SLUGmaker_GraphicInit()
         return -1;
     }
 
-    graphic_vars.missing_texture = LoadTexture("assets/sprites/missing.png");
+    graphic_vars.missing_texture = LoadTexture("assets/sprites/missing.jpg");
     if(graphic_vars.missing_texture.id <= 0)
     {
         printf("Error while loading missing texture sprite.\n");

@@ -65,6 +65,8 @@ int8_t SLUGmaker_SpriteNodeUnderMouse(SLUGmaker_map *map, SLUGmaker_camera *cam)
 int8_t SLUGmaker_SpriteMode(SLUGmaker_map *map, SLUGmaker_camera *cam);
 int8_t SLUGmaker_LoadSprite(SLUGmaker_map *map, SLUGmaker_camera *cam);
 int8_t SLUGmaker_UnLoadSprite(SLUGmaker_map *map, SLUGmaker_camera *cam);
+int8_t SLUGmaker_MoveSprite(SLUGmaker_map *map, SLUGmaker_camera *cam);
 int8_t SLUGmaker_PlaceSprite(SLUGmaker_map *map, SLUGmaker_camera *cam);
+int8_t SLUGmaker_SpriteModeQuit(SLUGmaker_map *map);
 
 #endif

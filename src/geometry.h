@@ -34,5 +34,6 @@ float Vector2CrossProductV(Vector2 A, Vector2 B);
 int32_t Vector2CrossProductInt(int32_t ax, int32_t ay, int32_t bx, int32_t by);
 int8_t RectangleMultiply(Rectangle *rect, float factor_x, float factor_y);
 int8_t RectangleEqual(Rectangle *rect1, Rectangle *rect2);
+Vector2 NearestPointOnRect(Vector2 point, Rectangle rect);
 
 #endif

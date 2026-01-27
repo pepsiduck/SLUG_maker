@@ -111,6 +111,7 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     }
     map->sprite_nb = 0;
     map->selected_sprite = -1;
+    map->sprite_move_mode = -1;
     
     //wall init
     for(int16_t i = 0; i < MAX_WALLS_NB; ++ i)

@@ -48,6 +48,7 @@ struct SLUGmaker_map
     SLUGmaker_PlacableSprite map_sprites[MAX_PLACED_SPRITES];
     int16_t sprite_nb;
     int16_t selected_sprite;
+    int8_t sprite_move_mode;
     
     SLUGmaker_SegmentExtended walls[MAX_WALLS_NB];
     int16_t current_wall_index;

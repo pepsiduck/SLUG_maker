@@ -156,7 +156,6 @@ int8_t SLUGmaker_ListViewLoad(Rectangle zone, char **options, int16_t *nb, int s
         return -1;
 
     listview->zone = zone;
-    printf("%f %f %f %f\n", listview->zone.x, listview->zone.y, listview->zone.width, listview->zone.height);
     listview->options = (const char **) options;
     listview->nb = nb;
     listview->scrollIndex = scrollIndex;

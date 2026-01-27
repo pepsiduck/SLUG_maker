@@ -169,3 +169,14 @@ int8_t RectangleEqual(Rectangle *rect1, Rectangle *rect2)
 
     return (rect1->x == rect2->x && rect1->y == rect2->y && rect1->width == rect2->width && rect1->height == rect2->height); 
 }
+
+Vector2 NearestPointOnRect(Vector2 point, Rectangle rect)
+{
+    if(CheckCollisionPointRec(point, rect))
+        return point;
+    
+    return (Vector2) {
+        .x = fmin(fmax(point.x, rect.x), rect.x + rect.width),
+        .y = fmin(fmax(point.y, rect.y), rect.y + rect.height)
+    };
+}

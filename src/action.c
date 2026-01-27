@@ -99,6 +99,9 @@ int8_t SLUGmaker_ChangeActionMode(SLUGmaker_map *map)
             case ACTION_MODE_WALL:
                 SLUGmaker_WallModeQuit(map);
                 break;
+            case ACTION_MODE_SPRITE:
+                SLUGmaker_SpriteModeQuit(map);
+                break;
             default:
                 break;
         }
@@ -544,12 +547,12 @@ int8_t SLUGmaker_SpriteNodeUnderMouse(SLUGmaker_map *map, SLUGmaker_camera *cam)
                 float x = cam->display->x + (node_point.x - cam->view_zone.x) * cam->ratiox;
                 float y = cam->display->y + (node_point.y - cam->view_zone.y) * cam->ratioy;
                 if((GetMouseX() >= x - graphic_vars.sprite_node_sprite.width / 2) && (GetMouseX() <= x + graphic_vars.sprite_node_sprite.width / 2) && (GetMouseY() >= y - graphic_vars.sprite_node_sprite.height / 2) && (GetMouseY() < y + graphic_vars.sprite_node_sprite.height / 2))
-                    return j + 3*i;
+                    return 1 + j + 3*i;
             }
         }
     }
 
-    return -1;
+    return 0;
 }
 
 int8_t SLUGmaker_SpriteMode(SLUGmaker_map *map, SLUGmaker_camera *cam)
@@ -566,10 +569,17 @@ int8_t SLUGmaker_SpriteMode(SLUGmaker_map *map, SLUGmaker_camera *cam)
 	    SLUGmaker_PlaceSprite(map,cam);
     else if(CheckCollisionPointRec(GetMousePosition(), *(cam->display)))
     {
-        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && map->selected_sprite != -1)
         {
-            map->selected_sprite = SLUGmaker_SpriteUnderMouse(map, cam);
+            if(map->sprite_move_mode == -1)
+                map->sprite_move_mode = SLUGmaker_SpriteNodeUnderMouse(map,cam);
+            if(map->sprite_move_mode > 0)
+                return SLUGmaker_MoveSprite(map,cam);
         }
+        else
+            map->sprite_move_mode = -1;
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            map->selected_sprite = SLUGmaker_SpriteUnderMouse(map, cam);
     }
 
 	return 0;
@@ -660,6 +670,47 @@ int8_t SLUGmaker_UnLoadSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
     return 0;
 }
 
+int8_t SLUGmaker_MoveSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
+{
+    if(map == NULL || cam == NULL)
+		return -1;
+
+    if(map->selected_sprite == -1 || map->sprite_move_mode == -1)
+        return -1;
+
+    Vector2 mouse_pos = GetMousePosition();
+    mouse_pos = (Vector2) {
+        .x = cam->view_zone.x + cam->view_zone.width * ((mouse_pos.x - cam->display->x) / cam->display->width),
+        .y = cam->view_zone.y + cam->view_zone.height * ((mouse_pos.y - cam->display->y) / cam->display->height)
+    };  
+
+    switch(map->sprite_move_mode)
+    {
+        case 5:
+            Rectangle boundaries = (Rectangle) {
+                .x = 0,
+                .y = 0,
+                .width = map->zone.width - map->map_sprites[map->selected_sprite].zone.width,
+                .height = map->zone.height - map->map_sprites[map->selected_sprite].zone.height
+            };
+
+            Vector2 new_pos = (Vector2) {
+                .x = mouse_pos.x - map->map_sprites[map->selected_sprite].zone.width / 2.0f,
+                .y = mouse_pos.y - map->map_sprites[map->selected_sprite].zone.height / 2.0f
+            };
+
+            new_pos = NearestPointOnRect(new_pos, boundaries);
+
+            map->map_sprites[map->selected_sprite].zone.x = new_pos.x;
+            map->map_sprites[map->selected_sprite].zone.y = new_pos.y;
+            break;
+        default :
+            break;
+    }  
+
+    return 0;
+}
+
 int8_t SLUGmaker_PlaceSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
 {
     if(map == NULL || cam == NULL)
@@ -693,5 +744,16 @@ int8_t SLUGmaker_PlaceSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
 
     map->sprite_nb++;
     
+    return 0;
+}
+
+int8_t SLUGmaker_SpriteModeQuit(SLUGmaker_map *map)
+{
+    if(map == NULL)
+        return -1;
+
+    map->sprite_move_mode = -1;
+    map->selected_sprite = -1;
+
     return 0;
 }
