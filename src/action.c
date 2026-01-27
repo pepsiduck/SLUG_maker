@@ -64,6 +64,8 @@ int8_t SLUGmaker_CameraUpdate(SLUGmaker_camera *cam, bool window_changed)
         
         if(zoom || window_changed)
         {
+            cam->view_zone.x -= (graphic_vars.screen_w * cam->unzoom - cam->view_zone.width) / 2.0f;
+            cam->view_zone.y -= (graphic_vars.screen_h * cam->unzoom - cam->view_zone.height) / 2.0f;
         	cam->view_zone.width = graphic_vars.screen_w * cam->unzoom;
 		    cam->view_zone.height = graphic_vars.screen_h * cam->unzoom;
 		    cam->ratiox = cam->display->width / cam->view_zone.width;
@@ -684,17 +686,58 @@ int8_t SLUGmaker_MoveSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
         .y = cam->view_zone.y + cam->view_zone.height * ((mouse_pos.y - cam->display->y) / cam->display->height)
     };  
 
+    Rectangle boundaries;
+    Vector2 new_pos;
+
     switch(map->sprite_move_mode)
     {
+        case 1:
+            boundaries = (Rectangle) {
+                .x = 0,
+                .y = 0,
+                .width = map->map_sprites[map->selected_sprite].zone.x + map->map_sprites[map->selected_sprite].zone.width - 1,
+                .height = map->map_sprites[map->selected_sprite].zone.y + map->map_sprites[map->selected_sprite].zone.height - 1
+            };
+
+            new_pos = NearestPointOnRect(mouse_pos, boundaries);
+
+            map->map_sprites[map->selected_sprite].zone.width = map->map_sprites[map->selected_sprite].zone.x + map->map_sprites[map->selected_sprite].zone.width - new_pos.x;
+            map->map_sprites[map->selected_sprite].zone.x = new_pos.x;
+            map->map_sprites[map->selected_sprite].zone.height = map->map_sprites[map->selected_sprite].zone.y + map->map_sprites[map->selected_sprite].zone.height - new_pos.y;
+            map->map_sprites[map->selected_sprite].zone.y = new_pos.y;
+        case 2:
+            float new_top = fmax(fmin(mouse_pos.y, map->map_sprites[map->selected_sprite].zone.y + map->map_sprites[map->selected_sprite].zone.height - 1), 0);
+            map->map_sprites[map->selected_sprite].zone.height = map->map_sprites[map->selected_sprite].zone.y + map->map_sprites[map->selected_sprite].zone.height - new_top;
+            map->map_sprites[map->selected_sprite].zone.y = new_top;                        
+            break;
+        case 3 :
+            boundaries = (Rectangle) {
+                .x = map->map_sprites[map->selected_sprite].zone.x + 1,
+                .y = 0,
+                .width = map->zone.width - map->map_sprites[map->selected_sprite].zone.x - 1,
+                .height = map->map_sprites[map->selected_sprite].zone.y + map->map_sprites[map->selected_sprite].zone.height - 1
+            };
+
+            new_pos = NearestPointOnRect(mouse_pos, boundaries);
+
+            map->map_sprites[map->selected_sprite].zone.width = new_pos.x - map->map_sprites[map->selected_sprite].zone.x;
+            map->map_sprites[map->selected_sprite].zone.height = map->map_sprites[map->selected_sprite].zone.y + map->map_sprites[map->selected_sprite].zone.height - new_pos.y;
+            map->map_sprites[map->selected_sprite].zone.y = new_pos.y;
+            break;
+        case 4:
+            float new_left = fmax(fmin(mouse_pos.x, map->map_sprites[map->selected_sprite].zone.x + map->map_sprites[map->selected_sprite].zone.width - 1), 0);
+            map->map_sprites[map->selected_sprite].zone.width = map->map_sprites[map->selected_sprite].zone.x + map->map_sprites[map->selected_sprite].zone.width - new_left;
+            map->map_sprites[map->selected_sprite].zone.x = new_left;
+            break;
         case 5:
-            Rectangle boundaries = (Rectangle) {
+            boundaries = (Rectangle) {
                 .x = 0,
                 .y = 0,
                 .width = map->zone.width - map->map_sprites[map->selected_sprite].zone.width,
                 .height = map->zone.height - map->map_sprites[map->selected_sprite].zone.height
             };
 
-            Vector2 new_pos = (Vector2) {
+            new_pos = (Vector2) {
                 .x = mouse_pos.x - map->map_sprites[map->selected_sprite].zone.width / 2.0f,
                 .y = mouse_pos.y - map->map_sprites[map->selected_sprite].zone.height / 2.0f
             };
@@ -703,6 +746,42 @@ int8_t SLUGmaker_MoveSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
 
             map->map_sprites[map->selected_sprite].zone.x = new_pos.x;
             map->map_sprites[map->selected_sprite].zone.y = new_pos.y;
+            break;
+        case 6:
+            float new_right = fmax(fmin(mouse_pos.x, map->zone.width), map->map_sprites[map->selected_sprite].zone.x + 1);
+            map->map_sprites[map->selected_sprite].zone.width = new_right - map->map_sprites[map->selected_sprite].zone.x;                     
+            break;
+        case 7:
+            boundaries = (Rectangle) {
+                .x = 0,
+                .y = map->map_sprites[map->selected_sprite].zone.y + 1,
+                .width = map->map_sprites[map->selected_sprite].zone.x + map->map_sprites[map->selected_sprite].zone.width - 1,
+                .height = map->zone.height - map->map_sprites[map->selected_sprite].zone.y - 1
+            };
+
+            new_pos = NearestPointOnRect(mouse_pos, boundaries);
+
+            map->map_sprites[map->selected_sprite].zone.width = map->map_sprites[map->selected_sprite].zone.x + map->map_sprites[map->selected_sprite].zone.width - new_pos.x;
+            map->map_sprites[map->selected_sprite].zone.x = new_pos.x;
+            map->map_sprites[map->selected_sprite].zone.height = new_pos.y - map->map_sprites[map->selected_sprite].zone.y;
+            break;
+        case 8:
+            float new_bottom = fmax(fmin(mouse_pos.y, map->zone.height), map->map_sprites[map->selected_sprite].zone.y + 1);
+            map->map_sprites[map->selected_sprite].zone.height = new_bottom - map->map_sprites[map->selected_sprite].zone.y;                     
+            break;
+        case 9:
+            boundaries = (Rectangle) {
+                .x = map->map_sprites[map->selected_sprite].zone.x + 1,
+                .y = map->map_sprites[map->selected_sprite].zone.y + 1,
+                .width = map->zone.width - map->map_sprites[map->selected_sprite].zone.x - 1,
+                .height = map->zone.height - map->map_sprites[map->selected_sprite].zone.y - 1
+            };
+
+            new_pos = NearestPointOnRect(mouse_pos, boundaries);
+
+            map->map_sprites[map->selected_sprite].zone.width = new_pos.x - map->map_sprites[map->selected_sprite].zone.x;
+            map->map_sprites[map->selected_sprite].zone.height = new_pos.y - map->map_sprites[map->selected_sprite].zone.y;
+
             break;
         default :
             break;
