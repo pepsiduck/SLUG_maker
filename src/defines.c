@@ -31,6 +31,12 @@ int8_t SLUGmaker_GraphicInit()
         printf("Error while loading wall node sprite.\n");
         return -1;
     }
+    graphic_vars.missing_texture = LoadTexture("assets/sprites/missing.png");
+    if(graphic_vars.missing_texture.id <= 0)
+    {
+        printf("Error while loading missing texture sprite.\n");
+        return -1;
+    }
     
     graphic_vars.style = 0;
     
@@ -45,5 +51,7 @@ int8_t SLUGmaker_GraphicUnload()
         UnloadTexture(graphic_vars.wall_node_sprite);
     if(graphic_vars.player_spawn_point_sprite.id > 0)
         UnloadTexture(graphic_vars.player_spawn_point_sprite);
+    if(graphic_vars.missing_texture.id > 0)
+        UnloadTexture(graphic_vars.missing_texture);
     return 0;
 }

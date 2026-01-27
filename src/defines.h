@@ -16,6 +16,7 @@ struct SLUGmaker_GraphicVariables
     Texture2D mouse_cursor_sprite; 
     Texture2D wall_node_sprite;
     Texture2D player_spawn_point_sprite;
+    Texture2D missing_texture;
     
     int32_t style;
     

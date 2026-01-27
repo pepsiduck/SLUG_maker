@@ -24,42 +24,44 @@ int8_t SLUGmaker_DisplaySprite(SLUGmaker_camera *cam, int16_t index)
         return -1;
     }
 
-    if(cam->map->loaded_sprites[cam->map->map_sprites[index].sprite_index].id <= 0)
+    if(CheckCollisionRecs(cam->view_zone, cam->map->map_sprites[index].zone))
     {
-        printf("Trying to display a sprite that doesn't exist");
-        return -1;
-    }
 
-    Rectangle d1 = GetCollisionRec(cam->view_zone, cam->map->map_sprites[index].zone);
-    float w = (float) cam->map->loaded_sprites[cam->map->map_sprites[index].sprite_index].width;
-    float h = (float) cam->map->loaded_sprites[cam->map->map_sprites[index].sprite_index].height;
+        Texture2D *img_buf;
+        if(cam->map->map_sprites[index].sprite_index == -1) 
+            img_buf = &(graphic_vars.missing_texture);
+        else
+            img_buf = &(cam->map->loaded_sprites[cam->map->map_sprites[index].sprite_index]);
 
-    if(d1.x == cam->view_zone.x && d1.y == cam->view_zone.y && d1.width == cam->view_zone.width && d1.height == cam->view_zone.height)
-    {
-        Rectangle d2 = (Rectangle) {
-            .x = ((cam->map->map_sprites[index].zone.x - d1.x) * w)/cam->map->map_sprites[index].zone.width,
-            .y = ((cam->map->map_sprites[index].zone.y - d1.y) * h)/cam->map->map_sprites[index].zone.height,
-            .width = (d1.width * w)/cam->map->map_sprites[index].zone.width,
-            .height = (d1.height * h)/cam->map->map_sprites[index].zone.height
-        };
-        DrawTexturePro(cam->map->loaded_sprites[cam->map->map_sprites[index].sprite_index], d2,*(cam->display), (Vector2) {.x = 0, .y = 0}, 0, WHITE);  
-    }
-    else
-    {
-        Rectangle src = (Rectangle) {
-            .x = 0.0,
-            .y = 0.0,
-            .width = w,
-            .height = h
-        };
+        Rectangle visible_rect = GetCollisionRec(cam->view_zone, cam->map->map_sprites[index].zone);
+
+        float w = cam->map->map_sprites[index].sprite_index != -1 ? (float) cam->map->loaded_sprites[cam->map->map_sprites[index].sprite_index].width : (float) graphic_vars.missing_texture.width;
+        float h = cam->map->map_sprites[index].sprite_index != -1 ? (float) cam->map->loaded_sprites[cam->map->map_sprites[index].sprite_index].height : (float) graphic_vars.missing_texture.height;
+
         Rectangle dest = (Rectangle) {
-            .x = cam->display->x + (d1.x - cam->view_zone.x) * cam->ratiox,
-            .y = cam->display->y + (d1.y - cam->view_zone.y) * cam->ratioy,
-            .width = d1.width * cam->ratiox,
-            .height = d1.height * cam->ratioy
+            .x = cam->display->x + (visible_rect.x - cam->view_zone.x) * cam->ratiox,
+            .y = cam->display->y + (visible_rect.y - cam->view_zone.y) * cam->ratioy,
+            .width = visible_rect.width * cam->ratiox,
+            .height = visible_rect.height * cam->ratioy
         };
-        DrawTexturePro(cam->map->loaded_sprites[cam->map->map_sprites[index].sprite_index],src,dest,(Vector2) {.x = 0, .y = 0},0,WHITE);
-    }  
+
+        Rectangle src = RectangleEqual(&visible_rect, &(cam->map->map_sprites[index].zone)) == 0 ?
+            (Rectangle) {
+                .x = ((visible_rect.x - cam->map->map_sprites[index].zone.x) * w)/cam->map->map_sprites[index].zone.width,
+                .y = ((visible_rect.y - cam->map->map_sprites[index].zone.y) * h)/cam->map->map_sprites[index].zone.height,
+                .width = ((float) visible_rect.width * w)/cam->map->map_sprites[index].zone.width,
+                .height = ((float) visible_rect.height * h)/cam->map->map_sprites[index].zone.height
+            } :
+            (Rectangle) {
+                .x = 0.0,
+                .y = 0.0,
+                .width = w,
+                .height = h
+            };
+
+        DrawTexturePro(*img_buf, src, dest, (Vector2) {.x = 0, .y = 0}, 0, WHITE);
+
+    }
 
     return 0;
 }

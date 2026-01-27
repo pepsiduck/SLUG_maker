@@ -150,7 +150,7 @@ int8_t SLUGmaker_ComboBoxPressed(SLUGmaker_ComboBox *combobox, bool tooltip)
 }
 
 //---list view
-int8_t SLUGmaker_ListViewLoad(Rectangle zone, char **options, uint16_t *nb, int scrollIndex, int active, int focus, SLUGmaker_ListView *listview)
+int8_t SLUGmaker_ListViewLoad(Rectangle zone, char **options, int16_t *nb, int scrollIndex, int active, int focus, SLUGmaker_ListView *listview)
 {
     if(listview == NULL)
         return -1;
@@ -573,7 +573,7 @@ int8_t SLUGmaker_SpriteActionModifMenuLoad(Rectangle *parent_zone, void *ptr, SL
         .y = sprite_menu->load_sprite_button.zone.y + sprite_menu->load_sprite_button.zone.height + 11,
         .width = parent_zone->width * 0.9f,
         .height = 215
-    },map->loaded_sprites_names, (uint16_t *) &(map->loaded_sprites_nb), 0, -1, -1, &(sprite_menu->sprite_list));
+    },map->loaded_sprites_names, (int16_t *) &(map->loaded_sprites_nb), 0, -1, -1, &(sprite_menu->sprite_list));
 
     sprite_menu->sprite_display = (Rectangle) {
         .x = parent_zone->x + parent_zone->width * 0.05f,

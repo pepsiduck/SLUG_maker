@@ -234,7 +234,7 @@ SLUGmaker_map* SLUGmaker_LoadMap(const char *map_dir)
     }
     char line[MAX_MAP_CHAR];
     char sprite_name[271 + len];
-    uint16_t counter = 0;
+    int16_t counter = 0;
     while(counter < MAX_SPRITES && fgets(line, sizeof(line), sprite_file))
     {   
         if(line[strlen(line) - 1] == '\n')

@@ -61,13 +61,13 @@ struct SLUGmaker_ListView
 {
     Rectangle zone;
     const char **options;
-    uint16_t *nb;
+    int16_t *nb;
     int scrollIndex;
     int active;
     int focus;
 };
 
-int8_t SLUGmaker_ListViewLoad(Rectangle zone, char **options, uint16_t *nb, int scrollIndex, int active, int focus, SLUGmaker_ListView *listview);
+int8_t SLUGmaker_ListViewLoad(Rectangle zone, char **options, int16_t *nb, int scrollIndex, int active, int focus, SLUGmaker_ListView *listview);
 int8_t SLUGmaker_ListViewResize(float factor_x, float factor_y, SLUGmaker_ListView *listview);
 int8_t SLUGmaker_ListViewPressed(SLUGmaker_ListView *listview);
 

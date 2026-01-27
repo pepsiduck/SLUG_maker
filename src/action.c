@@ -576,6 +576,15 @@ int8_t SLUGmaker_UnLoadSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
         snprintf(map->loaded_sprites_names[i], MAX_MAP_CHAR, "%s", map->loaded_sprites_names[i + 1]);
     }
 
+    //update sprites indexeses
+    for(int16_t j = 0; j < map->sprite_nb; ++j)
+    {
+        if(map->map_sprites[j].sprite_index == action_modif_menu->sprite_menu.sprite_list.active)
+            map->map_sprites[j].sprite_index = -1;
+        else if(map->map_sprites[j].sprite_index > action_modif_menu->sprite_menu.sprite_list.active)
+            map->map_sprites[j].sprite_index--;
+    }
+
     map->loaded_sprites_nb--;
     //active proprety edge cases
     if(action_modif_menu->sprite_menu.sprite_list.active >= map->loaded_sprites_nb)
@@ -591,7 +600,33 @@ int8_t SLUGmaker_PlaceSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
     if(map == NULL || cam == NULL)
 		return -1;
 
-    SLUGmaker_WriteLog("Jaaj\n");
+    if(map->sprite_nb >= MAX_PLACED_SPRITES)
+    {
+        SLUGmaker_WriteLog("Sprite limit reached");
+        return 0;
+    }
+
+    SLUGmaker_ActionModifMenu *action_modif_menu = (SLUGmaker_ActionModifMenu *) general_menu.menus[MENU_ACTION_MODIF];
+
+    //sanity checks
+    if(action_modif_menu->sprite_menu.sprite_list.active < 0 || action_modif_menu->sprite_menu.sprite_list.active >= map->loaded_sprites_nb)
+        return -1;
+
+    Rectangle placement = (Rectangle) {
+        .x = cam->view_zone.x + (cam->view_zone.width/2.0f) - (((float) map->loaded_sprites[action_modif_menu->sprite_menu.sprite_list.active].width) / 2.0f),
+        .y = cam->view_zone.y + (cam->view_zone.height/2.0f) - (((float) map->loaded_sprites[action_modif_menu->sprite_menu.sprite_list.active].height) / 2.0f),
+        .width = (float) map->loaded_sprites[action_modif_menu->sprite_menu.sprite_list.active].width,
+        .height = (float) map->loaded_sprites[action_modif_menu->sprite_menu.sprite_list.active].height
+    };
+
+    placement = GetCollisionRec(placement, map->zone);
+
+    map->map_sprites[map->sprite_nb] = (SLUGmaker_PlacableSprite) {
+        .sprite_index = action_modif_menu->sprite_menu.sprite_list.active,
+        .zone = placement
+    };
+
+    map->sprite_nb++;
     
     return 0;
 }

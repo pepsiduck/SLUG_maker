@@ -161,3 +161,11 @@ int8_t RectangleMultiply(Rectangle *rect, float factor_x, float factor_y)
 		
 	return 0;
 }
+
+int8_t RectangleEqual(Rectangle *rect1, Rectangle *rect2)
+{
+    if(rect1 == NULL || rect2 == NULL)
+        return -1;
+
+    return (rect1->x == rect2->x && rect1->y == rect2->y && rect1->width == rect2->width && rect1->height == rect2->height); 
+}

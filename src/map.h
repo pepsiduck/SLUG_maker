@@ -24,7 +24,7 @@
 typedef struct SLUGmaker_PlacableSprite SLUGmaker_PlacableSprite; //same as in SLUG
 struct SLUGmaker_PlacableSprite
 {
-	uint16_t sprite_index;
+	int16_t sprite_index;
 	Rectangle zone;
 };
 
@@ -43,7 +43,7 @@ struct SLUGmaker_map
     Rectangle zone;
     
     Texture2D loaded_sprites[MAX_SPRITES];
-    uint16_t loaded_sprites_nb;
+    int16_t loaded_sprites_nb;
     char *loaded_sprites_names[MAX_SPRITES];
     SLUGmaker_PlacableSprite map_sprites[MAX_PLACED_SPRITES];
     int16_t sprite_nb;
