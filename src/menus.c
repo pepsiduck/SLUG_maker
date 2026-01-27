@@ -572,15 +572,33 @@ int8_t SLUGmaker_SpriteActionModifMenuLoad(Rectangle *parent_zone, void *ptr, SL
         .x = parent_zone->x + parent_zone->width * 0.05f,
         .y = sprite_menu->load_sprite_button.zone.y + sprite_menu->load_sprite_button.zone.height + 11,
         .width = parent_zone->width * 0.9f,
-        .height = 200
+        .height = 215
     },map->loaded_sprites_names, (uint16_t *) &(map->loaded_sprites_nb), 0, -1, -1, &(sprite_menu->sprite_list));
 
     sprite_menu->sprite_display = (Rectangle) {
         .x = parent_zone->x + parent_zone->width * 0.05f,
         .y = sprite_menu->sprite_list.zone.y + sprite_menu->sprite_list.zone.height + 11,
         .width = parent_zone->width * 0.9f,
-        .height = 200
+        .height = 215
     };
+
+    SLUGmaker_ButtonLoad((Rectangle) {
+        .x = parent_zone->x + parent_zone->width * 0.05f,
+        .y = sprite_menu->sprite_display.y + sprite_menu->sprite_display.height + 11,
+        .width = parent_zone->width * 0.9f,
+        .height = 30
+    }, 0, false, &(sprite_menu->place_sprite_button));
+
+    SLUGmaker_ButtonSetText("Place Sprite", &(sprite_menu->place_sprite_button));
+
+    SLUGmaker_ButtonLoad((Rectangle) {
+        .x = parent_zone->x + parent_zone->width * 0.05f,
+        .y = sprite_menu->place_sprite_button.zone.y + sprite_menu->place_sprite_button.zone.height + 11,
+        .width = parent_zone->width * 0.9f,
+        .height = 30
+    }, 0, false, &(sprite_menu->delete_sprite_button));
+
+    SLUGmaker_ButtonSetText("Delete Sprite", &(sprite_menu->delete_sprite_button));
 
     return 0;
 }
@@ -593,6 +611,8 @@ int8_t SLUGmaker_SpriteActionModifMenuResize(float factor_x, float factor_y, SLU
     SLUGmaker_ButtonResize(factor_x, factor_y, &(sprite_menu->load_sprite_button));
     SLUGmaker_ListViewResize(factor_x, factor_y, &(sprite_menu->sprite_list));
     RectangleMultiply(&(sprite_menu->sprite_display), factor_x, factor_y);
+    SLUGmaker_ButtonResize(factor_x, factor_y, &(sprite_menu->place_sprite_button));
+    SLUGmaker_ButtonResize(factor_x, factor_y, &(sprite_menu->delete_sprite_button));
 
     return 0;
 }
@@ -604,6 +624,12 @@ int8_t SLUGmaker_SpriteActionModifMenuPressed(SLUGmaker_SpriteActionModifMenu *s
 
     SLUGmaker_ButtonPressed(&(sprite_menu->load_sprite_button), false);
     SLUGmaker_ListViewPressed(&(sprite_menu->sprite_list));
+
+    if(sprite_menu->sprite_list.active != -1)
+    {
+        SLUGmaker_ButtonPressed(&(sprite_menu->place_sprite_button), false);
+        SLUGmaker_ButtonPressed(&(sprite_menu->delete_sprite_button), false);
+    }
 
     return 0;
 }
@@ -624,7 +650,7 @@ int8_t SLUGmaker_SpriteActionModifMenuDisplay(SLUGmaker_SpriteActionModifMenu *s
     
         float scale = (float) map->loaded_sprites[sprite_menu->sprite_list.active].width / (float) map->loaded_sprites[sprite_menu->sprite_list.active].height;
 
-        if(scale >= 1) //horizontal
+        if(scale >= (sprite_menu->sprite_display.width / sprite_menu->sprite_display.height)) //horizontal
         {
             float h = sprite_menu->sprite_display.width / scale;
             DrawTexturePro(map->loaded_sprites[sprite_menu->sprite_list.active],
@@ -660,6 +686,7 @@ int8_t SLUGmaker_SpriteActionModifMenuDisplay(SLUGmaker_SpriteActionModifMenu *s
                 }, 
                 (Vector2) {.x = 0, .y = 0}, 0, WHITE);
         }
+
     }
         
 
