@@ -73,8 +73,33 @@ int8_t SLUGmaker_DisplaySprites(SLUGmaker_camera *cam)
 
     for(int16_t i = 0; i < cam->map->sprite_nb; ++i)
     {
-        if(SLUGmaker_DisplaySprite(cam, i) == -1)
+        if(i != cam->map->selected_sprite)
+        {
+            if(SLUGmaker_DisplaySprite(cam, i) == -1)
+                return -1;
+        }
+    }
+
+    if(cam->map->selected_sprite != -1)
+    {
+        if(SLUGmaker_DisplaySprite(cam, cam->map->selected_sprite) == -1)
             return -1;
+
+        for(uint8_t i = 0; i < 3; ++i)
+        {
+            for(uint8_t j = 0; j < 3; ++j)
+            {
+                Vector2 node_point = (Vector2) {
+                    .x = cam->map->map_sprites[cam->map->selected_sprite].zone.x + j*(cam->map->map_sprites[cam->map->selected_sprite].zone.width / 2.0f),
+                    .y = cam->map->map_sprites[cam->map->selected_sprite].zone.y + i*(cam->map->map_sprites[cam->map->selected_sprite].zone.height / 2.0f)
+                };
+
+                if(CheckCollisionPointRec(node_point, cam->view_zone))
+                {
+                    DrawTexture(graphic_vars.sprite_node_sprite,(cam->display->x + (node_point.x - cam->view_zone.x) * cam->ratiox) - graphic_vars.sprite_node_sprite.width / 2,(cam->display->y + (node_point.y - cam->view_zone.y) * cam->ratioy) - graphic_vars.sprite_node_sprite.height / 2,WHITE);
+                }
+            }
+        }
     }
 
     return 0;

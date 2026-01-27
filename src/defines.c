@@ -31,6 +31,13 @@ int8_t SLUGmaker_GraphicInit()
         printf("Error while loading wall node sprite.\n");
         return -1;
     }
+    graphic_vars.sprite_node_sprite = LoadTexture("assets/sprites/sprite_node.png");
+    if(graphic_vars.sprite_node_sprite.id <= 0)
+    {
+        printf("Error while loading sprite node sprite.\n");
+        return -1;
+    }
+
     graphic_vars.missing_texture = LoadTexture("assets/sprites/missing.png");
     if(graphic_vars.missing_texture.id <= 0)
     {

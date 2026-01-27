@@ -494,6 +494,64 @@ int8_t SLUGmaker_PlayerSpawnPointMove(SLUGmaker_map *map, SLUGmaker_camera *cam)
 }
 
 //--- sprites
+int8_t SLUGmaker_SpriteUnderMouse(SLUGmaker_map *map, SLUGmaker_camera *cam)
+{
+    if(map == NULL || cam == NULL)
+		return -1;
+
+    Vector2 mouse_pos = GetMousePosition();
+    mouse_pos = (Vector2) {
+        .x = cam->view_zone.x + cam->view_zone.width * ((mouse_pos.x - cam->display->x) / cam->display->width),
+        .y = cam->view_zone.y + cam->view_zone.height * ((mouse_pos.y - cam->display->y) / cam->display->height)
+    };  
+    
+    for(int16_t i = map->sprite_nb - 1; i >= 0; --i)
+    {
+        if(CheckCollisionPointRec(mouse_pos, map->map_sprites[i].zone))
+            return i;
+    }
+
+    return -1;
+}
+
+int8_t SLUGmaker_SpriteNodeUnderMouse(SLUGmaker_map *map, SLUGmaker_camera *cam)
+{
+    if(map == NULL || cam == NULL)
+		return -1;
+
+    if(map->selected_sprite == -1 || map->selected_sprite >= map->sprite_nb)
+        return -1;
+
+    /*
+      1-2-3
+      | | |
+      4-5-6
+      | | |
+      7-8-9
+    */
+
+    for(uint8_t i = 0; i < 3; ++i)
+    {
+        for(uint8_t j = 0; j < 3; ++j)
+        {
+            Vector2 node_point = (Vector2) {
+                .x = map->map_sprites[map->selected_sprite].zone.x + j*(map->map_sprites[map->selected_sprite].zone.width / 2.0f),
+                .y = map->map_sprites[map->selected_sprite].zone.y + i*(map->map_sprites[map->selected_sprite].zone.height / 2.0f)
+            };
+
+            if(CheckCollisionPointRec(node_point, cam->view_zone))
+            {
+                float x = cam->display->x + (node_point.x - cam->view_zone.x) * cam->ratiox;
+                float y = cam->display->y + (node_point.y - cam->view_zone.y) * cam->ratioy;
+                if((GetMouseX() >= x - graphic_vars.sprite_node_sprite.width / 2) && (GetMouseX() <= x + graphic_vars.sprite_node_sprite.width / 2) && (GetMouseY() >= y - graphic_vars.sprite_node_sprite.height / 2) && (GetMouseY() < y + graphic_vars.sprite_node_sprite.height / 2))
+                    return j + 3*i;
+            }
+        }
+    }
+
+    return -1;
+}
+
 int8_t SLUGmaker_SpriteMode(SLUGmaker_map *map, SLUGmaker_camera *cam)
 {
 	if(map == NULL || cam == NULL)
@@ -506,6 +564,13 @@ int8_t SLUGmaker_SpriteMode(SLUGmaker_map *map, SLUGmaker_camera *cam)
 	    SLUGmaker_UnLoadSprite(map,cam);
     else if(action_modif_menu->sprite_menu.place_sprite_button.pressed)
 	    SLUGmaker_PlaceSprite(map,cam);
+    else if(CheckCollisionPointRec(GetMousePosition(), *(cam->display)))
+    {
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            map->selected_sprite = SLUGmaker_SpriteUnderMouse(map, cam);
+        }
+    }
 
 	return 0;
 }
