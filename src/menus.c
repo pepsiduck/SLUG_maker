@@ -575,6 +575,13 @@ int8_t SLUGmaker_SpriteActionModifMenuLoad(Rectangle *parent_zone, void *ptr, SL
         .height = 200
     },map->loaded_sprites_names, (uint16_t *) &(map->loaded_sprites_nb), 0, -1, -1, &(sprite_menu->sprite_list));
 
+    sprite_menu->sprite_display = (Rectangle) {
+        .x = parent_zone->x + parent_zone->width * 0.05f,
+        .y = sprite_menu->sprite_list.zone.y + sprite_menu->sprite_list.zone.height + 11,
+        .width = parent_zone->width * 0.9f,
+        .height = 200
+    };
+
     return 0;
 }
 
@@ -585,6 +592,7 @@ int8_t SLUGmaker_SpriteActionModifMenuResize(float factor_x, float factor_y, SLU
 
     SLUGmaker_ButtonResize(factor_x, factor_y, &(sprite_menu->load_sprite_button));
     SLUGmaker_ListViewResize(factor_x, factor_y, &(sprite_menu->sprite_list));
+    RectangleMultiply(&(sprite_menu->sprite_display), factor_x, factor_y);
 
     return 0;
 }
@@ -608,6 +616,52 @@ int8_t SLUGmaker_SpriteActionModifMenuDisplay(SLUGmaker_SpriteActionModifMenu *s
     int8_t err = SLUGmaker_SpriteActionModifMenuPressed(sprite_menu);
     if(err < 0)
         return err;
+
+    SLUGmaker_map *map = (SLUGmaker_map *) ptr;
+
+    if(sprite_menu->sprite_list.active != -1)
+    {
+    
+        float scale = (float) map->loaded_sprites[sprite_menu->sprite_list.active].width / (float) map->loaded_sprites[sprite_menu->sprite_list.active].height;
+
+        if(scale >= 1) //horizontal
+        {
+            float h = sprite_menu->sprite_display.width / scale;
+            DrawTexturePro(map->loaded_sprites[sprite_menu->sprite_list.active],
+                (Rectangle) {
+                    .x = 0.0f, 
+                    .y = 0.0f, 
+                    .width = map->loaded_sprites[sprite_menu->sprite_list.active].width, 
+                    .height = map->loaded_sprites[sprite_menu->sprite_list.active].height
+                }, 
+                (Rectangle) {
+                    .x = sprite_menu->sprite_display.x,
+                    .y = sprite_menu->sprite_display.y + (sprite_menu->sprite_display.height - h)/2.0f,
+                    .width = sprite_menu->sprite_display.width,
+                    .height = h, 
+                }, 
+                (Vector2) {.x = 0, .y = 0}, 0, WHITE);
+        }
+        else //vertical
+        {
+            float w = sprite_menu->sprite_display.height * scale;
+            DrawTexturePro(map->loaded_sprites[sprite_menu->sprite_list.active],
+                (Rectangle) {
+                    .x = 0.0f, 
+                    .y = 0.0f, 
+                    .width = map->loaded_sprites[sprite_menu->sprite_list.active].width, 
+                    .height = map->loaded_sprites[sprite_menu->sprite_list.active].height
+                }, 
+                (Rectangle) {
+                    .x = sprite_menu->sprite_display.x + (sprite_menu->sprite_display.width - w)/2.0f,
+                    .y = sprite_menu->sprite_display.y,
+                    .width = w,
+                    .height = sprite_menu->sprite_display.height, 
+                }, 
+                (Vector2) {.x = 0, .y = 0}, 0, WHITE);
+        }
+    }
+        
 
     return 0;
 }

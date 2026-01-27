@@ -166,6 +166,7 @@ struct SLUGmaker_SpriteActionModifMenu
 {
     SLUGmaker_Button load_sprite_button;
     SLUGmaker_ListView sprite_list;
+    Rectangle sprite_display;
 };
 
 int8_t SLUGmaker_SpriteActionModifMenuLoad(Rectangle *parent_zone, void *ptr, SLUGmaker_SpriteActionModifMenu *sprite_menu);
