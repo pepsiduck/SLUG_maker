@@ -571,14 +571,14 @@ int8_t SLUGmaker_SpriteActionModifMenuLoad(Rectangle *parent_zone, void *ptr, SL
         .x = parent_zone->x + parent_zone->width * 0.05f,
         .y = sprite_menu->load_sprite_button.zone.y + sprite_menu->load_sprite_button.zone.height + 11,
         .width = parent_zone->width * 0.9f,
-        .height = 215
+        .height = 200
     },map->loaded_sprites_names, (int16_t *) &(map->loaded_sprites_nb), 0, -1, -1, &(sprite_menu->sprite_list));
 
     sprite_menu->sprite_display = (Rectangle) {
         .x = parent_zone->x + parent_zone->width * 0.05f,
         .y = sprite_menu->sprite_list.zone.y + sprite_menu->sprite_list.zone.height + 11,
         .width = parent_zone->width * 0.9f,
-        .height = 215
+        .height = 200
     };
 
     SLUGmaker_ButtonLoad((Rectangle) {
@@ -593,6 +593,15 @@ int8_t SLUGmaker_SpriteActionModifMenuLoad(Rectangle *parent_zone, void *ptr, SL
     SLUGmaker_ButtonLoad((Rectangle) {
         .x = parent_zone->x + parent_zone->width * 0.05f,
         .y = sprite_menu->place_sprite_button.zone.y + sprite_menu->place_sprite_button.zone.height + 11,
+        .width = parent_zone->width * 0.9f,
+        .height = 30
+    }, 0, false, &(sprite_menu->replace_sprite_button));
+
+    SLUGmaker_ButtonSetText("Replace Sprite", &(sprite_menu->replace_sprite_button));
+
+    SLUGmaker_ButtonLoad((Rectangle) {
+        .x = parent_zone->x + parent_zone->width * 0.05f,
+        .y = sprite_menu->replace_sprite_button.zone.y + sprite_menu->replace_sprite_button.zone.height + 11,
         .width = parent_zone->width * 0.9f,
         .height = 30
     }, 0, false, &(sprite_menu->delete_sprite_button));
@@ -611,6 +620,7 @@ int8_t SLUGmaker_SpriteActionModifMenuResize(float factor_x, float factor_y, SLU
     SLUGmaker_ListViewResize(factor_x, factor_y, &(sprite_menu->sprite_list));
     RectangleMultiply(&(sprite_menu->sprite_display), factor_x, factor_y);
     SLUGmaker_ButtonResize(factor_x, factor_y, &(sprite_menu->place_sprite_button));
+    SLUGmaker_ButtonResize(factor_x, factor_y, &(sprite_menu->replace_sprite_button));
     SLUGmaker_ButtonResize(factor_x, factor_y, &(sprite_menu->delete_sprite_button));
 
     return 0;
@@ -627,6 +637,7 @@ int8_t SLUGmaker_SpriteActionModifMenuPressed(SLUGmaker_SpriteActionModifMenu *s
     if(sprite_menu->sprite_list.active != -1)
     {
         SLUGmaker_ButtonPressed(&(sprite_menu->place_sprite_button), false);
+        SLUGmaker_ButtonPressed(&(sprite_menu->replace_sprite_button), false);
         SLUGmaker_ButtonPressed(&(sprite_menu->delete_sprite_button), false);
     }
 

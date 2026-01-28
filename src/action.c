@@ -569,6 +569,8 @@ int8_t SLUGmaker_SpriteMode(SLUGmaker_map *map, SLUGmaker_camera *cam)
 	    SLUGmaker_UnLoadSprite(map,cam);
     else if(action_modif_menu->sprite_menu.place_sprite_button.pressed)
 	    SLUGmaker_PlaceSprite(map,cam);
+    else if(action_modif_menu->sprite_menu.replace_sprite_button.pressed)
+	    SLUGmaker_ReplaceSprite(map,cam);
     else if(CheckCollisionPointRec(GetMousePosition(), *(cam->display)))
     {
         if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && map->selected_sprite != -1)
@@ -628,6 +630,55 @@ int8_t SLUGmaker_LoadSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
 		}
 	}
     
+    return 0;
+}
+
+int8_t SLUGmaker_ReplaceSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
+{
+    if(map == NULL || cam == NULL)
+		return -1;
+
+    SLUGmaker_ActionModifMenu *action_modif_menu = (SLUGmaker_ActionModifMenu *) general_menu.menus[MENU_ACTION_MODIF];
+
+    //sanity checks
+    if(action_modif_menu->sprite_menu.sprite_list.active < 0 || action_modif_menu->sprite_menu.sprite_list.active >= map->loaded_sprites_nb)
+        return -1;
+
+    char const * lFilterPatterns[2]={"*.png","*.jpg"};
+	char *FileName = tinyfd_openFileDialog("Select a sprite",NULL,2,lFilterPatterns,"image files",0);
+	if(FileName != NULL)
+	{
+		char *buf = FileName + strlen(FileName);
+		while(*buf != '/') 
+			buf--;
+		buf++;
+			
+		SLUGmaker_WriteLog("Loading %s\n", buf);
+				
+		if(strlen(buf) > 255)
+		{
+			SLUGmaker_WriteLog("Filename exceeded %d character limit\n", 256);
+			return 0;
+		}
+				
+        //unload sprite
+        if(map->loaded_sprites[action_modif_menu->sprite_menu.sprite_list.active].id > 0)
+            UnloadTexture(map->loaded_sprites[action_modif_menu->sprite_menu.sprite_list.active]);
+
+        //load sprite
+		map->loaded_sprites[map->loaded_sprites_nb] = LoadTexture(FileName);
+		if(map->loaded_sprites[map->loaded_sprites_nb].id <= 0)
+		{
+			SLUGmaker_WriteLog("Failed to load sprite");
+			return 0;
+		}
+				
+        //change name
+		snprintf(map->loaded_sprites_names[map->loaded_sprites_nb], MAX_MAP_CHAR, "%s", buf);
+				
+		SLUGmaker_WriteLog("Succesfully loaded %s\n", map->loaded_sprites_names[map->loaded_sprites_nb]);
+	}
+
     return 0;
 }
 

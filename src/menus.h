@@ -168,6 +168,7 @@ struct SLUGmaker_SpriteActionModifMenu
     SLUGmaker_ListView sprite_list;
     Rectangle sprite_display;
     SLUGmaker_Button place_sprite_button;
+    SLUGmaker_Button replace_sprite_button;
     SLUGmaker_Button delete_sprite_button;
 };
 
