@@ -47,6 +47,7 @@ int8_t SLUGmaker_Action(SLUGmaker_map *map, SLUGmaker_camera *cam);
 //delete handling
 int8_t SLUGmaker_MapElementDelete(SLUGmaker_map *map,SLUGmaker_camera *cam);
 int8_t SLUGmaker_WallDelete(SLUGmaker_map *map,SLUGmaker_camera *cam);
+int8_t SLUGmaker_SpriteDelete(SLUGmaker_map *map,SLUGmaker_camera *cam);
 
 //wall
 int16_t SLUGmaker_WallUnderMouseA(SLUGmaker_map *map, SLUGmaker_camera *cam);
@@ -60,7 +61,7 @@ int8_t SLUGmaker_WallModeQuit(SLUGmaker_map *map);
 int8_t SLUGmaker_PlayerSpawnPointMove(SLUGmaker_map *map, SLUGmaker_camera *cam);
 
 //sprites
-int8_t SLUGmaker_SpriteUnderMouse(SLUGmaker_map *map, SLUGmaker_camera *cam);
+int16_t SLUGmaker_SpriteUnderMouse(SLUGmaker_map *map, SLUGmaker_camera *cam);
 int8_t SLUGmaker_SpriteNodeUnderMouse(SLUGmaker_map *map, SLUGmaker_camera *cam);
 int8_t SLUGmaker_SpriteMode(SLUGmaker_map *map, SLUGmaker_camera *cam);
 int8_t SLUGmaker_LoadSprite(SLUGmaker_map *map, SLUGmaker_camera *cam);

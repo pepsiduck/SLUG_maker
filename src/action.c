@@ -146,7 +146,13 @@ int8_t SLUGmaker_MapElementDelete(SLUGmaker_map *map,SLUGmaker_camera *cam)
         r = SLUGmaker_WallDelete(map,cam);
         if(r == -1)
             return -1;
-        else
+        else if(r == 1)
+            return 0;
+
+        r = SLUGmaker_SpriteDelete(map,cam);
+        if(r == -1)
+            return -1;
+        else if(r == 1)
             return 0;
     }
     return 0;
@@ -186,6 +192,34 @@ int8_t SLUGmaker_WallDelete(SLUGmaker_map *map,SLUGmaker_camera *cam)
 
         return 1;
     }
+    return 0;
+}
+
+int8_t SLUGmaker_SpriteDelete(SLUGmaker_map *map,SLUGmaker_camera *cam)
+{
+    if(map == NULL || cam == NULL)
+        return -1;
+
+    int16_t s = SLUGmaker_SpriteUnderMouse(map, cam);
+    if(s > -1)
+    {
+        if(s >= map->sprite_nb)
+            return -1;
+
+        if(map->selected_sprite == s)
+        {
+            map->selected_sprite = -1;
+            map->sprite_move_mode = -1;
+        }
+
+        for(int16_t i = s; i < map->sprite_nb - 1; ++i)
+            map->map_sprites[i] = map->map_sprites[i + 1];
+
+        map->sprite_nb--;
+
+        return 1;
+    }
+
     return 0;
 }
 
@@ -499,7 +533,7 @@ int8_t SLUGmaker_PlayerSpawnPointMove(SLUGmaker_map *map, SLUGmaker_camera *cam)
 }
 
 //--- sprites
-int8_t SLUGmaker_SpriteUnderMouse(SLUGmaker_map *map, SLUGmaker_camera *cam)
+int16_t SLUGmaker_SpriteUnderMouse(SLUGmaker_map *map, SLUGmaker_camera *cam)
 {
     if(map == NULL || cam == NULL)
 		return -1;
