@@ -338,6 +338,8 @@
 #ifndef RAYGUI_H
 #define RAYGUI_H
 
+#include <string.h>
+
 #define RAYGUI_VERSION_MAJOR 4
 #define RAYGUI_VERSION_MINOR 5
 #define RAYGUI_VERSION_PATCH 0
@@ -3113,7 +3115,16 @@ int GuiValueBox(Rectangle bounds, const char *text, int *value, int minValue, in
                 }
             }
 
-            if (valueHasChanged) *value = TextToInteger(textValue);
+            if (valueHasChanged)
+            {
+                if(strcmp("\0", textValue) != 0)
+                    *value = TextToInteger(textValue);
+                if (*value > maxValue) *value = maxValue;
+                else if (*value < minValue) *value = minValue;
+                
+            }
+
+            // Super note : f u
 
             // NOTE: We are not clamp values until user input finishes
             //if (*value > maxValue) *value = maxValue;

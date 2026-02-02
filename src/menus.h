@@ -195,6 +195,12 @@ int8_t SLUGmaker_ActionModifMenuPressed(SLUGmaker_Menu *menu);
 int8_t SLUGmaker_ActionModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr);
 
 //Modif Menu
+typedef struct SLUGmaker_SpriteModifMenu SLUGmaker_SpriteModifMenu;
+struct SLUGmaker_SpriteModifMenu
+{
+    
+};
+
 typedef struct SLUGmaker_ModifMenu SLUGmaker_ModifMenu ;
 struct SLUGmaker_ModifMenu 
 {
@@ -202,7 +208,8 @@ struct SLUGmaker_ModifMenu
     SLUGmaker_Menu m;
     //--- 
 
-    Rectangle group_zone; 
+    Rectangle group_zone;
+    SLUGmaker_SpriteModifMenu sprite_menu;
 };
 
 SLUGmaker_Menu* SLUGmaker_ModifMenuDevLoad(void *ptr);
