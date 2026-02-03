@@ -185,6 +185,42 @@ int8_t SLUGmaker_ListViewPressed(SLUGmaker_ListView *listview)
     return 0;
 }
 
+//---spinner
+int8_t SLUGmaker_SpinnerLoad(Rectangle zone, const char *text, int *value, int minValue, int maxValue, bool editMode, SLUGmaker_Spinner *spinner)
+{
+	if(spinner == NULL)
+		return -1;
+		
+	spinner->zone = zone;
+	spinner->text = text;
+	spinner->value = value;
+	spinner->minValue = minValue;
+	spinner->maxValue = maxValue;
+	spinner->editMode = editMode;
+
+	return 0;
+}
+
+int8_t SLUGmaker_SpinnerResize(float factor_x, float factor_y, SLUGmaker_Spinner *spinner)
+{
+	if(spinner == NULL)
+		return -1;
+		
+	RectangleMultiply(&(spinner->zone),factor_x, factor_y);
+	
+	return 0;
+}
+
+int8_t SLUGmaker_SpinnerPressed(SLUGmaker_Spinner *spinner)
+{
+	if(spinner == NULL)
+		return -1;
+		
+	GuiSpinner(spinner->zone, spinner->text, spinner->value, spinner->minValue, spinner->maxValue, spinner->editMode);
+		
+	return 0;
+}
+
 //! Menus
 SLUGmaker_Menu* SLUGmaker_MenuDevLoad(SLUGmaker_MenuType menu_type, Rectangle zone, size_t size)
 {
@@ -790,6 +826,39 @@ int8_t SLUGmaker_ActionModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr)
 }
 
 //Modif Menu
+int8_t SLUGmaker_SpriteModifMenuLoad(Rectangle *parent_zone, void *ptr, SLUGmaker_SpriteModifMenu *sprite_menu)
+{
+	if(parent_zone == NULL || ptr == NULL || sprite_menu == NULL)
+		return -1;
+		
+	return 0;
+}
+
+int8_t SLUGmaker_SpriteModifMenuResize(float factor_x, float factor_y, SLUGmaker_SpriteModifMenu *sprite_menu)
+{
+	if(sprite_menu == NULL)
+		return -1;
+		
+	return 0;
+}
+
+int8_t SLUGmaker_SpriteModifMenuPressed(SLUGmaker_SpriteModifMenu *sprite_menu)
+{
+	if(sprite_menu == NULL)
+		return -1;
+		
+	return 0;
+}
+
+int8_t SLUGmaker_SpriteModifMenuDisplay(SLUGmaker_SpriteModifMenu *sprite_menu, void *ptr)
+{
+	if(sprite_menu == NULL || ptr == NULL)
+		return -1;
+		
+	return 0;
+}
+
+//Modif menu proper
 SLUGmaker_Menu* SLUGmaker_ModifMenuDevLoad(void *ptr)
 {
     Rectangle zone = (Rectangle) {

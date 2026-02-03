@@ -71,6 +71,21 @@ int8_t SLUGmaker_ListViewLoad(Rectangle zone, char **options, int16_t *nb, int s
 int8_t SLUGmaker_ListViewResize(float factor_x, float factor_y, SLUGmaker_ListView *listview);
 int8_t SLUGmaker_ListViewPressed(SLUGmaker_ListView *listview);
 
+typedef struct SLUGmaker_Spinner SLUGmaker_Spinner;
+struct SLUGmaker_Spinner
+{
+	Rectangle zone;
+	const char *text;
+	int *value;
+	int minValue;
+	int maxValue;
+	bool editMode;
+};
+
+int8_t SLUGmaker_SpinnerLoad(Rectangle zone, const char *text, int *value, int minValue, int maxValue, bool editMode, SLUGmaker_Spinner *spinner);
+int8_t SLUGmaker_SpinnerResize(float factor_x, float factor_y, SLUGmaker_Spinner *spinner);
+int8_t SLUGmaker_SpinnerPressed(SLUGmaker_Spinner *spinner);
+
 //! Menus
 typedef enum {
               MENU_ACTION_MODIF,
@@ -198,8 +213,14 @@ int8_t SLUGmaker_ActionModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr);
 typedef struct SLUGmaker_SpriteModifMenu SLUGmaker_SpriteModifMenu;
 struct SLUGmaker_SpriteModifMenu
 {
-    
+    SLUGmaker_Spinner layer_select;
+    int *jaaj;
 };
+
+int8_t SLUGmaker_SpriteModifMenuLoad(Rectangle *parent_zone, void *ptr, SLUGmaker_SpriteModifMenu *sprite_menu);
+int8_t SLUGmaker_SpriteModifMenuResize(float factor_x, float factor_y, SLUGmaker_SpriteModifMenu *sprite_menu);
+int8_t SLUGmaker_SpriteModifMenuPressed(SLUGmaker_SpriteModifMenu *sprite_menu);
+int8_t SLUGmaker_SpriteModifMenuDisplay(SLUGmaker_SpriteModifMenu *sprite_menu, void *ptr);
 
 typedef struct SLUGmaker_ModifMenu SLUGmaker_ModifMenu ;
 struct SLUGmaker_ModifMenu 
