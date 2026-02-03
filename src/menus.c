@@ -216,9 +216,7 @@ int8_t SLUGmaker_SpinnerPressed(SLUGmaker_Spinner *spinner)
 	if(spinner == NULL)
 		return -1;
 		
-	GuiSpinner(spinner->zone, spinner->text, spinner->value, spinner->minValue, spinner->maxValue, spinner->editMode);
-		
-	return 0;
+	return GuiSpinner(spinner->zone, spinner->text, spinner->value, spinner->minValue, spinner->maxValue, spinner->editMode);
 }
 
 //! Menus
@@ -830,6 +828,17 @@ int8_t SLUGmaker_SpriteModifMenuLoad(Rectangle *parent_zone, void *ptr, SLUGmake
 {
 	if(parent_zone == NULL || ptr == NULL || sprite_menu == NULL)
 		return -1;
+
+    SLUGmaker_map *map = (SLUGmaker_map *) ptr;
+
+    sprite_menu->select = 0;
+
+    SLUGmaker_SpinnerLoad((Rectangle) {
+        .x = parent_zone->x + parent_zone->width * 0.15f + 11,
+        .y = parent_zone->y + parent_zone->height / 3.0f,
+        .width = parent_zone->width * 0.85f - 11,
+        .height = parent_zone->height / 3.0f
+    }, "Selected sprite layer : ", &(sprite_menu->select), 0, (int) (map->sprite_nb - 1), true, &(sprite_menu->layer_select)); //TODO:change the value pointer
 		
 	return 0;
 }
@@ -838,6 +847,8 @@ int8_t SLUGmaker_SpriteModifMenuResize(float factor_x, float factor_y, SLUGmaker
 {
 	if(sprite_menu == NULL)
 		return -1;
+
+    SLUGmaker_SpinnerResize(factor_x, factor_y, &(sprite_menu->layer_select));
 		
 	return 0;
 }
@@ -846,16 +857,33 @@ int8_t SLUGmaker_SpriteModifMenuPressed(SLUGmaker_SpriteModifMenu *sprite_menu)
 {
 	if(sprite_menu == NULL)
 		return -1;
-		
-	return 0;
+
+    return SLUGmaker_SpinnerPressed(&(sprite_menu->layer_select));
 }
 
 int8_t SLUGmaker_SpriteModifMenuDisplay(SLUGmaker_SpriteModifMenu *sprite_menu, void *ptr)
 {
 	if(sprite_menu == NULL || ptr == NULL)
 		return -1;
+
+    SLUGmaker_map *map = (SLUGmaker_map *) ptr;
+    
+    if(map->selected_sprite != -1)
+    {
+        sprite_menu->layer_select.maxValue = (int) (map->sprite_nb - 1);
+
+        int8_t err = SLUGmaker_SpriteModifMenuPressed(sprite_menu);
+        if(err < 0)
+            return err;
+
+        if(sprite_menu->select > sprite_menu->layer_select.maxValue)
+            sprite_menu->select = sprite_menu->layer_select.maxValue;
+        if(sprite_menu->select < 0)
+            sprite_menu->select = 0;
+
+    }
 		
-	return 0;
+    return 0;
 }
 
 //Modif menu proper
@@ -876,6 +904,8 @@ SLUGmaker_Menu* SLUGmaker_ModifMenuDevLoad(void *ptr)
 		.width = modif_menu->m.zone.width - 40.0f,
 		.height = modif_menu->m.zone.height - 22.0f,
     };
+
+    SLUGmaker_SpriteModifMenuLoad(&(modif_menu->group_zone), ptr, &(modif_menu->sprite_menu));
 
     return (SLUGmaker_Menu*) modif_menu; 
 }
@@ -901,6 +931,7 @@ int8_t SLUGmaker_ModifMenuResize(float factor_x, float factor_y, SLUGmaker_Menu 
     SLUGmaker_ModifMenu *modif_menu = (SLUGmaker_ModifMenu *) menu;
 
     RectangleMultiply(&(modif_menu->group_zone),factor_x,factor_y);
+    SLUGmaker_SpriteModifMenuResize(factor_x, factor_y, &(modif_menu->sprite_menu));
 
     return 0;
 }
@@ -923,6 +954,19 @@ int8_t SLUGmaker_ModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr)
     SLUGmaker_ModifMenu *modif_menu = (SLUGmaker_ModifMenu *) menu;
 
     GuiGroupBox(modif_menu->m.zone,"Modifications");
+
+    int8_t err = 0;
+    switch(current_action)
+    {
+        case ACTION_MODE_SPRITE:
+            err = SLUGmaker_SpriteModifMenuDisplay(&(modif_menu->sprite_menu), ptr);
+            break;
+        default:
+            break;
+    }
+
+    if(err < 0)
+        return err;
     
     return 0;
 }

@@ -214,7 +214,7 @@ typedef struct SLUGmaker_SpriteModifMenu SLUGmaker_SpriteModifMenu;
 struct SLUGmaker_SpriteModifMenu
 {
     SLUGmaker_Spinner layer_select;
-    int *jaaj;
+    int select;
 };
 
 int8_t SLUGmaker_SpriteModifMenuLoad(Rectangle *parent_zone, void *ptr, SLUGmaker_SpriteModifMenu *sprite_menu);

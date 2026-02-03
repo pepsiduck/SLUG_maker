@@ -3054,8 +3054,6 @@ int GuiValueBox(Rectangle bounds, const char *text, int *value, int minValue, in
     {
         Vector2 mousePoint = GetMousePosition();
 
-        bool valueHasChanged = false;
-
         if (editMode)
         {
             state = STATE_PRESSED;
@@ -3070,7 +3068,6 @@ int GuiValueBox(Rectangle bounds, const char *text, int *value, int minValue, in
                     for (int i = 0 ; i < keyCount; i++) textValue[i] = textValue[i + 1];
 
                     keyCount--;
-                    valueHasChanged = true;
                 }
                 else if (keyCount < RAYGUI_VALUEBOX_MAX_CHARS -1)
                 {
@@ -3085,7 +3082,6 @@ int GuiValueBox(Rectangle bounds, const char *text, int *value, int minValue, in
 
                     textValue[0] = '-';
                     keyCount++;
-                    valueHasChanged = true;
                 }
             }
 
@@ -3099,7 +3095,6 @@ int GuiValueBox(Rectangle bounds, const char *text, int *value, int minValue, in
                     {
                         textValue[keyCount] = (char)key;
                         keyCount++;
-                        valueHasChanged = true;
                     }
                 }
             }
@@ -3111,20 +3106,8 @@ int GuiValueBox(Rectangle bounds, const char *text, int *value, int minValue, in
                 {
                     keyCount--;
                     textValue[keyCount] = '\0';
-                    valueHasChanged = true;
                 }
             }
-
-            if (valueHasChanged)
-            {
-                if(strcmp("\0", textValue) != 0)
-                    *value = TextToInteger(textValue);
-                if (*value > maxValue) *value = maxValue;
-                else if (*value < minValue) *value = minValue;
-                
-            }
-
-            // Super note : f u
 
             // NOTE: We are not clamp values until user input finishes
             //if (*value > maxValue) *value = maxValue;

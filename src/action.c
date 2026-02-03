@@ -84,11 +84,11 @@ int8_t SLUGmaker_ChangeActionMode(SLUGmaker_map *map)
 
     if(IsKeyPressed(KEY_N) || action_menu->modes[0].pressed)
         current_action = ACTION_MODE_NONE;
-    else if(IsKeyPressed(KEY_BACKSPACE) || action_menu->modes[1].pressed)
+    else if(IsKeyPressed(KEY_W) || action_menu->modes[1].pressed)
         current_action = ACTION_MODE_WALL;
-    else if(IsKeyPressed(KEY_W) || action_menu->modes[2].pressed)
+    else if(IsKeyPressed(KEY_P) || action_menu->modes[2].pressed)
         current_action = ACTION_MODE_PLAYER;
-    else if(IsKeyPressed(KEY_P) || action_menu->modes[3].pressed)
+    else if(IsKeyPressed(KEY_D) || action_menu->modes[3].pressed)
         current_action = ACTION_MODE_DELETE;
     else if((IsKeyPressed(KEY_S) && !IsKeyDown(KEY_LEFT_CONTROL))|| action_menu->modes[4].pressed)
         current_action = ACTION_MODE_SPRITE;
