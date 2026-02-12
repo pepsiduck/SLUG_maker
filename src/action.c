@@ -911,6 +911,41 @@ int8_t SLUGmaker_PlaceSprite(SLUGmaker_map *map, SLUGmaker_camera *cam)
     return 0;
 }
 
+int8_t SLUGmaker_SwapSrites(SLUGmaker_map *map, int16_t new_index)
+{
+    if(map == NULL)
+        return -1;
+
+    if(map->selected_sprite < 0 || map->selected_sprite >= map->sprite_nb)
+        return -1;
+
+    if(new_index < 0 || new_index >= map->sprite_nb)
+        return -1;
+
+    if(new_index != map->selected_sprite)
+    {
+
+            SLUGmaker_PlacableSprite buf = map->map_sprites[map->selected_sprite];
+
+            if(new_index > map->selected_sprite)
+            {
+                for(int16_t i = map->selected_sprite; i < new_index; i++)
+                    map->map_sprites[i] = map->map_sprites[i+1];
+            }
+            else if(new_index < map->selected_sprite)
+            {
+                for(int16_t i = map->selected_sprite; i > new_index; i--)
+                    map->map_sprites[i] = map->map_sprites[i-1];
+            }
+    
+            map->map_sprites[new_index] = buf;
+
+            map->selected_sprite = new_index;
+        }
+
+    return 0;
+}
+
 int8_t SLUGmaker_SpriteModeQuit(SLUGmaker_map *map)
 {
     if(map == NULL)

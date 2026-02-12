@@ -838,7 +838,7 @@ int8_t SLUGmaker_SpriteModifMenuLoad(Rectangle *parent_zone, void *ptr, SLUGmake
         .y = parent_zone->y + parent_zone->height / 3.0f,
         .width = parent_zone->width * 0.85f - 11,
         .height = parent_zone->height / 3.0f
-    }, "Selected sprite layer : ", &(sprite_menu->select), 0, (int) (map->sprite_nb - 1), true, &(sprite_menu->layer_select)); //TODO:change the value pointer
+    }, "Selected sprite layer : ", &(sprite_menu->select), 0, (int) (map->sprite_nb - 1), false, &(sprite_menu->layer_select)); //TODO:change the value pointer
 		
 	return 0;
 }
@@ -871,6 +871,8 @@ int8_t SLUGmaker_SpriteModifMenuDisplay(SLUGmaker_SpriteModifMenu *sprite_menu, 
     if(map->selected_sprite != -1)
     {
         sprite_menu->layer_select.maxValue = (int) (map->sprite_nb - 1);
+        
+        sprite_menu->select = (int) map->selected_sprite;
 
         int8_t err = SLUGmaker_SpriteModifMenuPressed(sprite_menu);
         if(err < 0)
@@ -880,6 +882,9 @@ int8_t SLUGmaker_SpriteModifMenuDisplay(SLUGmaker_SpriteModifMenu *sprite_menu, 
             sprite_menu->select = sprite_menu->layer_select.maxValue;
         if(sprite_menu->select < 0)
             sprite_menu->select = 0;
+
+        if(SLUGmaker_SwapSrites(map, (int16_t) sprite_menu->select) < 0)
+            return -1;
 
     }
 		
