@@ -23,6 +23,7 @@ struct SLUGmaker_SegmentExtended
     Vector2 middlepoint;
     SLUGmaker_SegmentExtended *next;
     bool exists;
+    uint64_t flag;
 };
 
 float GetSegmentExtendedSide(SLUG_SegmentExtended *seg, Vector2 *p);

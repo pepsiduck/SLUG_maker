@@ -113,6 +113,9 @@ int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam)
     {
         if(cam->map->walls[i].exists)
         {
+
+            Color wall_color = (i == cam->map->selected_wall_node) ? GREEN : BLUE;
+
             if(CheckCollisionLineRect(cam->map->walls[i].A,cam->map->walls[i].B,cam->view_zone,NULL))
             {
                 DrawLineV(
@@ -123,7 +126,7 @@ int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam)
                     (Vector2) {
                         .x = cam->display->x + (cam->map->walls[i].B.x - cam->view_zone.x) * cam->ratiox,
                         .y = cam->display->y + (cam->map->walls[i].B.y - cam->view_zone.y) * cam->ratioy
-                    }, BLUE);
+                    }, wall_color);
             }
             if(CheckCollisionPointRec(cam->map->walls[i].middlepoint, cam->view_zone))
             {
@@ -135,7 +138,7 @@ int8_t SLUGmaker_DisplayWalls(SLUGmaker_camera *cam)
                     (Vector2) {
                         .x = cam->display->x + (cam->map->walls[i].middlepoint.x - cam->view_zone.x) * cam->ratiox + 20 * cam->map->walls[i].normal.x,
                         .y = cam->display->y + (cam->map->walls[i].middlepoint.y - cam->view_zone.y) * cam->ratioy + 20 * cam->map->walls[i].normal.y
-                    }, BLUE);
+                    }, wall_color);
             }
             
             if(cam->map->wall_line_mode && i == cam->map->current_wall_index)

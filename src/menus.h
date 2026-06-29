@@ -210,6 +210,17 @@ int8_t SLUGmaker_ActionModifMenuPressed(SLUGmaker_Menu *menu);
 int8_t SLUGmaker_ActionModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr);
 
 //Modif Menu
+typedef struct SLUGmaker_WallModifMenu SLUGmaker_WallModifMenu;
+struct SLUGmaker_WallModifMenu
+{
+
+}
+
+int8_t SLUGmaker_WallModifMenuLoad(Rectangle *parent_zone, void *ptr, SLUGmaker_WallModifMenu *wall_menu);
+int8_t SLUGmaker_WallModifMenuResize(float factor_x, float factor_y, SLUGmaker_WallModifMenu *wall_menu);
+int8_t SLUGmaker_WallModifMenuPressed(SLUGmaker_WallModifMenu *wall_menu);
+int8_t SLUGmaker_WallModifMenuDisplay(SLUGmaker_WallModifMenu *wall_menu, void *ptr);
+
 typedef struct SLUGmaker_SpriteModifMenu SLUGmaker_SpriteModifMenu;
 struct SLUGmaker_SpriteModifMenu
 {

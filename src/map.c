@@ -121,7 +121,8 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
             .normal = (Vector2) {.x = 0, .y = 1},
             .middlepoint = (Vector2) {.x = 0, .y = 0},
             .next = NULL,
-            .exists = false
+            .exists = false,
+            .flag = 0
         };
 
     map->current_wall_index = 0;
@@ -129,6 +130,7 @@ SLUGmaker_map* SLUGmaker_NewMap(uint32_t width, uint32_t height)
     map->wall_line_mode = false;
     map->wall_line_origin_index = -1;
     map->wall_move_mode = -1;
+    map->selected_wall_node = -1;
     
     //player spawn point init
     map->player_spawn_point = (Vector2) {.x = map->zone.width/2, .y = map->zone.height/2};

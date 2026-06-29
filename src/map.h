@@ -50,6 +50,7 @@ struct SLUGmaker_map
     int16_t wall_line_origin_index;
     bool wall_line_mode;
     int16_t wall_move_mode;
+    int16_t selected_wall_node;
     
     Vector2 player_spawn_point;
 };

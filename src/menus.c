@@ -405,7 +405,7 @@ SLUGmaker_Menu* SLUGmaker_ActionButtonsMenuDevLoad(void *ptr)
     SLUGmaker_ButtonSetText("No editing (N)", &(menu->modes[0]));
     SLUGmaker_ButtonSetText("Place and move walls (W)", &(menu->modes[1]));
     SLUGmaker_ButtonSetText("Move Player spawn point (P)", &(menu->modes[2]));
-    SLUGmaker_ButtonSetText("Delete elements (BACKSPACE)", &(menu->modes[3]));
+    SLUGmaker_ButtonSetText("Delete elements (D)", &(menu->modes[3]));
     SLUGmaker_ButtonSetText("Place and load sprites (S)", &(menu->modes[4]));
 	
 	return (SLUGmaker_Menu*) menu;
