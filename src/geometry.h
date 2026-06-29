@@ -4,6 +4,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 typedef struct SLUG_SegmentExtended SLUG_SegmentExtended;
 struct SLUG_SegmentExtended

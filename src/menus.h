@@ -213,10 +213,11 @@ int8_t SLUGmaker_ActionModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr);
 typedef struct SLUGmaker_WallModifMenu SLUGmaker_WallModifMenu;
 struct SLUGmaker_WallModifMenu
 {
+    SLUGmaker_Spinner wall_flag_select;
+    int flag;
+};
 
-}
-
-int8_t SLUGmaker_WallModifMenuLoad(Rectangle *parent_zone, void *ptr, SLUGmaker_WallModifMenu *wall_menu);
+int8_t SLUGmaker_WallModifMenuLoad(Rectangle *parent_zone, SLUGmaker_WallModifMenu *wall_menu);
 int8_t SLUGmaker_WallModifMenuResize(float factor_x, float factor_y, SLUGmaker_WallModifMenu *wall_menu);
 int8_t SLUGmaker_WallModifMenuPressed(SLUGmaker_WallModifMenu *wall_menu);
 int8_t SLUGmaker_WallModifMenuDisplay(SLUGmaker_WallModifMenu *wall_menu, void *ptr);
@@ -241,6 +242,7 @@ struct SLUGmaker_ModifMenu
     //--- 
 
     Rectangle group_zone;
+    SLUGmaker_WallModifMenu wall_menu;
     SLUGmaker_SpriteModifMenu sprite_menu;
 };
 

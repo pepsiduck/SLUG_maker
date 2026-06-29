@@ -824,6 +824,69 @@ int8_t SLUGmaker_ActionModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr)
 }
 
 //Modif Menu
+int8_t SLUGmaker_WallModifMenuLoad(Rectangle *parent_zone, SLUGmaker_WallModifMenu *wall_menu)
+{
+	if(parent_zone == NULL || wall_menu == NULL)
+		return -1;
+
+    wall_menu->flag = 0;
+
+    SLUGmaker_SpinnerLoad((Rectangle) {
+        .x = parent_zone->x + parent_zone->width * 0.15f + 11,
+        .y = parent_zone->y + parent_zone->height / 3.0f,
+        .width = parent_zone->width * 0.85f - 11,
+        .height = parent_zone->height / 3.0f
+    }, "Selected wall node flag : ", &(wall_menu->flag), 0, INT32_MAX, true, &(wall_menu->wall_flag_select));
+		
+	return 0;
+}
+
+int8_t SLUGmaker_WallModifMenuResize(float factor_x, float factor_y, SLUGmaker_WallModifMenu *wall_menu)
+{
+	if(wall_menu == NULL)
+		return -1;
+
+    SLUGmaker_SpinnerResize(factor_x, factor_y, &(wall_menu->wall_flag_select));
+		
+	return 0;
+}
+
+int8_t SLUGmaker_WallModifMenuPressed(SLUGmaker_WallModifMenu *wall_menu)
+{
+	if(wall_menu == NULL)
+		return -1;
+
+    return SLUGmaker_SpinnerPressed(&(wall_menu->wall_flag_select));
+}
+
+int8_t SLUGmaker_WallModifMenuDisplay(SLUGmaker_WallModifMenu *wall_menu, void *ptr)
+{
+	if(wall_menu == NULL || ptr == NULL)
+		return -1;
+
+    SLUGmaker_map *map = (SLUGmaker_map *) ptr;
+    
+    if(map->selected_wall_node >= 0)
+    {
+        
+        wall_menu->flag = (int) map->walls[map->selected_wall_node].flag;
+
+        int8_t err = SLUGmaker_WallModifMenuPressed(wall_menu);
+        if(err < 0)
+            return err;
+
+        if(wall_menu->flag > wall_menu->wall_flag_select.maxValue)
+            wall_menu->flag = wall_menu->wall_flag_select.maxValue;
+        if(wall_menu->flag < 0)
+            wall_menu->flag = 0;
+
+        map->walls[map->selected_wall_node].flag = (uint64_t) wall_menu->flag;
+
+    }
+		
+    return 0;
+}
+
 int8_t SLUGmaker_SpriteModifMenuLoad(Rectangle *parent_zone, void *ptr, SLUGmaker_SpriteModifMenu *sprite_menu)
 {
 	if(parent_zone == NULL || ptr == NULL || sprite_menu == NULL)
@@ -838,7 +901,7 @@ int8_t SLUGmaker_SpriteModifMenuLoad(Rectangle *parent_zone, void *ptr, SLUGmake
         .y = parent_zone->y + parent_zone->height / 3.0f,
         .width = parent_zone->width * 0.85f - 11,
         .height = parent_zone->height / 3.0f
-    }, "Selected sprite layer : ", &(sprite_menu->select), 0, (int) (map->sprite_nb - 1), false, &(sprite_menu->layer_select)); //TODO:change the value pointer
+    }, "Selected sprite layer : ", &(sprite_menu->select), 0, (int) (map->sprite_nb - 1), false, &(sprite_menu->layer_select));
 		
 	return 0;
 }
@@ -910,6 +973,7 @@ SLUGmaker_Menu* SLUGmaker_ModifMenuDevLoad(void *ptr)
 		.height = modif_menu->m.zone.height - 22.0f,
     };
 
+    SLUGmaker_WallModifMenuLoad(&(modif_menu->group_zone), &(modif_menu->wall_menu));
     SLUGmaker_SpriteModifMenuLoad(&(modif_menu->group_zone), ptr, &(modif_menu->sprite_menu));
 
     return (SLUGmaker_Menu*) modif_menu; 
@@ -936,6 +1000,7 @@ int8_t SLUGmaker_ModifMenuResize(float factor_x, float factor_y, SLUGmaker_Menu 
     SLUGmaker_ModifMenu *modif_menu = (SLUGmaker_ModifMenu *) menu;
 
     RectangleMultiply(&(modif_menu->group_zone),factor_x,factor_y);
+    SLUGmaker_WallModifMenuResize(factor_x, factor_y, &(modif_menu->wall_menu));
     SLUGmaker_SpriteModifMenuResize(factor_x, factor_y, &(modif_menu->sprite_menu));
 
     return 0;
@@ -963,6 +1028,9 @@ int8_t SLUGmaker_ModifMenuDisplay(SLUGmaker_Menu *menu, void *ptr)
     int8_t err = 0;
     switch(current_action)
     {
+        case ACTION_MODE_WALL:
+            err = SLUGmaker_WallModifMenuDisplay(&(modif_menu->wall_menu), ptr);
+            break;
         case ACTION_MODE_SPRITE:
             err = SLUGmaker_SpriteModifMenuDisplay(&(modif_menu->sprite_menu), ptr);
             break;

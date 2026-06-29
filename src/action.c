@@ -274,7 +274,7 @@ int8_t SLUGmaker_WallMode(SLUGmaker_map *map, SLUGmaker_camera *cam)
     if(map == NULL || cam == NULL)
         return -1;
 
-    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(GetMousePosition(), *(cam->display)))
         map->selected_wall_node = SLUGmaker_WallUnderMouseA(map, cam);
     else if(!map->wall_line_mode && (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) && IsMouseButtonDown(MOUSE_BUTTON_LEFT))
     {
