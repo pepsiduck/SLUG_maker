@@ -170,7 +170,7 @@ int8_t SLUGmaker_WallDelete(SLUGmaker_map *map,SLUGmaker_camera *cam)
         int16_t count = 1;
         SLUGmaker_SegmentExtended *seg = &(map->walls[w]);
         seg->exists = false;
-        seg = seg->next;
+        seg = &(map->walls[seg->next]);
 
         while(seg != &(map->walls[w]))
         {
@@ -178,7 +178,7 @@ int8_t SLUGmaker_WallDelete(SLUGmaker_map *map,SLUGmaker_camera *cam)
                 return -1;
             seg->exists = false;
             count += 1;
-            seg = seg->next;
+            seg = &(map->walls[seg->next]);
         }
 
         map->current_wall_index = w;
@@ -295,9 +295,9 @@ int8_t SLUGmaker_MoveWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
         return -1;
     if(map->wall_move_mode < 0 || map->wall_move_mode >= MAX_WALLS_NB)
         return -1;
-    if(!map->walls[map->wall_move_mode].exists || map->wall_line_mode || map->walls[map->wall_move_mode].next == NULL)
+    if(!map->walls[map->wall_move_mode].exists || map->wall_line_mode || map->walls[map->wall_move_mode].next == -1)
         return -1;
-    if(!map->walls[map->wall_move_mode].next->exists)     
+    if(!map->walls[map->walls[map->wall_move_mode].next].exists)     
         return -1;
         
 
@@ -330,7 +330,7 @@ int8_t SLUGmaker_MoveWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
         
 
         //A segment move
-        SLUGmaker_SegmentExtended *seg = map->walls[map->wall_move_mode].next;
+        SLUGmaker_SegmentExtended *seg = &(map->walls[map->walls[map->wall_move_mode].next]);
         seg->A = p;
         seg->middlepoint = Vector2Scale(Vector2Add(seg->A,seg->B), 0.50);
         if(seg->B.x == seg->A.x && seg->B.y == seg->A.y)
@@ -392,7 +392,8 @@ int8_t SLUGmaker_PlaceNewWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
         {
             if(SLUGmaker_WallUnderMouseA(map,cam) == map->wall_line_origin_index)
             {
-                if(&(map->walls[map->current_wall_index]) != map->walls[map->wall_line_origin_index].next)
+                //if(&(map->walls[map->current_wall_index]) != &(map->walls[map->walls[map->wall_line_origin_index].next]))
+                if(map->current_wall_index != map->walls[map->wall_line_origin_index].next)
                 {
                     map->walls[map->current_wall_index].B = map->walls[map->wall_line_origin_index].A;
                     map->walls[map->current_wall_index].middlepoint = Vector2Scale(Vector2Add(map->walls[map->current_wall_index].A,map->walls[map->current_wall_index].B), 0.50);
@@ -405,7 +406,8 @@ int8_t SLUGmaker_PlaceNewWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
                             .y = map->walls[map->current_wall_index].B.x - map->walls[map->current_wall_index].A.x
                         });
                     }
-                    map->walls[map->current_wall_index].next = &(map->walls[map->wall_line_origin_index]);
+                    //map->walls[map->current_wall_index].next = &(map->walls[map->wall_line_origin_index]);
+                    map->walls[map->current_wall_index].next = map->wall_line_origin_index;
 
                     if(map->wall_nb >= MAX_WALLS_NB)
                         map->current_wall_index = -1;
@@ -432,13 +434,13 @@ int8_t SLUGmaker_PlaceNewWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
                         w = 0;
                 }
 
-                map->walls[map->current_wall_index].next = &(map->walls[w]);
+                map->walls[map->current_wall_index].next = w;
 
                 map->walls[w].A = map->walls[map->current_wall_index].B;
                 map->walls[w].B = map->walls[w].A;
                 map->walls[w].normal = (Vector2) {.x = 0, .y = 1};
                 map->walls[w].middlepoint = map->walls[w].A;
-                map->walls[w].next = NULL;
+                map->walls[w].next = -1;
                 map->walls[w].exists = true;
 
                 map->current_wall_index = w;
@@ -465,7 +467,7 @@ int8_t SLUGmaker_PlaceNewWall(SLUGmaker_map *map, SLUGmaker_camera *cam)
                 map->walls[map->current_wall_index].B = p;
                 map->walls[map->current_wall_index].normal = (Vector2) {.x = 0, .y = 1};
                 map->walls[map->current_wall_index].middlepoint = p;
-                map->walls[map->current_wall_index].next = NULL;
+                map->walls[map->current_wall_index].next = -1;
                 map->walls[map->current_wall_index].exists = true;   
 
                 map->wall_line_origin_index = map->current_wall_index;
@@ -492,14 +494,14 @@ int8_t SLUGmaker_WallModeQuit(SLUGmaker_map *map)
     {
         SLUGmaker_SegmentExtended *seg = &(map->walls[map->wall_line_origin_index]);
         seg->exists = false;
-        seg = seg->next;
+        seg = &(map->walls[seg->next]);
 
         int16_t count = 1;
 
         while(seg != NULL && seg != &(map->walls[map->wall_line_origin_index]))
         {
             seg->exists = false;
-            seg = seg->next;
+            seg = &(map->walls[seg->next]);
             count += 1;
         }
         

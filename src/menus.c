@@ -304,6 +304,16 @@ SLUGmaker_Menu* SLUGmaker_ToolBarDevLoad(void *ptr)
     								 &(toolbar->save));
 
     SLUGmaker_ButtonSetText("Save map (CTRL+S)", &(toolbar->save));
+
+    SLUGmaker_ButtonLoad((Rectangle){.x = toolbar->save.zone.x + toolbar->save.zone.width + toolbar->m.zone.width * 0.0025f,
+    								 .y = GetScreenHeight() * 0.0025f, 
+    								 .width = GetScreenHeight() * 0.025f, 
+    								 .height = GetScreenHeight() * 0.025f},
+    								 ICON_FILE_EXPORT,
+                                     true,
+    								 &(toolbar->exprt));
+
+    SLUGmaker_ButtonSetText("Export map (CTRL+E)", &(toolbar->exprt));
     
     SLUGmaker_ComboBoxLoad((Rectangle){.x = toolbar->style_label_zone.x + toolbar->style_label_zone.width,
     								   .y = GetScreenHeight() * 0.0025f, 
@@ -342,6 +352,7 @@ int8_t SLUGmaker_ToolBarResize(float factor_x, float factor_y, SLUGmaker_Menu *m
     RectangleMultiply(&(toolbar->style_label_zone),factor_x, factor_y);
 
     SLUGmaker_ButtonResize(factor_x, factor_y, &(toolbar->save));
+    SLUGmaker_ButtonResize(factor_x, factor_y, &(toolbar->exprt));
     SLUGmaker_ComboBoxResize(factor_x, factor_y, &(toolbar->styles));
 
     return 0;
@@ -355,6 +366,7 @@ int8_t SLUGmaker_ToolBarPressed(SLUGmaker_Menu *menu)
     SLUGmaker_ToolBar *toolbar = (SLUGmaker_ToolBar *) menu; 
     
     SLUGmaker_ButtonPressed(&(toolbar->save), true);
+    SLUGmaker_ButtonPressed(&(toolbar->exprt), true);
     GuiSetStyle(COMBOBOX, COMBO_BUTTON_WIDTH, 50);
     SLUGmaker_ComboBoxPressed(&(toolbar->styles), true);
 

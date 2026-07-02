@@ -20,12 +20,12 @@ SLUGmaker_map* SLUGmaker_OpenNewMapFileDialog(SLUGmaker_map *map, SLUGmaker_came
 	char *tempFolderName = tinyfd_selectFolderDialog("Open map directory" ,NULL);
 	if(tempFolderName != NULL)
 	{
-		printf("Open map.\n");
+		SLUGmaker_WriteLog("Open map.\n");
 		strncpy(map_file_name,tempFolderName,255);
 		SLUGmaker_map *map2 = SLUGmaker_LoadMap(map_file_name);
 		if(map2 == NULL)
 		{
-			printf("Could not open map.\n");
+			SLUGmaker_WriteLog("Could not open map.\n");
 			return map;
 		}
 		else
@@ -94,13 +94,13 @@ int main(int argc, char *argv[])
     
     if(SLUGmaker_GraphicInit() != 0)
     {
-        printf("Graphic initalization fail.\n");
+        SLUGmaker_WriteLog("Graphic initalization fail.\n");
         return 1;
     }
     
     if(SLUGmaker_MenuInit() != 0)
     {
-        printf("Menu initalization fail.\n");
+        SLUGmaker_WriteLog("Menu initalization fail.\n");
         return 1;
     }
         
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     SLUGmaker_map *map = SLUGmaker_NewMap(3360, 2100);
     if(map == NULL)
     {
-        printf("Map initialization fail.\n");
+        SLUGmaker_WriteLog("Map initialization fail.\n");
         return 1;
     }
     
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 	
 	if(SLUGmaker_GeneralMenuDevLoad((void *) map) == -1)
 	{
-		printf("Error while loading general menu");
+		SLUGmaker_WriteLog("Error while loading general menu");
 		return -1;
 	}
 
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
         {
         	SLUGmaker_map *buff = SLUGmaker_OpenNewMapFileDialog(map, &cam);
 			if(buff == map)
-                printf("Load Error.\n");
+                SLUGmaker_WriteLog("Load Error.\n");
             else
             	map = buff;  
                 
@@ -173,8 +173,14 @@ int main(int argc, char *argv[])
 
 			if((IsKeyPressed(KEY_S) && IsKeyDown(KEY_LEFT_CONTROL)) || toolbar->save.pressed)
 			{
-				if(SLUGmaker_WriteMap(map) == -1)
-				    printf("Save failure\n");      
+				if(SLUGmaker_SaveMap(map) == -1)
+				    SLUGmaker_WriteLog("Save failure\n");      
+			}
+
+            if((IsKeyPressed(KEY_E) && IsKeyDown(KEY_LEFT_CONTROL)) || toolbar->exprt.pressed)
+			{
+				if(SLUGmaker_ExportMap(map) == -1)
+				    SLUGmaker_WriteLog("Save failure\n");      
 			}
 
 			error = SLUGmaker_ChangeActionMode(map);

@@ -32,7 +32,8 @@ typedef struct SLUGmaker_map SLUGmaker_map;
 struct SLUGmaker_map
 {
 	char map_name[MAX_MAP_CHAR];
-	char map_path[MAX_MAP_CHAR];
+	char saves_path[MAX_MAP_CHAR];
+    char exports_path[MAX_MAP_CHAR];
 
     Rectangle zone;
     
@@ -84,7 +85,6 @@ void SLUGmaker_UnloadMap(SLUGmaker_map *map);
 
 //map walls
 SLUG_SegmentExtended* SLUGmaker_GetSegments(SLUGmaker_map *map); 
-int32_t* SLUGmaker_GetWallsLinks(SLUGmaker_map *map);
 bool SLUGmaker_MapWallsTest(SLUG_SegmentExtended *segs, int32_t seg_size);
 
 //BSPTree
@@ -94,6 +94,7 @@ void SLUG_BSPTreeUnload(SLUG_BSPTree *tree);
 
 //map save
 bool SLUGmaker_CheckSave(SLUGmaker_map *map);
-int8_t SLUGmaker_WriteMap(SLUGmaker_map *map);//TODO:windows
+int8_t SLUGmaker_SaveMap(SLUGmaker_map *map);
+int8_t SLUGmaker_ExportMap(SLUGmaker_map *map);
 
 #endif

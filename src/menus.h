@@ -124,6 +124,7 @@ struct SLUGmaker_ToolBar
     Rectangle style_label_zone;
     
     SLUGmaker_Button save;
+    SLUGmaker_Button exprt;
     SLUGmaker_ComboBox styles;
 };
 

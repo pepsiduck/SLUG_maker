@@ -13,6 +13,7 @@ struct SLUG_SegmentExtended
     Vector2 B;
     Vector2 normal; //||norm|| = 1
     float dist; //distance de la droite représentée par le segment par rapport à 0, 0
+    uint64_t flag;
 };
 
 typedef struct SLUGmaker_SegmentExtended SLUGmaker_SegmentExtended;
@@ -21,10 +22,12 @@ struct SLUGmaker_SegmentExtended
     Vector2 A; 
     Vector2 B;
     Vector2 normal; //||norm|| = 1
-    Vector2 middlepoint;
-    SLUGmaker_SegmentExtended *next;
-    bool exists;
     uint64_t flag;
+
+    Vector2 middlepoint;
+    int16_t next;
+    bool exists;
+    
 };
 
 float GetSegmentExtendedSide(SLUG_SegmentExtended *seg, Vector2 *p);
